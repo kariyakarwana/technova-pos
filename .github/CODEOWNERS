@@ -1,0 +1,17 @@
+# Default owner for the entire repository
+* @kariyakarwana
+
+# Architecture and configuration
+/src/config/ @kariyakarwana
+/docs/architecture/ @kariyakarwana
+
+# Database
+/prisma/ @kariyakarwana
+
+# GitHub / CI-CD
+/.github/ @kariyakarwana
+
+# Authentication and security
+/src/modules/auth/ @kariyakarwana
+/src/lib/auth/ @kariyakarwana
+/src/lib/security/ @kariyakarwana
