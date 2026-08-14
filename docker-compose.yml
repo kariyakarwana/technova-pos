@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: technova-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: technova_pos
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - technova_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U technova -d technova_pos"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  technova_postgres_data:
