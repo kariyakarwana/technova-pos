@@ -3,7 +3,7 @@ import {
   Prisma,
   TokenPurpose,
   UserStatus,
-} from "@/generated/prisma";
+} from "@prisma/client";
 
 import { prisma } from "@/lib/db/prisma";
 
@@ -318,7 +318,8 @@ export class AuthRepository {
     identityHash: string;
     ipHash: string;
     since: Date;
-  }): Promise<RateLimitCounts> {
+    successful?: boolean;
+    }): Promise<RateLimitCounts> {
     const [
       identityAttempts,
       ipAttempts,
@@ -328,6 +329,8 @@ export class AuthRepository {
           action: input.action,
           identityHash:
             input.identityHash,
+          successful:
+            input.successful,
           createdAt: {
             gte: input.since,
           },
@@ -338,6 +341,8 @@ export class AuthRepository {
         where: {
           action: input.action,
           ipHash: input.ipHash,
+           successful:
+          input.successful,
           createdAt: {
             gte: input.since,
           },

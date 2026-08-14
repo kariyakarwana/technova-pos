@@ -1,6 +1,6 @@
 import type {
   UserStatus,
-} from "@/generated/prisma";
+} from "@prisma/client";
 
 export type AuthenticationProvider =
   | "credentials"
@@ -173,4 +173,26 @@ export type PasswordResetRequestResult = {
 
 export const initialAuthActionState: AuthActionState = {
   status: "idle",
+};
+
+
+export type TokenDelivery = {
+  email: string;
+  rawToken: string;
+  expiresAt: Date;
+};
+
+export type GenericRequestResult = {
+  accepted: true;
+  delivery?: TokenDelivery;
+};
+
+export type GoogleProfileInput = {
+  email: string;
+  emailVerified: boolean;
+};
+
+export type AccountProvisionResult = {
+  user: SafeAuthUser;
+  delivery: TokenDelivery;
 };

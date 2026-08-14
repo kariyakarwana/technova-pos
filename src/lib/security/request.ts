@@ -59,15 +59,10 @@ export function hashClientIp(
   ipAddress: string,
   secret = process.env.AUTH_SECRET,
 ): string {
-  if (!secret) {
-    throw new Error(
-      "AUTH_SECRET is required to hash client IP addresses.",
-    );
-  }
-
-  return createHmac("sha256", secret)
-    .update(ipAddress, "utf8")
-    .digest("hex");
+  return hashSensitiveIdentifier(
+    ipAddress,
+    secret,
+  );
 }
 
 /**
@@ -103,11 +98,50 @@ export function extractUserAgent(
  * Route Handler or Server Component.
  */
 export async function getSecurityRequestContext(): Promise<SecurityRequestContext> {
-  const requestHeaders = await headers();
-  const ipAddress = extractClientIp(requestHeaders);
+  const requestHeaders =
+    await headers();
+
+  return getSecurityRequestContextFromHeaders(
+    requestHeaders,
+  );
+}
+
+
+/**
+ * Produces a keyed, non-reversible identifier.
+ *
+ * Use this for email addresses, usernames and other identifiers
+ * stored in rate-limit records.
+ */
+export function hashSensitiveIdentifier(
+  value: string,
+  secret = process.env.AUTH_SECRET,
+): string {
+  if (!secret) {
+    throw new Error(
+      "AUTH_SECRET is required to hash sensitive identifiers.",
+    );
+  }
+
+  return createHmac("sha256", secret)
+    .update(value, "utf8")
+    .digest("hex");
+}
+
+
+export function getSecurityRequestContextFromHeaders(
+  requestHeaders: Headers,
+): SecurityRequestContext {
+  const ipAddress =
+    extractClientIp(requestHeaders);
 
   return {
-    ipHash: hashClientIp(ipAddress),
-    userAgent: extractUserAgent(requestHeaders),
+    ipHash:
+      hashClientIp(ipAddress),
+
+    userAgent:
+      extractUserAgent(
+        requestHeaders,
+      ),
   };
 }

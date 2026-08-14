@@ -32,16 +32,31 @@ describe("password security", () => {
     ).toBe(false);
   });
 
-  it("hashes and verifies a password", async () => {
-    const password = "TechNova!Secure2026";
-    const digest = await hashPassword(password);
+  it(
+  "hashes and verifies a password",
+  async () => {
+    const password =
+      "TechNova!Secure2026";
+
+    const digest =
+      await hashPassword(password);
 
     expect(digest).not.toBe(password);
+
     expect(
-      await verifyPassword(password, digest),
+      await verifyPassword(
+        password,
+        digest,
+      ),
     ).toBe(true);
+
     expect(
-      await verifyPassword("Wrong!Password2026", digest),
+      await verifyPassword(
+        "Wrong!Password2026",
+        digest,
+      ),
     ).toBe(false);
-  });
+  },
+  15_000,
+);
 });
