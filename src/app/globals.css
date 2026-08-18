@@ -117,18 +117,12 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
-@theme {
-  --font-sans: var(--font-noto-sans), sans-serif;
-}
-
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground;
-    background-color: white;
-    font-family: var(--font-noto-sans), sans-serif; /* මෙතැනට හරියටම ෆොන්ට් වේරියබල් එක දෙන්න */
   }
   html {
     @apply font-sans;

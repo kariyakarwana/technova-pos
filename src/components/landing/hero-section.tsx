@@ -1,9 +1,21 @@
-"use client";
-
-import Link from "next/link";
 import Image from "next/image";
-import { Leaf, ArrowRight, Play, Store, Calculator, Sparkles, LayoutGrid, CheckCircle2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import Link from "next/link";
+
+import {
+  ArrowRight,
+  Calculator,
+  CheckCircle2,
+  LayoutGrid,
+  Leaf,
+  Play,
+  Sparkles,
+  Store,
+} from "lucide-react";
+
+import {
+  Button,
+} from "@/components/ui/button";
+
 
 export default function HeroSection() {
   return (

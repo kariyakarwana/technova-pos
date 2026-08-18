@@ -1,20 +1,18 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono, Noto_Sans } from "next/font/google";
+import type {
+  Metadata,
+} from "next";
+
+import {
+  Geist,
+  Geist_Mono,
+  Noto_Sans,
+} from "next/font/google";
+
 import "./globals.css";
-import Footer from "@/components/footer";
-import Navbar from "@/components/navbar";
-import "tailwindcss";
-import "shadcn/tailwind.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
-});
-
-const notoSans = Noto_Sans({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-noto-sans",
 });
 
 const geistMono = Geist_Mono({
@@ -22,26 +20,51 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const notoSans = Noto_Sans({
+  variable: "--font-noto-sans",
+  subsets: ["latin"],
+  weight: [
+    "400",
+    "500",
+    "600",
+    "700",
+    "800",
+  ],
+});
+
 export const metadata: Metadata = {
-  title: "TechNova POS System",
-  description: "Smart POS Solutions",
+  title: {
+    default:
+      "TechNova POS System",
+
+    template:
+      "%s | TechNova POS",
+  },
+
+  description:
+    "Intelligent point-of-sale, inventory and retail management for modern businesses.",
+};
+
+type RootLayoutProps = {
+  children: React.ReactNode;
 };
 
 export default function RootLayout({
   children,
-}: {
-  children: React.ReactNode;
-}) {
+}: RootLayoutProps) {
   return (
     <html
-      lang="si"
-   
-      className={`${geistSans.variable} ${notoSans.variable} ${geistMono.variable} h-full antialiased`}
+      lang="en"
+      className={`
+        ${geistSans.variable}
+        ${geistMono.variable}
+        ${notoSans.variable}
+        h-full
+        antialiased
+      `}
     >
-      <body className="min-h-full flex flex-col font-sans">
-        <Navbar />
-        <main className="flex-1">{children}</main>
-        <Footer />
+      <body className="min-h-full bg-white font-sans text-slate-900">
+        {children}
       </body>
     </html>
   );
