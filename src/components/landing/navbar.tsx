@@ -24,12 +24,12 @@ export default function Navbar() {
                     <Link href="/" className="flex items-center gap-3 shrink-0">
                         <div className="relative flex items-center">
                             <Image
-                                src="/TechNova.svg"
-                                alt="TechNova Logo"
-                                width={200}
-                                height={32}
-                                className="object-contain w-36 sm:w-48 lg:w-[200px] h-auto"
-                                priority
+                            src="/technova-logo.svg"
+                            alt="TechNova"
+                            width={200}
+                            height={48}
+                            className="h-auto w-36 object-contain sm:w-48 lg:w-[200px]"
+                            priority
                             />
                         </div>
                     </Link>
@@ -59,14 +59,15 @@ export default function Navbar() {
 
 
                 <div className="hidden md:flex items-center gap-4 shrink-0">
+                    <Button
+                    asChild
+                    variant="outline"
+                    className="border-teal-600 px-5 py-5 text-sm font-semibold text-teal-600 hover:bg-teal-50 lg:text-base"
+                    >
                     <Link href="/login">
-                        <Button
-                            variant="outline"
-                            className="border-teal-600 text-teal-600 hover:bg-teal-50 font-sans cursor-pointer px-5 py-5 text-sm lg:text-base font-semibold"
-                        >
-                            Login
-                        </Button>
+                        Login
                     </Link>
+                    </Button>
 
                     <Link href="/register">
                         <Button
@@ -113,14 +114,20 @@ export default function Navbar() {
                     </Link>
 
                     <div className="flex flex-col gap-3 pt-4 border-t border-slate-100">
-                        <Link href="/login" onClick={() => setIsOpen(false)}>
-                            <Button
-                                variant="outline"
-                                className="w-full border-teal-600 text-teal-600 hover:bg-teal-50 font-sans cursor-pointer py-3 text-base font-semibold"
-                            >
-                                Login
-                            </Button>
+                        <Button
+                        asChild
+                        variant="outline"
+                        className="w-full border-teal-600 py-3 text-base font-semibold text-teal-600 hover:bg-teal-50"
+                        >
+                        <Link
+                            href="/login"
+                            onClick={() =>
+                            setIsOpen(false)
+                            }
+                        >
+                            Login
                         </Link>
+                        </Button>
 
                         <Link href="/register" onClick={() => setIsOpen(false)}>
                             <Button

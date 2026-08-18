@@ -1,28 +1,24 @@
-"use client";
-
 import Image from "next/image";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
 
 import {
-    Store,
-    Users,
-    RefreshCw,
-    Truck,
-    ClipboardCheck,
-    PackageCheck,
-    LineChart,
-    CreditCard,
-    RotateCcw,
-    Award,
-    Bot,
-    TrendingUp,
-    Radio,
-    Lightbulb,
-    WifiOff,
-    Database,
-    ShieldCheck,
-    CheckCircle2,
+  Award,
+  Bot,
+  CheckCircle2,
+  ClipboardCheck,
+  CreditCard,
+  Database,
+  Lightbulb,
+  LineChart,
+  PackageCheck,
+  Radio,
+  RefreshCw,
+  RotateCcw,
+  ShieldCheck,
+  Store,
+  TrendingUp,
+  Truck,
+  Users,
+  WifiOff,
 } from "lucide-react";
 
 export default function FeaturesPage() {
