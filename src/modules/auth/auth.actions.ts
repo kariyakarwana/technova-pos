@@ -16,6 +16,8 @@ import {
 
 import {
   forgotPasswordSchema,
+  loginSchema,
+  passwordResetOtpSchema,
   resendVerificationSchema,
   resetPasswordSchema,
   verifyEmailSchema,
@@ -27,7 +29,13 @@ import {
 
 import type {
   AuthActionState,
+  ForgotPasswordActionData,
+  VerifyPasswordResetOtpActionData,
 } from "./auth.types";
+
+import {
+  generateRawToken,
+} from "@/lib/security/token";
 
 import {
   AuthError,
@@ -37,10 +45,6 @@ import {
   signIn,
   signOut,
 } from "@/auth";
-
-import {
-  loginSchema,
-} from "./auth.schema";
 
 function getFieldErrors(
   error: z.ZodError,
@@ -104,23 +108,37 @@ async function deliverVerificationEmail(
 }
 
 export async function forgotPasswordAction(
-  _previousState: AuthActionState,
+  _previousState:
+    AuthActionState<
+      ForgotPasswordActionData
+    >,
+
   formData: FormData,
-): Promise<AuthActionState> {
+): Promise<
+  AuthActionState<
+    ForgotPasswordActionData
+  >
+> {
   const parsed =
     forgotPasswordSchema.safeParse({
-      email: formData.get("email"),
+      email:
+        formData.get("email"),
     });
 
   /*
-   * Even malformed email input receives a generic response.
-   * This keeps the forgot-password endpoint enumeration-safe.
+   * Return the same public response shape even for malformed input.
    */
   if (!parsed.success) {
     return {
-      status: "success",
+      status: "error",
+
       message:
-        "If an eligible account exists, a password-reset link has been sent.",
+        "Enter a valid email address.",
+
+      fieldErrors:
+        getFieldErrors(
+          parsed.error,
+        ),
     };
   }
 
@@ -131,7 +149,9 @@ export async function forgotPasswordAction(
     const result =
       await authService
         .requestPasswordReset({
-          email: parsed.data.email,
+          email:
+            parsed.data.email,
+
           context,
         });
 
@@ -141,16 +161,22 @@ export async function forgotPasswordAction(
 
     return {
       status: "success",
+
       message:
-        "If an eligible account exists, a password-reset link has been sent.",
+        "If an eligible account exists, a verification code has been sent.",
+
+      data: {
+        challengeToken:
+          result.challengeToken,
+      },
     };
   } catch (error) {
     /*
-     * Do not return a different response for:
-     * - Unknown account
-     * - Inactive account
-     * - Rate-limited request
-     * - Email delivery failure
+     * Do not reveal:
+     * - Account existence
+     * - Account status
+     * - Rate-limit state
+     * - SMTP delivery failures
      */
     console.error(
       "Password-reset request failed.",
@@ -159,8 +185,91 @@ export async function forgotPasswordAction(
 
     return {
       status: "success",
+
       message:
-        "If an eligible account exists, a password-reset link has been sent.",
+        "If an eligible account exists, a verification code has been sent.",
+
+      data: {
+        challengeToken:
+          generateRawToken(),
+      },
+    };
+  }
+}
+
+export async function verifyPasswordResetOtpAction(
+  _previousState:
+    AuthActionState<
+      VerifyPasswordResetOtpActionData
+    >,
+
+  formData: FormData,
+): Promise<
+  AuthActionState<
+    VerifyPasswordResetOtpActionData
+  >
+> {
+  const parsed =
+    passwordResetOtpSchema.safeParse({
+      challengeToken:
+        formData.get(
+          "challengeToken",
+        ),
+
+      otp:
+        formData.get("otp"),
+    });
+
+  if (!parsed.success) {
+    return {
+      status: "error",
+
+      message:
+        "Enter the six-digit code.",
+
+      fieldErrors:
+        getFieldErrors(
+          parsed.error,
+        ),
+    };
+  }
+
+  try {
+    const context =
+      await getSecurityRequestContext();
+
+    const result =
+      await authService
+        .verifyPasswordResetOtp({
+          challengeToken:
+            parsed.data
+              .challengeToken,
+
+          otp:
+            parsed.data.otp,
+
+          context,
+        });
+
+    return {
+      status: "success",
+
+      message:
+        "Code verified. Create your new password.",
+
+      data: {
+        resetToken:
+          result.resetToken,
+      },
+    };
+  } catch (error) {
+    return {
+      status: "error",
+
+      message:
+        getPublicAuthErrorMessage(
+          error,
+        ),
     };
   }
 }
@@ -384,3 +493,4 @@ export async function googleSignInAction(): Promise<void> {
     redirectTo: "/dashboard",
   });
 }
+

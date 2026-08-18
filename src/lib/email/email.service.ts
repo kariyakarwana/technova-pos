@@ -8,6 +8,7 @@ import type {
 } from "./email.types";
 
 import type {
+  PasswordResetOtpDelivery,
   TokenDelivery,
 } from "@/modules/auth/auth.types";
 
@@ -63,14 +64,8 @@ function createAuthenticationUrl(
 }
 
 function buildPasswordResetMessage(
-  delivery: TokenDelivery,
+  delivery: PasswordResetOtpDelivery,
 ): EmailMessage {
-  const resetUrl =
-    createAuthenticationUrl(
-      "/reset-password",
-      delivery.rawToken,
-    );
-
   const expiryText =
     delivery.expiresAt.toISOString();
 
@@ -78,17 +73,16 @@ function buildPasswordResetMessage(
     to: delivery.email,
 
     subject:
-      "Reset your TechNova POS password",
+      "Your TechNova POS password reset code",
 
     text: [
       "A password reset was requested for your TechNova POS account.",
       "",
-      `Open this link to reset your password:`,
-      resetUrl,
+      `Your verification code is: ${delivery.otp}`,
       "",
-      `This link expires at ${expiryText}.`,
+      `This code expires at ${expiryText}.`,
       "",
-      "If you did not request this reset, you can ignore this email.",
+      "If you did not request this reset, ignore this email.",
     ].join("\n"),
 
     html: `
@@ -98,34 +92,30 @@ function buildPasswordResetMessage(
         </h1>
 
         <p>
-          A password reset was requested for your
-          TechNova POS account.
+          Enter this verification code in TechNova POS:
         </p>
 
-        <p>
-          <a
-            href="${resetUrl}"
-            style="
-              display:inline-block;
-              padding:12px 20px;
-              border-radius:8px;
-              background:#176bff;
-              color:#ffffff;
-              text-decoration:none;
-              font-weight:700;
-            "
-          >
-            Reset password
-          </a>
-        </p>
+        <div style="
+          margin:24px 0;
+          padding:16px;
+          border-radius:10px;
+          background:#f0fdfa;
+          color:#0f766e;
+          font-size:32px;
+          font-weight:700;
+          letter-spacing:10px;
+          text-align:center;
+        ">
+          ${delivery.otp}
+        </div>
 
         <p>
-          This link expires at ${expiryText}.
+          This code expires at ${expiryText}.
         </p>
 
         <p>
           If you did not request this reset,
-          you can ignore this email.
+          ignore this email.
         </p>
       </div>
     `,
@@ -312,8 +302,9 @@ export class NodemailerAuthEmailDelivery
     });
   }
 
-  async sendPasswordResetEmail(
-    delivery: TokenDelivery,
+    async sendPasswordResetEmail(
+    delivery:
+      PasswordResetOtpDelivery,
   ): Promise<void> {
     await this.send(
       buildPasswordResetMessage(

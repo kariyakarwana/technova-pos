@@ -1,4 +1,5 @@
 import type {
+  PasswordResetOtpDelivery,
   TokenDelivery,
 } from "@/modules/auth/auth.types";
 
@@ -11,10 +12,12 @@ export type EmailMessage = {
 
 export interface AuthEmailDelivery {
   sendPasswordResetEmail(
-    delivery: TokenDelivery,
+    delivery:
+      PasswordResetOtpDelivery,
   ): Promise<void>;
 
   sendVerificationEmail(
-    delivery: TokenDelivery,
+    delivery:
+      TokenDelivery,
   ): Promise<void>;
 }

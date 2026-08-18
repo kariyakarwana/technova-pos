@@ -22,7 +22,10 @@ export type AuthenticationAuditAction =
   | "AUTH_PASSWORD_CHANGED"
   | "AUTH_GOOGLE_LOGIN_SUCCESS"
   | "AUTH_GOOGLE_LOGIN_REJECTED"
-  | "AUTH_PERMISSION_DENIED";
+  | "AUTH_PERMISSION_DENIED"
+  | "AUTH_PASSWORD_RESET_OTP_SENT"
+  | "AUTH_PASSWORD_RESET_OTP_VERIFIED"
+  | "AUTH_PASSWORD_RESET_OTP_REJECTED";
 
 /**
  * Safe role representation used outside the repository.
@@ -195,4 +198,28 @@ export type GoogleProfileInput = {
 export type AccountProvisionResult = {
   user: SafeAuthUser;
   delivery: TokenDelivery;
+};
+
+export type PasswordResetOtpDelivery = {
+  email: string;
+  otp: string;
+  expiresAt: Date;
+};
+
+export type PasswordResetOtpRequestResult = {
+  accepted: true;
+  challengeToken: string;
+  delivery?: PasswordResetOtpDelivery;
+};
+
+export type PasswordResetOtpVerificationResult = {
+  resetToken: string;
+};
+
+export type VerifyPasswordResetOtpActionData = {
+  resetToken: string;
+};
+
+export type ForgotPasswordActionData = {
+  challengeToken: string;
 };

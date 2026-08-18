@@ -195,6 +195,11 @@ model SecurityToken {
   usedAt    DateTime?
   createdAt DateTime     @default(now())
 
+  // Password-reset OTP support
+  otpHash      String?
+  attemptCount Int       @default(0)
+  verifiedAt   DateTime?
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, purpose])

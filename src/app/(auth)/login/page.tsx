@@ -12,8 +12,11 @@ import {
 
 import {
   LoginForm,
-  GoogleLoginButton,
 } from "@/components/auth/login-form";
+
+import {
+  GoogleButton,
+} from "@/components/auth/google-button";
 
 export const metadata: Metadata = {
   title: "Sign in | TechNova POS",
@@ -100,7 +103,7 @@ export default async function LoginPage() {
         <div className="h-px flex-1 bg-slate-200" />
         </div>
 
-        <GoogleLoginButton />
+        <GoogleButton />
           </div>
 
           <p className="mt-6 text-center text-sm text-slate-500">

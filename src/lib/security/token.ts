@@ -1,6 +1,8 @@
 import {
   createHash,
+  createHmac,
   randomBytes,
+  randomInt,
   timingSafeEqual,
 } from "node:crypto";
 
@@ -101,4 +103,79 @@ export function compareTokenHashes(
   } catch {
     return false;
   }
+}
+
+export const PASSWORD_RESET_OTP_LENGTH = 6;
+
+export const PASSWORD_RESET_OTP_LIFETIME_MS =
+  10 * 60 * 1000;
+
+export const PASSWORD_RESET_GRANT_LIFETIME_MS =
+  10 * 60 * 1000;
+
+export type GeneratedPasswordResetOtp = {
+  challengeToken: string;
+  challengeHash: string;
+  otp: string;
+  otpHash: string;
+  expiresAt: Date;
+};
+
+function getOtpPepper(): string {
+  const pepper =
+    process.env.AUTH_OTP_PEPPER?.trim();
+
+  if (!pepper) {
+    throw new Error(
+      "AUTH_OTP_PEPPER is required.",
+    );
+  }
+
+  return pepper;
+}
+
+export function generateOtp(): string {
+  return randomInt(0, 1_000_000)
+    .toString()
+    .padStart(
+      PASSWORD_RESET_OTP_LENGTH,
+      "0",
+    );
+}
+
+export function hashOtp(
+  challengeToken: string,
+  otp: string,
+): string {
+  return createHmac(
+    "sha256",
+    getOtpPepper(),
+  )
+    .update(
+      `${challengeToken}:${otp}`,
+      "utf8",
+    )
+    .digest("hex");
+}
+
+export function createPasswordResetOtp(
+  now = new Date(),
+): GeneratedPasswordResetOtp {
+  const challengeToken =
+    generateRawToken();
+
+  const otp = generateOtp();
+
+  return {
+    challengeToken,
+    challengeHash:
+      hashToken(challengeToken),
+    otp,
+    otpHash:
+      hashOtp(challengeToken, otp),
+    expiresAt: new Date(
+      now.getTime() +
+        PASSWORD_RESET_OTP_LIFETIME_MS,
+    ),
+  };
 }

@@ -1,6 +1,18 @@
+import {
+  redirect,
+} from "next/navigation";
+
 import type {
   Metadata,
 } from "next";
+
+import {
+  AuthLayout,
+} from "@/components/auth/AuthLayout";
+
+import {
+  ResetPasswordForm,
+} from "@/components/auth/reset-password-form";
 
 export const metadata: Metadata = {
   title:
@@ -20,19 +32,15 @@ export default async function ResetPasswordPage({
     token,
   } = await searchParams;
 
-  return (
-    <main>
-      <h1>Reset password</h1>
+  if (!token) {
+    redirect("/forgot-password");
+  }
 
-      {token ? (
-        <p>
-          Reset token received. The password form will be added next.
-        </p>
-      ) : (
-        <p>
-          This password-reset link is invalid.
-        </p>
-      )}
-    </main>
+  return (
+    <AuthLayout>
+      <ResetPasswordForm
+        token={token}
+      />
+    </AuthLayout>
   );
 }

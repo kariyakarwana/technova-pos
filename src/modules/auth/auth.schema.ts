@@ -190,6 +190,26 @@ export const changePasswordSchema = z
     },
   );
 
+
+  export const passwordResetOtpSchema =
+  z.object({
+    challengeToken: tokenSchema,
+
+    otp: z
+      .string()
+      .trim()
+      .regex(
+        /^\d{6}$/,
+        "Enter the six-digit code.",
+      ),
+  });
+
+export const resendPasswordResetOtpSchema =
+  z.object({
+    email: emailSchema,
+  });
+
+
 /**
  * Inferred types ensure UI, actions and service methods all use
  * the same validated input contracts.
@@ -221,3 +241,8 @@ export type ProvisionUserInput = z.infer<
 export type ChangePasswordInput = z.infer<
   typeof changePasswordSchema
 >;
+
+export type PasswordResetOtpInput =
+  z.infer<
+    typeof passwordResetOtpSchema
+  >;

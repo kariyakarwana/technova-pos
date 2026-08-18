@@ -379,6 +379,7 @@ export class AuthRepository {
     userId: string;
     purpose: TokenPurpose;
     tokenHash: string;
+    otpHash?: string;
     expiresAt: Date;
   }): Promise<SecurityTokenRecord> {
     const token = await prisma.$transaction(
@@ -402,7 +403,10 @@ export class AuthRepository {
             userId: input.userId,
             purpose: input.purpose,
             tokenHash: input.tokenHash,
+            otpHash: input.otpHash,
             expiresAt: input.expiresAt,
+            attemptCount: 0,
+            verifiedAt: null,
           },
 
           select: {
@@ -417,6 +421,105 @@ export class AuthRepository {
     );
 
     return mapSecurityToken(token);
+  }
+
+  async verifyPasswordResetOtp(input: {
+    challengeHash: string;
+    otpHash: string;
+    resetTokenHash: string;
+    resetTokenExpiresAt: Date;
+    now?: Date;
+  }): Promise<string | null> {
+    const now = input.now ?? new Date();
+
+    return prisma.$transaction(
+      async (transaction) => {
+        const token =
+          await transaction.securityToken.findFirst({
+            where: {
+              tokenHash:
+                input.challengeHash,
+
+              purpose:
+                TokenPurpose.PASSWORD_RESET,
+
+              usedAt: null,
+              verifiedAt: null,
+
+              expiresAt: {
+                gt: now,
+              },
+
+              attemptCount: {
+                lt: 5,
+              },
+            },
+
+            select: {
+              id: true,
+              otpHash: true,
+            },
+          });
+
+        if (!token) {
+          return null;
+        }
+
+        if (
+          token.otpHash !==
+          input.otpHash
+        ) {
+          await transaction.securityToken.update({
+            where: {
+              id: token.id,
+            },
+
+            data: {
+              attemptCount: {
+                increment: 1,
+              },
+            },
+          });
+
+          return null;
+        }
+
+        const verified =
+          await transaction.securityToken.updateMany({
+            where: {
+              id: token.id,
+              usedAt: null,
+              verifiedAt: null,
+
+              expiresAt: {
+                gt: now,
+              },
+
+              attemptCount: {
+                lt: 5,
+              },
+            },
+
+            data: {
+              verifiedAt: now,
+              otpHash: null,
+
+              // Convert the challenge into a reset grant.
+              tokenHash:
+                input.resetTokenHash,
+
+              expiresAt:
+                input.resetTokenExpiresAt,
+            },
+          });
+
+        if (verified.count !== 1) {
+          return null;
+        }
+
+        return token.id;
+      },
+    );
   }
 
   async findValidSecurityToken(input: {
@@ -562,6 +665,11 @@ export class AuthRepository {
               purpose:
                 TokenPurpose.PASSWORD_RESET,
               usedAt: null,
+
+              verifiedAt: {
+                not: null,
+              },
+
               expiresAt: {
                 gt: now,
               },

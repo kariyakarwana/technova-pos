@@ -10,8 +10,11 @@ import {
 
 import {
   createEmailVerificationToken,
+  createPasswordResetOtp,
   createPasswordResetToken,
+  hashOtp,
   hashToken,
+  PASSWORD_RESET_GRANT_LIFETIME_MS,
 } from "@/lib/security/token";
 
 import {
@@ -32,6 +35,8 @@ import type {
   AuthRequestContext,
   GenericRequestResult,
   GoogleProfileInput,
+  PasswordResetOtpRequestResult,
+  PasswordResetOtpVerificationResult,
   SafeAuthUser,
 } from "./auth.types";
 
@@ -356,10 +361,21 @@ export class AuthService {
    * The returned accepted value is always true so the UI does not
    * reveal whether the email exists.
    */
+    /**
+   * Starts a password-reset OTP challenge.
+   *
+   * A challenge token is always returned, including when:
+   * - The email does not exist
+   * - The user is inactive
+   * - The user is suspended
+   * - The email has not been verified
+   *
+   * This prevents account enumeration.
+   */
   async requestPasswordReset(input: {
     email: string;
     context: AuthRequestContext;
-  }): Promise<GenericRequestResult> {
+  }): Promise<PasswordResetOtpRequestResult> {
     const email =
       input.email.trim().toLowerCase();
 
@@ -367,76 +383,209 @@ export class AuthService {
       await this.enforceRateLimit({
         action:
           FORGOT_PASSWORD_ACTION,
+
         identity: email,
         context: input.context,
-        windowMs: REQUEST_WINDOW_MS,
+        windowMs:
+          REQUEST_WINDOW_MS,
+
         identityLimit:
           REQUEST_IDENTITY_LIMIT,
-        ipLimit: REQUEST_IP_LIMIT,
+
+        ipLimit:
+          REQUEST_IP_LIMIT,
       });
 
     await this.recordAttempt({
       action:
         FORGOT_PASSWORD_ACTION,
+
       identityHash,
       context: input.context,
       successful: true,
     });
 
-    const user =
-      await this.repository
-        .findSafeUserByEmail(email);
-
     /*
-     * Always return the same public result for unknown,
-     * inactive, suspended and unverified users.
+     * Create the challenge before checking the user.
+     *
+     * This ensures eligible and ineligible requests both receive
+     * the same shape of public response.
      */
-    if (
-      !user ||
-      user.status !== ACTIVE_STATUS ||
-      !user.emailVerified
-    ) {
-      return {
-        accepted: true,
-      };
-    }
-
     const generated =
-      createPasswordResetToken(
+      createPasswordResetOtp(
         this.now(),
       );
 
-    await this.repository.replaceSecurityToken({
-      userId: user.id,
-      purpose:
-        PASSWORD_RESET_PURPOSE,
-      tokenHash:
-        generated.tokenHash,
-      expiresAt:
-        generated.expiresAt,
-    });
+    const user =
+      await this.repository
+        .findSafeUserByEmail(
+          email,
+        );
 
-    await this.repository.createAuditEvent({
-      action:
-        "AUTH_PASSWORD_RESET_REQUESTED",
-      outcome: "SUCCESS",
-      userId: user.id,
-      context: input.context,
-    });
+    const userIsEligible =
+      user !== null &&
+      user.status ===
+        ACTIVE_STATUS &&
+      user.emailVerified !== null;
+
+    if (!userIsEligible) {
+      /*
+       * Do not store the fake challenge and do not send an email.
+       * The browser still moves to the OTP screen.
+       */
+      return {
+        accepted: true,
+
+        challengeToken:
+          generated.challengeToken,
+      };
+    }
+
+    await this.repository
+      .replaceSecurityToken({
+        userId: user.id,
+
+        purpose:
+          PASSWORD_RESET_PURPOSE,
+
+        /*
+         * The challenge token remains in the browser.
+         * Only its SHA-256 hash is stored.
+         */
+        tokenHash:
+          generated.challengeHash,
+
+        /*
+         * Only the HMAC digest of the six-digit OTP is stored.
+         */
+        otpHash:
+          generated.otpHash,
+
+        expiresAt:
+          generated.expiresAt,
+      });
+
+    await this.repository
+      .createAuditEvent({
+        action:
+          "AUTH_PASSWORD_RESET_OTP_SENT",
+
+        outcome: "SUCCESS",
+        userId: user.id,
+        context: input.context,
+      });
 
     return {
       accepted: true,
 
+      challengeToken:
+        generated.challengeToken,
+
       delivery: {
         email: user.email,
-        rawToken:
-          generated.rawToken,
+        otp: generated.otp,
+
         expiresAt:
           generated.expiresAt,
       },
     };
   }
 
+  /**
+   * Verifies a six-digit password-reset OTP.
+   *
+   * Successful verification converts the OTP challenge into a
+   * high-entropy, short-lived password-reset grant.
+   */
+  async verifyPasswordResetOtp(input: {
+    challengeToken: string;
+    otp: string;
+    context: AuthRequestContext;
+  }): Promise<PasswordResetOtpVerificationResult> {
+    const now = this.now();
+
+    /*
+     * This token is not emailed. It is returned only after the
+     * correct OTP is supplied.
+     */
+    const resetGrant =
+      createPasswordResetToken(now);
+
+    const verifiedTokenId =
+      await this.repository
+        .verifyPasswordResetOtp({
+          challengeHash:
+            hashToken(
+              input.challengeToken,
+            ),
+
+          otpHash:
+            hashOtp(
+              input.challengeToken,
+              input.otp,
+            ),
+
+          resetTokenHash:
+            resetGrant.tokenHash,
+
+          resetTokenExpiresAt:
+            new Date(
+              now.getTime() +
+                PASSWORD_RESET_GRANT_LIFETIME_MS,
+            ),
+
+          now,
+        });
+
+    if (!verifiedTokenId) {
+      await this.repository
+        .createAuditEvent({
+          action:
+            "AUTH_PASSWORD_RESET_OTP_REJECTED",
+
+          outcome: "FAILURE",
+          context: input.context,
+
+          metadata: {
+            reason:
+              "invalid_expired_or_attempt_limit",
+          },
+        });
+
+      throw new AuthDomainError(
+        "TOKEN_INVALID",
+        {
+          publicMessage:
+            "The code is invalid or has expired.",
+
+          statusCode: 400,
+        },
+      );
+    }
+
+    await this.repository
+      .createAuditEvent({
+        action:
+          "AUTH_PASSWORD_RESET_OTP_VERIFIED",
+
+        outcome: "SUCCESS",
+        context: input.context,
+
+        metadata: {
+          securityTokenId:
+            verifiedTokenId,
+        },
+      });
+
+    return {
+      resetToken:
+        resetGrant.rawToken,
+    };
+  }
+
+  /**
+   * Consumes the short-lived reset grant and changes the password.
+   */
   async resetPassword(input: {
     rawToken: string;
     password: string;
@@ -454,16 +603,21 @@ export class AuthService {
           publicMessage:
             validation.errors[0] ??
             "The password is invalid.",
+
           statusCode: 400,
         },
       );
     }
 
     const passwordHash =
-      await hashPassword(input.password);
+      await hashPassword(
+        input.password,
+      );
 
     const tokenHash =
-      hashToken(input.rawToken);
+      hashToken(
+        input.rawToken,
+      );
 
     const userId =
       await this.repository
@@ -474,27 +628,32 @@ export class AuthService {
         });
 
     if (!userId) {
-      await this.repository.createAuditEvent({
-        action:
-          "AUTH_PASSWORD_RESET_COMPLETED",
-        outcome: "FAILURE",
-        context: input.context,
-        metadata: {
-          reason:
-            "invalid_or_expired_token",
-        },
-      });
+      await this.repository
+        .createAuditEvent({
+          action:
+            "AUTH_PASSWORD_RESET_COMPLETED",
+
+          outcome: "FAILURE",
+          context: input.context,
+
+          metadata: {
+            reason:
+              "invalid_or_expired_token",
+          },
+        });
 
       throw new InvalidTokenError();
     }
 
-    await this.repository.createAuditEvent({
-      action:
-        "AUTH_PASSWORD_RESET_COMPLETED",
-      outcome: "SUCCESS",
-      userId,
-      context: input.context,
-    });
+    await this.repository
+      .createAuditEvent({
+        action:
+          "AUTH_PASSWORD_RESET_COMPLETED",
+
+        outcome: "SUCCESS",
+        userId,
+        context: input.context,
+      });
   }
 
   async resendEmailVerification(input: {
