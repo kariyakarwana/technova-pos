@@ -140,12 +140,25 @@ describe("AuthService", () => {
       });
 
     expect(result).toEqual({
-      accepted: true,
-    });
+        accepted: true,
 
-    expect(
-      repository.replaceSecurityToken,
-    ).not.toHaveBeenCalled();
+        challengeToken:
+          expect.any(String),
+      });
+
+      expect(
+        result.challengeToken,
+      ).toMatch(
+        /^[A-Za-z0-9_-]{43}$/,
+      );
+
+      expect(
+        result.delivery,
+      ).toBeUndefined();
+
+      expect(
+        repository.replaceSecurityToken,
+      ).not.toHaveBeenCalled();
   });
 
   it("rejects an invalid password-reset token", async () => {
