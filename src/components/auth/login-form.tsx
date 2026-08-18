@@ -1,161 +1,165 @@
 "use client";
 
-import {
-  useActionState,
-} from "react";
+import { useActionState, useState } from "react";
+import Link from "next/link";
+import { Eye, EyeOff, Mail } from "lucide-react";
 
-import {
-  loginAction,
-} from "@/modules/auth/auth.actions";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { AuthButton } from "@/components/auth/auth-button";
+import { GoogleButton } from "@/components/auth/google-button";
+import { loginAction } from "@/modules/auth/auth.actions";
+import { initialAuthActionState } from "@/modules/auth/auth.types";
 
-import {
-  initialAuthActionState,
-} from "@/modules/auth/auth.types";
-
-import {
-  googleSignInAction,
-} from "@/modules/auth/auth.actions";
-
+/** Login form wired to `loginAction` via `useActionState`. */
 export function LoginForm() {
-  const [
-    state,
-    formAction,
-    isPending,
-  ] = useActionState(
+  const [state, formAction, isPending] = useActionState(
     loginAction,
     initialAuthActionState,
   );
 
+  const [showPassword, setShowPassword] = useState(false);
+
   return (
-    <form
-      action={formAction}
-      className="space-y-5"
-    >
-      {state.message ? (
+    <div>
+      <div className="mb-4">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-600">
+          Welcome Back
+        </p>
+        <h1 className="mt-2 text-[1.6rem] font-bold leading-tight tracking-tight text-slate-900">
+          Sign in to your account
+        </h1>
+        <p className="mt-1.5 text-sm text-slate-500">
+          Enter your credentials to access TechNova POS.
+        </p>
+      </div>
+
+      {state.status === "error" && state.message ? (
         <div
           role="alert"
-          className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+          className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
         >
           {state.message}
         </div>
       ) : null}
 
-      <div className="space-y-2">
-        <label
-          htmlFor="email"
-          className="block text-sm font-semibold text-slate-700"
-        >
-          Email address
-        </label>
+      <form action={formAction} className="space-y-3" noValidate>
+        <div className="space-y-1.5">
+          <Label
+            htmlFor="login-email"
+            className="text-sm font-medium text-slate-700"
+          >
+            Email
+            <span className="ml-0.5 text-red-500" aria-hidden="true">
+              *
+            </span>
+          </Label>
 
-        <input
-          id="email"
-          name="email"
-          type="email"
-          autoComplete="email"
-          required
-          disabled={isPending}
-          placeholder="admin@example.com"
-          className="w-full rounded-lg border border-slate-300 px-4 py-3 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-slate-100"
-        />
+          <div className="relative">
+            <Input
+              id="login-email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              required
+              disabled={isPending}
+              placeholder="you@company.com"
+              aria-invalid={
+                state.fieldErrors?.email !== undefined ? true : undefined
+              }
+              className="h-10 rounded-lg border-slate-200 bg-white pr-10 pl-3.5 text-sm placeholder:text-slate-400 focus-visible:border-emerald-500 focus-visible:ring-emerald-500/25"
+            />
 
-        {state.fieldErrors?.email?.map(
-          (message) => (
-            <p
-              key={message}
-              className="text-sm text-red-600"
-            >
+            <Mail
+              size={15}
+              aria-hidden="true"
+              className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-slate-400"
+            />
+          </div>
+
+          {state.fieldErrors?.email?.map((message) => (
+            <p key={message} className="text-xs text-red-600">
               {message}
             </p>
-          ),
-        )}
-      </div>
+          ))}
+        </div>
 
-      <div className="space-y-2">
-        <label
-          htmlFor="password"
-          className="block text-sm font-semibold text-slate-700"
-        >
-          Password
-        </label>
+        <div className="space-y-1.5">
+          <Label
+            htmlFor="login-password"
+            className="text-sm font-medium text-slate-700"
+          >
+            Password
+            <span className="ml-0.5 text-red-500" aria-hidden="true">
+              *
+            </span>
+          </Label>
 
-        <input
-          id="password"
-          name="password"
-          type="password"
-          autoComplete="current-password"
-          required
-          disabled={isPending}
-          placeholder="Enter your password"
-          className="w-full rounded-lg border border-slate-300 px-4 py-3 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-slate-100"
-        />
+          <div className="relative">
+            <Input
+              id="login-password"
+              name="password"
+              type={showPassword ? "text" : "password"}
+              autoComplete="current-password"
+              required
+              disabled={isPending}
+              placeholder="Enter your password"
+              aria-invalid={
+                state.fieldErrors?.password !== undefined ? true : undefined
+              }
+              className="h-10 rounded-lg border-slate-200 bg-white pr-10 pl-3.5 text-sm placeholder:text-slate-400 focus-visible:border-emerald-500 focus-visible:ring-emerald-500/25"
+            />
 
-        {state.fieldErrors?.password?.map(
-          (message) => (
-            <p
-              key={message}
-              className="text-sm text-red-600"
+            <button
+              type="button"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              onClick={() => setShowPassword((prev) => !prev)}
+              disabled={isPending}
+              className="absolute top-1/2 right-0 -translate-y-1/2 flex items-center px-3 text-slate-400 transition hover:text-slate-600 focus-visible:outline-none disabled:pointer-events-none"
             >
+              {showPassword ? (
+                <EyeOff size={15} aria-hidden="true" />
+              ) : (
+                <Eye size={15} aria-hidden="true" />
+              )}
+            </button>
+          </div>
+
+          {state.fieldErrors?.password?.map((message) => (
+            <p key={message} className="text-xs text-red-600">
               {message}
             </p>
-          ),
-        )}
-      </div>
+          ))}
+        </div>
 
-      <button
-        type="submit"
-        disabled={isPending}
-        className="flex w-full items-center justify-center rounded-lg bg-blue-600 px-4 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-400"
-      >
-        {isPending
-          ? "Signing in..."
-          : "Sign in"}
-      </button>
-    </form>
-  );
-}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id="login-remember"
+              name="remember"
+              className="data-checked:border-emerald-600 data-checked:bg-emerald-600"
+            />
+            <Label
+              htmlFor="login-remember"
+              className="cursor-pointer text-sm font-normal text-slate-600"
+            >
+              Remember Me
+            </Label>
+          </div>
 
-export function GoogleLoginButton() {
-  return (
-    <form
-      action={googleSignInAction}
-      className="mt-4"
-    >
-      <button
-        type="submit"
-        className="flex w-full items-center justify-center gap-3 rounded-lg border border-slate-300 bg-white px-4 py-3 font-semibold text-slate-700 transition hover:bg-slate-50"
-      >
-        <GoogleIcon />
-        Continue with Google
-      </button>
-    </form>
-  );
-}
+          <Link
+            href="/forgot-password"
+            className="rounded text-sm font-medium text-emerald-600 hover:text-emerald-700 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+          >
+            Forgot Password?
+          </Link>
+        </div>
 
-function GoogleIcon() {
-  return (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-    >
-      <path
-        fill="#4285F4"
-        d="M21.6 12.23c0-.71-.06-1.4-.18-2.07H12v3.92h5.38a4.6 4.6 0 0 1-2 3.02v2.54h3.24c1.9-1.75 2.98-4.33 2.98-7.41Z"
-      />
-      <path
-        fill="#34A853"
-        d="M12 22c2.7 0 4.97-.9 6.63-2.42l-3.24-2.54c-.9.6-2.05.96-3.39.96-2.61 0-4.82-1.76-5.61-4.13H3.04v2.62A10 10 0 0 0 12 22Z"
-      />
-      <path
-        fill="#FBBC05"
-        d="M6.39 13.87A6 6 0 0 1 6.08 12c0-.65.11-1.28.31-1.87V7.51H3.04A10 10 0 0 0 2 12c0 1.61.39 3.14 1.04 4.49l3.35-2.62Z"
-      />
-      <path
-        fill="#EA4335"
-        d="M12 6c1.47 0 2.79.51 3.83 1.5l2.87-2.87A9.64 9.64 0 0 0 12 2a10 10 0 0 0-8.96 5.51l3.35 2.62C7.18 7.76 9.39 6 12 6Z"
-      />
-    </svg>
+        <AuthButton isLoading={isPending} loadingText="Signing in…">
+          Sign In
+        </AuthButton>
+      </form>
+    </div>
   );
 }
