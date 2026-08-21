@@ -7,6 +7,7 @@ import {
   Settings, 
   ChevronDown 
 } from 'lucide-react'
+import Image from "next/image";
 
 export default function DashboardLayout({
   children,
@@ -24,9 +25,11 @@ export default function DashboardLayout({
         <div className="flex items-center gap-3">
           <div className="h-16 w-72 flex items-center justify-start overflow-hidden">
             {logoSrc ? (
-              <img 
-                src={logoSrc} 
-                alt="TechNova Logo" 
+              <Image
+                src={logoSrc}
+                alt="TechNova Logo"
+                width={160}
+                height={48}
                 className="h-full w-auto object-contain"
               />
             ) : (
@@ -74,10 +77,12 @@ export default function DashboardLayout({
 
         
           <div className="w-10 h-10 rounded-full overflow-hidden border border-gray-300 ml-1 cursor-pointer">
-            <img 
+            <Image
               src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=256&auto=format&fit=crop" 
               alt="User Profile" 
-              className="w-full h-full object-cover"
+              width={40}
+              height={40}
+              className="h-full w-full object-cover"
             />
           </div>
 
