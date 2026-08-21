@@ -4,7 +4,7 @@ import type {
 
 import {
   logoutAction,
-} from "@/modules/auth/auth.actions";
+} from "@/lib/auth/actions";
 
 import {
   PERMISSIONS,
@@ -78,10 +78,10 @@ export default async function DashboardPage() {
           </h2>
 
           <p className="mt-3 max-w-2xl text-slate-600">
-            Your Auth.js session is
+            Your backend API session is
             active and your current
             permissions have been loaded
-            from PostgreSQL.
+            securely by TechNova POS.
           </p>
 
           <div className="mt-8 grid gap-4 md:grid-cols-3">
