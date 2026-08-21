@@ -1,4 +1,4 @@
-﻿import { googleSignInAction } from "@/modules/auth/auth.actions";
+import { googleSignInAction } from "@/modules/auth/auth.actions";
 
 /** Inline SVG of the Google "G" logo for the OAuth button. */
 function GoogleIcon() {
