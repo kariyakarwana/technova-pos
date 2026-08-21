@@ -1,38 +1,219 @@
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
-import { hasPermission, hasRole } from "./authorization";
-import type { Permission, SystemRole } from "./permissions";
+import {
+  redirect,
+} from "next/navigation";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1";
-export type CurrentUser = { id: string; email: string; name: string | null; roles: string[]; permissions: string[] };
+import {
+  auth,
+} from "@/auth";
 
-export async function getCurrentUser(): Promise<CurrentUser | null> {
-  const token = (await cookies()).get("technova_access")?.value;
-  if (!token) return null;
-  const response = await fetch(`${API_URL}/auth/me`, { headers: { authorization: `Bearer ${token}` }, cache: "no-store" });
-  return response.ok ? ((await response.json()) as CurrentUser) : null;
+import {
+  authService,
+} from "@/modules/auth/auth.service";
+
+import {
+  getSecurityRequestContext,
+} from "@/lib/security/request";
+
+import {
+  hasPermission,
+  hasRole,
+} from "./authorization";
+
+import type {
+  Permission,
+  SystemRole,
+} from "./permissions";
+
+import type {
+  Session,
+} from "next-auth";
+
+function getSafeCallbackPath(
+  value: string,
+): string {
+  /*
+   * Allow internal paths only.
+   * Reject protocol-relative values such as //evil.example.
+   */
+  if (
+    value.startsWith("/") &&
+    !value.startsWith("//")
+  ) {
+    return value;
+  }
+
+  return "/dashboard";
 }
 
-export async function requireAuthenticatedUser(callbackPath = "/dashboard"): Promise<CurrentUser> {
-  const user = await getCurrentUser();
-  if (!user) redirect(`/login?callbackUrl=${encodeURIComponent(callbackPath)}`);
-  return user;
+function createLoginUrl(
+  callbackPath: string,
+  reason?: string,
+): string {
+  const params =
+    new URLSearchParams({
+      callbackUrl:
+        getSafeCallbackPath(
+          callbackPath,
+        ),
+    });
+
+  if (reason) {
+    params.set("reason", reason);
+  }
+
+  return `/login?${params.toString()}`;
 }
 
-export async function requirePermission(permission: Permission, callbackPath = "/dashboard"): Promise<CurrentUser> {
-  const user = await requireAuthenticatedUser(callbackPath);
-  if (!hasPermission(user, permission)) redirect(`/forbidden?permission=${encodeURIComponent(permission)}`);
-  return user;
+/**
+ * Returns the current valid session or null.
+ *
+ * auth() already triggers the JWT callback, which revalidates
+ * account status and sessionVersion through PostgreSQL.
+ */
+export async function getCurrentSession(): Promise<Session | null> {
+  const session = await auth();
+
+  if (
+    !session?.user?.id ||
+    session.invalid
+  ) {
+    return null;
+  }
+
+  return session;
 }
 
-export async function requireAllPermissions(permissions: readonly Permission[], callbackPath = "/dashboard"): Promise<CurrentUser> {
-  const user = await requireAuthenticatedUser(callbackPath);
-  if (!permissions.every((permission) => hasPermission(user, permission))) redirect("/forbidden");
-  return user;
+export async function getCurrentUser(): Promise<Session["user"] | null> {
+  const session =
+    await getCurrentSession();
+
+  return session?.user ?? null;
 }
 
-export async function requireRole(role: SystemRole, callbackPath = "/dashboard"): Promise<CurrentUser> {
-  const user = await requireAuthenticatedUser(callbackPath);
-  if (!hasRole(user, role)) redirect("/forbidden");
+/**
+ * Requires an authenticated, active and non-revoked session.
+ */
+export async function requireAuthenticatedUser(
+  callbackPath = "/dashboard",
+): Promise<Session["user"]> {
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    redirect(
+      createLoginUrl(
+        callbackPath,
+      ),
+    );
+  }
+
+  if (session.invalid) {
+    redirect(
+      createLoginUrl(
+        callbackPath,
+        "session-expired",
+      ),
+    );
+  }
+
+  return session.user;
+}
+
+/**
+ * Requires an authenticated user with one specific permission.
+ */
+export async function requirePermission(
+  permission: Permission,
+  callbackPath = "/dashboard",
+): Promise<Session["user"]> {
+  const user =
+    await requireAuthenticatedUser(
+      callbackPath,
+    );
+
+  if (
+    hasPermission(
+      user,
+      permission,
+    )
+  ) {
+    return user;
+  }
+
+  /*
+   * Authorization denial must not be weakened if audit logging fails.
+   */
+  try {
+    const context =
+      await getSecurityRequestContext();
+
+    await authService
+      .recordPermissionDenied({
+        userId: user.id,
+        permission,
+        context,
+      });
+  } catch (error) {
+    console.error(
+      "Permission-denied audit failed.",
+      error,
+    );
+  }
+
+  const params =
+    new URLSearchParams({
+      permission,
+    });
+
+  redirect(
+    `/forbidden?${params.toString()}`,
+  );
+}
+
+/**
+ * Requires every permission in the supplied collection.
+ */
+export async function requireAllPermissions(
+  permissions: readonly Permission[],
+  callbackPath = "/dashboard",
+): Promise<Session["user"]> {
+  const user =
+    await requireAuthenticatedUser(
+      callbackPath,
+    );
+
+  const allowed =
+    permissions.every(
+      (permission) =>
+        hasPermission(
+          user,
+          permission,
+        ),
+    );
+
+  if (allowed) {
+    return user;
+  }
+
+  redirect("/forbidden");
+}
+
+/**
+ * Role checks are useful for coarse UI behavior.
+ *
+ * Prefer permission checks for business operations.
+ */
+export async function requireRole(
+  role: SystemRole,
+  callbackPath = "/dashboard",
+): Promise<Session["user"]> {
+  const user =
+    await requireAuthenticatedUser(
+      callbackPath,
+    );
+
+  if (!hasRole(user, role)) {
+    redirect("/forbidden");
+  }
+
   return user;
 }

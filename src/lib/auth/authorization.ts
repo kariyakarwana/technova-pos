@@ -1,4 +1,6 @@
-import { AuthorizationError } from "./errors";
+import {
+  PermissionDeniedError,
+} from "@/modules/auth/auth.errors";
 
 import type {
   Permission,
@@ -105,7 +107,7 @@ export function assertPermission(
       permission,
     )
   ) {
-    throw new AuthorizationError();
+    throw new PermissionDeniedError();
   }
 }
 
@@ -122,6 +124,6 @@ export function assertAllPermissions(
       permissions,
     )
   ) {
-    throw new AuthorizationError();
+    throw new PermissionDeniedError();
   }
 }

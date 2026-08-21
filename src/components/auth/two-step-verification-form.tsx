@@ -9,8 +9,8 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { AuthButton } from "@/components/auth/auth-button";
-import { verifyEmailAction } from "@/lib/auth/actions";
-import { initialAuthActionState } from "@/lib/auth/form-state";
+import { verifyEmailAction } from "@/modules/auth/auth.actions";
+import { initialAuthActionState } from "@/modules/auth/auth.types";
 
 const OTP_LENGTH = 4;
 const COUNTDOWN_SECONDS = 10 * 60 - 1;
