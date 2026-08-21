@@ -1,5 +1,5 @@
 import React from 'react'
-import Sidebar from '@/components/Dashboard/slidebar' // ඔබේ Sidebar component එක ඇති path එක දෙන්න
+import Sidebar from '@/components/Dashboard/slidebar' 
 import { 
   Building2, 
   ShieldCheck, 
