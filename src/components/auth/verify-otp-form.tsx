@@ -17,6 +17,7 @@ const COUNTDOWN_SECONDS = 10 * 60 - 1;
 
 type VerifyOtpFormProps = {
   emailHint?: string;
+  challengeToken?: string;
 };
 
 /** Email OTP verification form with countdown timer and resend support. */
