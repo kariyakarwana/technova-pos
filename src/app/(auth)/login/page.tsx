@@ -6,9 +6,7 @@ import {
   redirect,
 } from "next/navigation";
 
-import {
-  auth,
-} from "@/auth";
+import { getCurrentUser } from "@/lib/auth/session";
 
 import {
   AuthLayout,
@@ -27,12 +25,9 @@ export const metadata: Metadata = {
 };
 
 export default async function LoginPage() {
-  const session = await auth();
+  const user = await getCurrentUser();
 
-  if (
-    session?.user?.id &&
-    !session.invalid
-  ) {
+  if (user) {
     redirect("/dashboard");
   }
 

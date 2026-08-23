@@ -17,9 +17,7 @@ import {
   SYSTEM_ROLES,
 } from "./permissions";
 
-import {
-  PermissionDeniedError,
-} from "@/modules/auth/auth.errors";
+import { AuthorizationError } from "./errors";
 
 const subject = {
   roles: [
@@ -101,7 +99,7 @@ describe("authorization helpers", () => {
         PERMISSIONS.USERS_MANAGE,
       ),
     ).toThrow(
-      PermissionDeniedError,
+      AuthorizationError,
     );
   });
 });

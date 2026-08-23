@@ -30,6 +30,7 @@ export default function DashboardLayout({
                 alt="TechNova Logo"
                 width={160}
                 height={48}
+                priority
                 className="h-full w-auto object-contain"
               />
             ) : (
