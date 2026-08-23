@@ -8,7 +8,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AuthButton } from "@/components/auth/auth-button";
-import { GoogleButton } from "@/components/auth/google-button";
 import { loginAction } from "@/modules/auth/auth.actions";
 import { initialAuthActionState } from "@/modules/auth/auth.types";
 
