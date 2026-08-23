@@ -1,32 +1,59 @@
 ﻿"use client";
 
-import { useActionState } from "react";
+import {
+  useActionState,
+  useEffect,
+} from "react";
+
+import {
+  useRouter,
+} from "next/navigation";
 import Link from "next/link";
 import { Mail } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AuthButton } from "@/components/auth/auth-button";
-import { forgotPasswordAction } from "@/modules/auth/auth.actions";
-import { initialAuthActionState } from "@/modules/auth/auth.types";
+import { forgotPasswordAction } from "@/lib/auth/actions";
+import type {
+  AuthActionState,
+  ForgotPasswordActionData,
+} from "@/lib/auth/form-state";
 
 /** Forgot-password form wired to `forgotPasswordAction` via `useActionState`. */
 export function ForgotPasswordForm() {
-  const [state, formAction, isPending] = useActionState(
-    forgotPasswordAction,
-    initialAuthActionState,
-  );
 
-  if (state.status === "success") {
-    return (
-      <div
-        role="status"
-        className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-5 text-sm text-emerald-800"
-      >
-        {state.message}
-      </div>
-    );
-  }
+  const router = useRouter();
+
+  const initialForgotPasswordState:
+  AuthActionState<
+    ForgotPasswordActionData
+  > = {
+    status: "idle",
+};
+
+  const [
+    state,
+    formAction,
+    isPending,
+  ] = useActionState(
+    forgotPasswordAction,
+    initialForgotPasswordState,
+  );
+  
+
+  useEffect(() => {
+    if (
+      state.status === "success" &&
+      state.data?.challengeToken
+    ) {
+      router.push(
+        `/verify-reset-otp?challenge=${encodeURIComponent(
+          state.data.challengeToken,
+        )}`,
+      );
+    }
+  }, [router, state]);
 
   return (
     <div>
