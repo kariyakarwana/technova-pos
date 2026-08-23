@@ -27,11 +27,11 @@ import {
 
 import {
   verifyPasswordResetOtpAction,
-} from "@/modules/auth/auth.actions";
+} from "@/lib/auth/actions";
 
 import type {
   AuthActionState,
-} from "@/modules/auth/auth.types";
+} from "@/lib/auth/form-state";
 
 const OTP_LENGTH = 6;
 const COUNTDOWN_SECONDS =
