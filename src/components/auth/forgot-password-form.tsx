@@ -14,11 +14,11 @@ import { Mail } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AuthButton } from "@/components/auth/auth-button";
-import { forgotPasswordAction } from "@/lib/auth/actions";
+import { forgotPasswordAction } from "@/modules/auth/auth.actions";
 import type {
   AuthActionState,
   ForgotPasswordActionData,
-} from "@/lib/auth/form-state";
+} from "@/modules/auth/auth.types";
 
 /** Forgot-password form wired to `forgotPasswordAction` via `useActionState`. */
 export function ForgotPasswordForm() {

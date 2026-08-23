@@ -32,11 +32,11 @@ import {
 
 import {
   loginAction,
-} from "@/lib/auth/actions";
+} from "@/modules/auth/auth.actions";
 
 import {
   initialAuthActionState,
-} from "@/lib/auth/form-state";
+} from "@/modules/auth/auth.types";
 
 export function LoginForm() {
   const [
