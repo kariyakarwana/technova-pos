@@ -7,11 +7,8 @@ import { Eye, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AuthButton } from "@/components/auth/auth-button";
-import { resetPasswordAction } from "@/lib/auth/actions";
-import { initialAuthActionState } from "@/lib/auth/form-state";
-import {
-  AuthSuccessCard,
-} from "@/components/auth/auth-success-card";
+import { resetPasswordAction } from "@/modules/auth/auth.actions";
+import { initialAuthActionState } from "@/modules/auth/auth.types";
 
 type ResetPasswordFormProps = {
   token: string;
@@ -28,7 +25,14 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
   const [showConfirm, setShowConfirm] = useState(false);
 
   if (state.status === "success") {
-    return <AuthSuccessCard />;
+    return (
+      <div
+        role="status"
+        className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-5 text-sm text-emerald-800"
+      >
+        {state.message}
+      </div>
+    );
   }
 
   return (
