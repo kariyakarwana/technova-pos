@@ -3,12 +3,15 @@ import type {
 } from "next";
 
 import {
+<<<<<<< Updated upstream
   redirect,
 } from "next/navigation";
 
 import { getCurrentUser } from "@/lib/auth/session";
 
 import {
+=======
+>>>>>>> Stashed changes
   AuthLayout,
 } from "@/components/auth/AuthLayout";
 
@@ -24,6 +27,7 @@ export const metadata: Metadata = {
   title: "Sign in | TechNova POS",
 };
 
+<<<<<<< Updated upstream
 export default async function LoginPage() {
   const user = await getCurrentUser();
 
@@ -31,6 +35,9 @@ export default async function LoginPage() {
     redirect("/dashboard");
   }
 
+=======
+export default function LoginPage() {
+>>>>>>> Stashed changes
   return (
     <AuthLayout>
       <LoginForm />
