@@ -46,6 +46,16 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* ── Brand tokens (Figma) ── */
+  --color-brand-green: var(--brand-green);
+  --color-brand-green-transparent: var(--brand-green-transparent);
+  --color-brand-black-font: var(--brand-black-font);
+  --color-brand-stroke: var(--brand-stroke);
+  --color-brand-red: var(--brand-red);
+  --color-brand-blue-pending: var(--brand-blue-pending);
+  --color-brand-app-bg: var(--brand-app-bg);
+  --color-brand-card-bg: var(--brand-card-bg);
 }
 
 :root {
@@ -81,6 +91,16 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  /* ── Brand color tokens (Figma exact values) ── */
+  --brand-green: #0E9384;
+  --brand-green-transparent: #EEFFFD;
+  --brand-black-font: #212B36;
+  --brand-stroke: #E6EAED;
+  --brand-red: #BA1A1A;
+  --brand-blue-pending: #092C4C;
+  --brand-app-bg: #F9F9FF;
+  --brand-card-bg: #FFFFFF;
 }
 
 .dark {
@@ -121,10 +141,41 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
-    @apply bg-background text-foreground;
+    background-color: var(--brand-app-bg);
+    color: var(--brand-black-font);
   }
+
   html {
     @apply font-sans;
+  }
+}
+
+@layer components {
+  /* White card with brand border — use as: className="pos-card" */
+  .pos-card {
+    background-color: var(--brand-card-bg);
+    border: 1px solid var(--brand-stroke);
+    border-radius: var(--radius-2xl);
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  }
+
+  /* Outlined pill button — use as: className="tab-outlined" */
+  .tab-outlined {
+    border: 1px solid var(--brand-green);
+    background-color: var(--brand-card-bg);
+    color: var(--brand-green);
+    border-radius: 9999px;
+    padding-inline: 1rem;
+    padding-block: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 150ms ease, color 150ms ease;
+  }
+
+  .tab-outlined:hover {
+    background-color: var(--brand-green-transparent);
   }
 }
