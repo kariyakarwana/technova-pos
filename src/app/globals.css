@@ -178,4 +178,54 @@
   .tab-outlined:hover {
     background-color: var(--brand-green-transparent);
   }
+
+  /* ── Shared filled-button base ── */
+  .btn-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    height: 2.5rem;          /* h-10 */
+    padding-inline: 1.5rem;  /* px-6 */
+    border-radius: 0.75rem;  /* rounded-xl */
+    font-size: 0.875rem;     /* text-sm */
+    font-weight: 600;        /* font-semibold */
+    color: #ffffff;
+    border: none;
+    cursor: pointer;
+    transition: opacity 150ms ease, transform 150ms ease, box-shadow 150ms ease;
+  }
+
+  .btn-action:hover {
+    opacity: 0.88;
+  }
+
+  .btn-action:active {
+    transform: scale(0.97);
+  }
+
+  .btn-action:focus-visible {
+    outline: 2px solid var(--brand-green);
+    outline-offset: 2px;
+  }
+
+  /* Cancel — Brand Blue Pending (#092C4C) */
+  .btn-cancel {
+    background-color: var(--brand-blue-pending);
+    box-shadow: 0 1px 3px 0 rgb(9 44 76 / 0.25);
+  }
+
+  .btn-cancel:hover {
+    box-shadow: 0 4px 10px 0 rgb(9 44 76 / 0.30);
+  }
+
+  /* Add / Confirm — Brand Green (#0E9384) */
+  .btn-add {
+    background-color: var(--brand-green);
+    box-shadow: 0 1px 3px 0 rgb(14 147 132 / 0.25);
+  }
+
+  .btn-add:hover {
+    box-shadow: 0 4px 10px 0 rgb(14 147 132 / 0.30);
+  }
 }
