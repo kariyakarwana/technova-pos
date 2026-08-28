@@ -1,22 +1,21 @@
-'use client' 
+'use client'
 
-import React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { 
-  LayoutDashboard, 
-  Tag, 
-  ReceiptText, 
-  Package, 
-  Boxes, 
-  ShoppingCart, 
-  Truck, 
-  Users, 
-  RotateCcw, 
-  Bot, 
-  UserCog, 
-  GitFork, 
-  Megaphone 
+import {
+  LayoutDashboard,
+  Tag,
+  ReceiptText,
+  Package,
+  Boxes,
+  ShoppingCart,
+  Truck,
+  Users,
+  RotateCcw,
+  Bot,
+  UserCog,
+  GitFork,
+  Megaphone
 } from 'lucide-react'
 
 const navItems = [
@@ -36,14 +35,14 @@ const navItems = [
 ];
 
 export default function Sidebar() {
-  const pathname = usePathname(); 
+  const pathname = usePathname();
 
   return (
     <div className="w-64 bg-white p-4 flex flex-col gap-3 font-sans h-screen border-r">
       {navItems.map((item, index) => {
         const IconComponent = item.icon;
-        
-   
+
+
         const isActive = pathname === item.href;
 
         const linkStyles = isActive

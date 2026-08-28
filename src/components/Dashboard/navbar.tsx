@@ -1,26 +1,20 @@
 import React from 'react'
 import Sidebar from '@/components/Dashboard/slidebar' 
 import { 
-  Building2, 
-  ShieldCheck, 
-  GitFork, 
-  Truck, 
-  FileText, 
-  PackageCheck, 
-  Activity, 
   Plus, 
   Maximize, 
   Bell, 
   Settings, 
   ChevronDown 
 } from 'lucide-react'
+import Image from "next/image";
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const logoSrc = "/TechNova.svg";
+  const logoSrc = "/technova-logo.svg";
 
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans flex flex-col">
@@ -33,9 +27,12 @@ export default function DashboardLayout({
         <div className="flex items-center gap-3">
           <div className="h-16 w-72 flex items-center justify-start overflow-visible">
             {logoSrc ? (
-              <img 
-                src={logoSrc} 
-                alt="TechNova Logo" 
+              <Image
+                src={logoSrc}
+                alt="TechNova Logo"
+                width={160}
+                height={48}
+                priority
                 className="h-full w-auto object-contain"
               />
             ) : (
@@ -48,8 +45,7 @@ export default function DashboardLayout({
 
       
         <div className="flex items-center gap-4">
-          
-          {/* Branch Selector */}
+        
           <div className="flex flex-col">
             <label className="text-[11px] text-gray-500 font-medium mb-0.5">Branch</label>
             <div className="relative">
@@ -86,9 +82,11 @@ export default function DashboardLayout({
 
       
           <div className="w-10 h-10 rounded-full overflow-hidden border border-gray-300 ml-1 cursor-pointer">
-            <img 
+            <Image
               src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=256&auto=format&fit=crop" 
               alt="User Profile" 
+              width={40}
+              height={40}
               className="w-full h-full object-cover"
             />
           </div>
