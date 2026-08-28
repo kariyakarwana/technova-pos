@@ -81,7 +81,7 @@ export default function BranchManagementPage() {
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto bg-white p-6 rounded-xl shadow-sm border border-gray-100">
 
-      
+
         <div className="flex justify-between items-center mb-6">
           <div>
             <h1 className="text-xl font-bold text-gray-800">Branch Management</h1>
@@ -89,7 +89,7 @@ export default function BranchManagementPage() {
               Dashboard <span className="mx-1">&gt;</span> Branch Management
             </p>
           </div>
-      
+
           <button
             onClick={() => router.push('/branches/addbranch')}
             className="flex items-center gap-2 border border-teal-600 text-teal-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-teal-50 transition"
@@ -98,7 +98,7 @@ export default function BranchManagementPage() {
           </button>
         </div>
 
-       
+
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
@@ -152,9 +152,9 @@ export default function BranchManagementPage() {
                       >
                         <FiEye size={16} />
                       </button>
-                
+
                       <button
-                        onClick={() => router.push(`/branches/addbranch?id=${branch.id}`)}
+                        onClick={() => router.push(`/branches/updatebranch?id=${branch.id}`)}
                         title="Edit"
                         className="p-1.5 text-gray-500 hover:bg-gray-100 rounded border border-gray-200 transition inline-flex items-center justify-center"
                       >
@@ -179,7 +179,7 @@ export default function BranchManagementPage() {
           </table>
         </div>
 
-       
+
         <div className="flex flex-col sm:flex-row justify-between items-center mt-6 pt-4 border-t border-gray-100 text-sm text-gray-500">
           <div className="flex items-center gap-2 mb-4 sm:mb-0">
             <span>Row Per Page</span>
