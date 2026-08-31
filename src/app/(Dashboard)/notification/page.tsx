@@ -14,11 +14,8 @@ export interface NotificationData {
   isRead: boolean;
 }
 
-interface NotificationsPageProps {
-  notifications: NotificationData[]; 
-}
-
-export default function NotificationsPage({ notifications = [] }: NotificationsPageProps) {
+export default function NotificationsPage() {
+  const notifications: NotificationData[] = [];
   const [activeFilter, setActiveFilter] = useState('all');
 
   const getCategoryStyles = (category: string) => {

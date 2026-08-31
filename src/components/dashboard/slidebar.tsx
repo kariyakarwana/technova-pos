@@ -16,6 +16,9 @@ import {
   UserCog,
   GitFork,
   Megaphone,
+  BellRing,
+  HandCoins,
+  QrCode,
 } from 'lucide-react'
 
 const navItems = [
@@ -24,14 +27,17 @@ const navItems = [
   { name: 'Sales', icon: ReceiptText, href: '/sales' },
   { name: 'Products', icon: Package, href: '/products' },
   { name: 'Inventory', icon: Boxes, href: '/inventory' },
+  { name: 'Warranty & QR', icon: QrCode, href: '/warranties' },
   { name: 'Purchases', icon: ShoppingCart, href: '/purchases' },
   { name: 'Suppliers', icon: Truck, href: '/suppliers' },
   { name: 'Customers', icon: Users, href: '/customers' },
+  { name: 'Credit Management', icon: HandCoins, href: '/credit' },
   { name: 'Returns & Refunds', icon: RotateCcw, href: '/returns-refunds' },
   { name: 'AI Intelligence', icon: Bot, href: '/ai-intelligence' },
   { name: 'Employees', icon: UserCog, href: '/employees' },
   { name: 'Branches', icon: GitFork, href: '/branches' },
   { name: 'Promotions', icon: Megaphone, href: '/promotions' },
+  { name: 'Notification Admin', icon: BellRing, href: '/notifications' },
 ] as const
 
 export default function Sidebar() {
