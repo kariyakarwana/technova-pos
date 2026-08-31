@@ -19,19 +19,19 @@ import {
 } from 'lucide-react'
 
 const navItems = [
-  { name: 'Dashboard',         icon: LayoutDashboard, href: '/dashboard' },
-  { name: 'Point of Sale',     icon: Tag,             href: '/pos' },
-  { name: 'Sales',             icon: ReceiptText,     href: '/sales' },
-  { name: 'Products',          icon: Package,         href: '/products' },
-  { name: 'Inventory',         icon: Boxes,           href: '/inventory' },
-  { name: 'Purchases',         icon: ShoppingCart,    href: '/purchases' },
-  { name: 'Suppliers',         icon: Truck,           href: '/suppliers' },
-  { name: 'Customers',         icon: Users,           href: '/customers' },
-  { name: 'Returns & Refunds', icon: RotateCcw,       href: '/returns' },
-  { name: 'AI Intelligence',   icon: Bot,             href: '/ai' },
-  { name: 'Employees',         icon: UserCog,         href: '/employees' },
-  { name: 'Branches',          icon: GitFork,         href: '/branches' },
-  { name: 'Promotions',        icon: Megaphone,       href: '/promotions' },
+  { name: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
+  { name: 'Point of Sale', icon: Tag, href: '/pos' },
+  { name: 'Sales', icon: ReceiptText, href: '/sales' },
+  { name: 'Products', icon: Package, href: '/products' },
+  { name: 'Inventory', icon: Boxes, href: '/inventory' },
+  { name: 'Purchases', icon: ShoppingCart, href: '/purchases' },
+  { name: 'Suppliers', icon: Truck, href: '/suppliers' },
+  { name: 'Customers', icon: Users, href: '/customers' },
+  { name: 'Returns & Refunds', icon: RotateCcw, href: '/returns-refunds' },
+  { name: 'AI Intelligence', icon: Bot, href: '/ai-intelligence' },
+  { name: 'Employees', icon: UserCog, href: '/employees' },
+  { name: 'Branches', icon: GitFork, href: '/branches' },
+  { name: 'Promotions', icon: Megaphone, href: '/promotions' },
 ] as const
 
 export default function Sidebar() {
@@ -62,16 +62,16 @@ export default function Sidebar() {
               isActive
                 // ── Active: filled dark-green pill ──
                 ? [
-                    'bg-[#004532] border-[1.5px] border-[#004532]',
-                    'shadow-md shadow-[#004532]/25',
-                    'font-semibold',
-                  ].join(' ')
+                  'bg-[#004532] border-[1.5px] border-[#004532]',
+                  'shadow-md shadow-[#004532]/25',
+                  'font-semibold',
+                ].join(' ')
                 // ── Inactive: outlined teal pill ──
                 : [
-                    'bg-white border-[1.5px] border-[#0E9384]',
-                    'hover:bg-[#EEFFFD]',
-                    'font-medium',
-                  ].join(' '),
+                  'bg-white border-[1.5px] border-[#0E9384]',
+                  'hover:bg-[#EEFFFD]',
+                  'font-medium',
+                ].join(' '),
             ].join(' ')}
           >
             {/* Icon — pinned to the left */}
