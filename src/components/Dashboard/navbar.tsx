@@ -110,20 +110,24 @@ export default function Navbar({ userEmail }: NavbarProps) {
         </button>
 
         {/* Notifications */}
-        <button
-          id="navbar-notifications-btn"
-          className="h-8 w-8 flex items-center justify-center border border-[#0E9384] text-[#0E9384] hover:bg-[#EEFFFD] rounded-lg transition-colors relative"
-          aria-label="Notifications"
-        >
-          <Bell size={15} />
-          <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-red-500 rounded-full" />
-        </button>
+        <Link href="/notification" className="relative">
+          <button
+            id="navbar-notifications-btn"
+            className="h-8 w-8 flex items-center justify-center border border-[#0E9384] text-[#0E9384] hover:bg-[#EEFFFD] rounded-lg transition-colors relative"
+            aria-label="Notifications"
+            type="button"
+          >
+            <Bell size={15} />
+            <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-red-500 rounded-full" />
+          </button>
+        </Link>
 
         {/* Settings */}
         <button
           id="navbar-settings-btn"
           className="h-8 w-8 flex items-center justify-center border border-[#0E9384] text-[#0E9384] hover:bg-[#EEFFFD] rounded-lg transition-colors"
           aria-label="Settings"
+          type="button"
         >
           <Settings size={15} />
         </button>
