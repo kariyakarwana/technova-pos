@@ -78,129 +78,123 @@ export default function BranchManagementPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+   
+    <div className="w-full bg-white p-6 rounded-xl shadow-sm border border-gray-100">
 
-
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h1 className="text-xl font-bold text-gray-800">Branch Management</h1>
-            <p className="text-xs text-gray-400 mt-1">
-              Dashboard <span className="mx-1">&gt;</span> Branch Management
-            </p>
-          </div>
-
-          <button
-            onClick={() => router.push('/branches/addbranch')}
-            className="flex items-center gap-2 border border-teal-600 text-teal-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-teal-50 transition"
-          >
-            <FiPlus size={16} /> Add Branch
-          </button>
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-xl font-bold text-gray-800">Branch Management</h1>
+          <p className="text-xs text-gray-400 mt-1">
+            Dashboard <span className="mx-1">&gt;</span> Branch Management
+          </p>
         </div>
 
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-gray-100 text-gray-600 text-xs uppercase tracking-wider">
-                <th className="py-3 px-4 rounded-l-lg w-10">
-                  <input type="checkbox" className="rounded border-gray-300 cursor-pointer" />
-                </th>
-                <th className="py-3 px-4 font-semibold">Branch Id</th>
-                <th className="py-3 px-4 font-semibold">Name</th>
-                <th className="py-3 px-4 font-semibold">Address</th>
-                <th className="py-3 px-4 font-semibold">Phone</th>
-                <th className="py-3 px-4 font-semibold">Email</th>
-                <th className="py-3 px-4 font-semibold">Status</th>
-                <th className="py-3 px-4 rounded-r-lg text-center font-semibold">Action</th>
-              </tr>
-            </thead>
-            <tbody className="text-sm text-gray-700 divide-y divide-gray-100">
-              {loading ? (
-                <tr>
-                  <td colSpan={8} className="text-center py-6 text-gray-400">Loading data...</td>
-                </tr>
-              ) : branches.length > 0 ? (
-                branches.map((branch) => (
-                  <tr key={branch.id} className="hover:bg-gray-50 transition">
-                    <td className="py-3 px-4">
-                      <input type="checkbox" className="rounded border-gray-300 cursor-pointer" />
-                    </td>
-                    <td className="py-3 px-4 text-gray-500 font-medium">{branch.id}</td>
-                    <td className="py-3 px-4 font-medium text-gray-800">{branch.name}</td>
-                    <td className="py-3 px-4 text-gray-600">{branch.address}</td>
-                    <td className="py-3 px-4 text-gray-600">{branch.phone}</td>
-                    <td className="py-3 px-4">
-                      {branch.email ? (
-                        <a href={`mailto:${branch.email}`} className="text-teal-600 underline">
-                          {branch.email}
-                        </a>
-                      ) : (
-                        '-'
-                      )}
-                    </td>
-                    <td className="py-3 px-4">
-                      <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${branch.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                        {branch.status}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4 text-center space-x-2">
-                      <button
-                        onClick={() => { setSelectedBranch(branch); setIsViewModalOpen(true); }}
-                        title="View"
-                        className="p-1.5 text-gray-500 hover:bg-gray-100 rounded border border-gray-200 transition inline-flex items-center justify-center"
-                      >
-                        <FiEye size={16} />
-                      </button>
-
-                      <button
-                        onClick={() => router.push(`/branches/updatebranch?id=${branch.id}`)}
-                        title="Edit"
-                        className="p-1.5 text-gray-500 hover:bg-gray-100 rounded border border-gray-200 transition inline-flex items-center justify-center"
-                      >
-                        <FiEdit2 size={16} />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(branch.id)}
-                        title="Delete"
-                        className="p-1.5 text-red-500 hover:bg-red-50 rounded border border-gray-200 transition inline-flex items-center justify-center"
-                      >
-                        <FiTrash2 size={16} />
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={8} className="text-center py-6 text-gray-400">No branches found.</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-
-
-        <div className="flex flex-col sm:flex-row justify-between items-center mt-6 pt-4 border-t border-gray-100 text-sm text-gray-500">
-          <div className="flex items-center gap-2 mb-4 sm:mb-0">
-            <span>Row Per Page</span>
-            <select className="border border-gray-300 rounded px-2 py-1 text-gray-700 focus:outline-none bg-white">
-              <option>10</option>
-              <option>20</option>
-              <option>50</option>
-            </select>
-            <span>Entries</span>
-          </div>
-
-          <div className="flex items-center gap-1">
-            <button className="w-8 h-8 flex items-center justify-center rounded border border-gray-200 text-gray-400 hover:bg-gray-50"><FiChevronLeft size={16} /></button>
-            <button className="w-8 h-8 flex items-center justify-center rounded border border-gray-200 text-gray-600 hover:bg-gray-50">1</button>
-            <button className="w-8 h-8 flex items-center justify-center rounded bg-teal-600 text-white font-medium">2</button>
-            <button className="w-8 h-8 flex items-center justify-center rounded border border-gray-200 text-gray-600 hover:bg-gray-50"><FiChevronRight size={16} /></button>
-          </div>
-        </div>
-
+        <button
+          onClick={() => router.push('/branches/addbranch')}
+          className="flex items-center gap-2 border border-teal-600 text-teal-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-teal-50 transition"
+        >
+          <FiPlus size={16} /> Add Branch
+        </button>
       </div>
 
+      <div className="overflow-x-auto">
+        <table className="w-full text-left border-collapse">
+          <thead>
+            <tr className="bg-gray-100 text-gray-600 text-xs uppercase tracking-wider">
+              <th className="py-3 px-4 rounded-l-lg w-10">
+                <input type="checkbox" className="rounded border-gray-300 cursor-pointer" />
+              </th>
+              <th className="py-3 px-4 font-semibold">Branch Id</th>
+              <th className="py-3 px-4 font-semibold">Name</th>
+              <th className="py-3 px-4 font-semibold">Address</th>
+              <th className="py-3 px-4 font-semibold">Phone</th>
+              <th className="py-3 px-4 font-semibold">Email</th>
+              <th className="py-3 px-4 font-semibold">Status</th>
+              <th className="py-3 px-4 rounded-r-lg text-center font-semibold">Action</th>
+            </tr>
+          </thead>
+          <tbody className="text-sm text-gray-700 divide-y divide-gray-100">
+            {loading ? (
+              <tr>
+                <td colSpan={8} className="text-center py-6 text-gray-400">Loading data...</td>
+              </tr>
+            ) : branches.length > 0 ? (
+              branches.map((branch) => (
+                <tr key={branch.id} className="hover:bg-gray-50 transition">
+                  <td className="py-3 px-4">
+                    <input type="checkbox" className="rounded border-gray-300 cursor-pointer" />
+                  </td>
+                  <td className="py-3 px-4 text-gray-500 font-medium">{branch.id}</td>
+                  <td className="py-3 px-4 font-medium text-gray-800">{branch.name}</td>
+                  <td className="py-3 px-4 text-gray-600">{branch.address}</td>
+                  <td className="py-3 px-4 text-gray-600">{branch.phone}</td>
+                  <td className="py-3 px-4">
+                    {branch.email ? (
+                      <a href={`mailto:${branch.email}`} className="text-teal-600 underline">
+                        {branch.email}
+                      </a>
+                    ) : (
+                      '-'
+                    )}
+                  </td>
+                  <td className="py-3 px-4">
+                    <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${branch.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                      {branch.status}
+                    </span>
+                  </td>
+                  <td className="py-3 px-4 text-center space-x-2">
+                    <button
+                      onClick={() => { setSelectedBranch(branch); setIsViewModalOpen(true); }}
+                      title="View"
+                      className="p-1.5 text-gray-500 hover:bg-gray-100 rounded border border-gray-200 transition inline-flex items-center justify-center"
+                    >
+                      <FiEye size={16} />
+                    </button>
+
+                    <button
+                      onClick={() => router.push(`/branches/updatebranch?id=${branch.id}`)}
+                      title="Edit"
+                      className="p-1.5 text-gray-500 hover:bg-gray-100 rounded border border-gray-200 transition inline-flex items-center justify-center"
+                    >
+                      <FiEdit2 size={16} />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(branch.id)}
+                      title="Delete"
+                      className="p-1.5 text-red-500 hover:bg-red-50 rounded border border-gray-200 transition inline-flex items-center justify-center"
+                    >
+                      <FiTrash2 size={16} />
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={8} className="text-center py-6 text-gray-400">No branches found.</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="flex flex-col sm:flex-row justify-between items-center mt-6 pt-4 border-t border-gray-100 text-sm text-gray-500">
+        <div className="flex items-center gap-2 mb-4 sm:mb-0">
+          <span>Row Per Page</span>
+          <select className="border border-gray-300 rounded px-2 py-1 text-gray-700 focus:outline-none bg-white">
+            <option>10</option>
+            <option>20</option>
+            <option>50</option>
+          </select>
+          <span>Entries</span>
+        </div>
+
+        <div className="flex items-center gap-1">
+          <button className="w-8 h-8 flex items-center justify-center rounded border border-gray-200 text-gray-400 hover:bg-gray-50"><FiChevronLeft size={16} /></button>
+          <button className="w-8 h-8 flex items-center justify-center rounded border border-gray-200 text-gray-600 hover:bg-gray-50">1</button>
+          <button className="w-8 h-8 flex items-center justify-center rounded bg-teal-600 text-white font-medium">2</button>
+          <button className="w-8 h-8 flex items-center justify-center rounded border border-gray-200 text-gray-600 hover:bg-gray-50"><FiChevronRight size={16} /></button>
+        </div>
+      </div>
 
       {isViewModalOpen && selectedBranch && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
