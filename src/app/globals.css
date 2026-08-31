@@ -56,6 +56,11 @@
   --color-brand-blue-pending: var(--brand-blue-pending);
   --color-brand-app-bg: var(--brand-app-bg);
   --color-brand-card-bg: var(--brand-card-bg);
+  --color-brand-orange: var(--brand-orange);
+  --color-brand-blue-action: var(--brand-blue-action);
+  --color-brand-indigo: var(--brand-indigo);
+  --color-brand-crimson: var(--brand-crimson);
+  --color-brand-offline-bg: var(--brand-offline-bg);
 }
 
 :root {
@@ -95,12 +100,17 @@
   /* ── Brand color tokens (Figma exact values) ── */
   --brand-green: #0E9384;
   --brand-green-transparent: #EEFFFD;
-  --brand-black-font: #212B36;
-  --brand-stroke: #E6EAED;
-  --brand-red: #BA1A1A;
+  --brand-black-font: #1D2939;
+  --brand-stroke: #E4E7EC;
+  --brand-red: #D32F2F;
   --brand-blue-pending: #092C4C;
-  --brand-app-bg: #F9F9FF;
+  --brand-app-bg: #F8FAFC;
   --brand-card-bg: #FFFFFF;
+  --brand-orange: #E26D1E;
+  --brand-blue-action: #1E6DE2;
+  --brand-indigo: #3852D4;
+  --brand-crimson: #7B0F16;
+  --brand-offline-bg: #FDEDEC;
 }
 
 .dark {
