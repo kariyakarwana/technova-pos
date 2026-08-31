@@ -18,9 +18,10 @@ interface PageHeaderProps {
   breadcrumbs: Breadcrumb[];
   /**
    * Optional JSX rendered on the right side of the header
-   * (e.g. a primary action button).
+   * (e.g. action buttons).
    */
   actionButton?: React.ReactNode;
+  actions?: React.ReactNode;
 }
 
 /**
@@ -32,7 +33,9 @@ export default function PageHeader({
   title,
   breadcrumbs,
   actionButton,
+  actions,
 }: PageHeaderProps) {
+  const headerActions = actions ?? actionButton;
   return (
     <header className="flex items-start justify-between gap-4 px-6 pt-6 pb-4">
       {/* Left: breadcrumbs + title */}
@@ -84,9 +87,9 @@ export default function PageHeader({
         </h1>
       </div>
 
-      {/* Right: optional action button */}
-      {actionButton && (
-        <div className="shrink-0 flex items-center pt-1">{actionButton}</div>
+      {/* Right: optional action buttons */}
+      {headerActions && (
+        <div className="shrink-0 flex items-center pt-1">{headerActions}</div>
       )}
     </header>
   );

@@ -34,7 +34,7 @@ export default function NavigationActionCard({
         "flex flex-col items-center justify-center gap-3",
         "bg-[#1E5D57] text-white",
         "rounded-2xl px-6 py-8",
-        "w-full min-h-[160px]",
+        "w-64 md:w-72 h-44",
         // Elevation + smooth lift on hover
         "shadow-sm",
         "transition-all duration-200 ease-in-out",

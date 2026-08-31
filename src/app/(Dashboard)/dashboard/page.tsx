@@ -1,17 +1,11 @@
-import type {
-  Metadata,
-} from "next";
-
+import type { Metadata } from "next";
+import AdminDashboardClientView from "@/components/dashboard/dahsboard/AdminDashboardClientView";
 
 export const metadata: Metadata = {
-  title: "Dashboard | TechNova POS",
+  title: "Admin Overview Dashboard | TechNova POS",
+  description: "Comprehensive store analytics, sales and purchase metrics, inventory alerts, top customers, and order heatmap.",
 };
 
-export default async function DashboardPage() {
-
-
-  return (
-    <main className="min-h-screen bg-slate-50">
-    </main>
-  );
+export default function DashboardPage() {
+  return <AdminDashboardClientView />;
 }
