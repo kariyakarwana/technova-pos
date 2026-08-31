@@ -1,0 +1,15 @@
+"use client";
+
+import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Camera, Keyboard, QrCode, ScanLine } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+
+export default function QrScannerClientView() {
+  const router = useRouter();
+  const [token, setToken] = useState("");
+  function submit(event: FormEvent) { event.preventDefault(); if (token.trim()) router.push(`/qr/product/${encodeURIComponent(token.trim())}`); }
+  return <div className="p-6 lg:p-8"><header><p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#0E9384]">Product lookup</p><h1 className="mt-1 text-3xl font-bold text-slate-900">QR Scanner</h1><p className="mt-2 text-sm text-slate-500">Scan a serialized product label or enter its token manually.</p></header><div className="mt-6 grid gap-6 lg:grid-cols-[1fr_380px]"><Card className="overflow-hidden border-slate-200"><div className="relative flex min-h-[460px] items-center justify-center bg-slate-950"><div className="absolute inset-8 rounded-3xl border border-white/20" /><div className="absolute h-56 w-56 rounded-3xl border-2 border-[#2DD4BF]"><span className="absolute -left-1 -top-1 h-10 w-10 border-l-4 border-t-4 border-white" /><span className="absolute -right-1 -top-1 h-10 w-10 border-r-4 border-t-4 border-white" /><span className="absolute -bottom-1 -left-1 h-10 w-10 border-b-4 border-l-4 border-white" /><span className="absolute -bottom-1 -right-1 h-10 w-10 border-b-4 border-r-4 border-white" /><div className="absolute left-3 right-3 top-1/2 h-0.5 bg-[#2DD4BF] shadow-[0_0_14px_#2DD4BF]" /></div><div className="relative mt-72 text-center text-white"><Camera className="mx-auto h-7 w-7" /><p className="mt-2 text-sm">Camera preview</p><p className="mt-1 text-xs text-white/60">Camera permission is requested only when scanning starts.</p></div></div><CardContent className="flex items-center justify-between p-4"><div className="flex items-center gap-2 text-sm text-slate-600"><ScanLine className="h-4 w-4 text-[#0E9384]" />Align the QR code inside the frame</div><Button className="bg-[#025148]">Enable camera</Button></CardContent></Card><Card className="h-fit border-slate-200"><CardHeader><CardTitle className="flex items-center gap-2"><Keyboard className="h-5 w-5 text-[#0E9384]" />Manual lookup</CardTitle></CardHeader><CardContent><form onSubmit={submit} className="space-y-4"><label className="space-y-2 text-sm font-medium">QR token<Input value={token} onChange={(event) => setToken(event.target.value)} placeholder="Paste the QR token" autoComplete="off" /></label><Button type="submit" className="w-full bg-[#025148]" disabled={!token.trim()}><QrCode className="mr-2 h-4 w-4" />View product details</Button></form><div className="mt-6 rounded-xl bg-teal-50 p-4 text-sm text-teal-800"><strong>Privacy:</strong> public lookup exposes only safe product, serial and warranty information. Internal costs and database identifiers are never shown.</div></CardContent></Card></div></div>;
+}

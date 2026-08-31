@@ -1,0 +1,3 @@
+import Image from "next/image";
+import Link from "next/link";
+export default function PublicProductLayout({ children }: { children: React.ReactNode }) { return <div className="min-h-screen bg-slate-50"><header className="border-b border-slate-200 bg-white"><div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4"><Link href="/"><Image src="/TechNova.svg" alt="TechNova" width={150} height={40} className="h-9 w-auto" /></Link><span className="text-xs font-semibold uppercase tracking-[0.16em] text-[#0E9384]">Product verification</span></div></header><main>{children}</main><footer className="border-t border-slate-200 py-6 text-center text-xs text-slate-500">© 2026 TechNova. Secure product and warranty verification.</footer></div>; }
