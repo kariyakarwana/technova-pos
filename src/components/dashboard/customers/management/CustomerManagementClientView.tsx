@@ -1,5 +1,5 @@
 "use client";
-
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {
   MOCK_CUSTOMERS,
@@ -10,6 +10,7 @@ import CustomerManagementTable from "./CustomerManagementTable";
 import CustomerManagementPagination from "./CustomerManagementPagination";
 
 export default function CustomerManagementClientView() {
+  const router = useRouter();
   const [customers, setCustomers] = useState<CustomerItem[]>(MOCK_CUSTOMERS);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(4);
@@ -49,11 +50,11 @@ export default function CustomerManagementClientView() {
   }
 
   function handleView(item: CustomerItem) {
-    alert(`Viewing details for customer: ${item.firstName} ${item.lastName} (${item.customerId})`);
+    router.push(`/customers/${item.customerId}`);
   }
 
   function handleEdit(item: CustomerItem) {
-    alert(`Editing customer: ${item.firstName} ${item.lastName} (${item.customerId})`);
+    router.push(`/customers/${item.customerId}/edit`);
   }
 
   function handleDelete(item: CustomerItem) {
