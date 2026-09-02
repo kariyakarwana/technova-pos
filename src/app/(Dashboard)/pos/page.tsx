@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import PosOperations from "@/components/operations/PosOperations";
+import PosClientView from "@/components/dashboard/pos/PosClientView";
 
 export const metadata: Metadata = {
   title: "Point of Sale | TechNova POS",
@@ -11,5 +11,5 @@ export const metadata: Metadata = {
  * All interactive logic lives in PosClientView (client component).
  */
 export default function PosPage() {
-  return <PosOperations />;
+  return <PosClientView />;
 }

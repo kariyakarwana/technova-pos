@@ -1,6 +1,6 @@
 "use client";
 
-import { Search } from "lucide-react";
+import { Barcode, Search } from "lucide-react";
 
 interface PosHeaderProps {
   searchQuery: string;
@@ -10,6 +10,10 @@ interface PosHeaderProps {
   isOffline?: boolean;
   /** Called when the dev toggle is flipped. */
   onToggleOffline?: () => void;
+  barcodeValue?: string;
+  onBarcodeChange?: (value: string) => void;
+  onBarcodeSubmit?: () => void;
+  branchName?: string;
 }
 
 export function PosHeader({
@@ -18,6 +22,10 @@ export function PosHeader({
   onViewAllCategories,
   isOffline = false,
   onToggleOffline,
+  barcodeValue = "",
+  onBarcodeChange,
+  onBarcodeSubmit,
+  branchName,
 }: PosHeaderProps) {
   return (
     <div className="flex items-center justify-between px-6 py-3.5 bg-white border-b border-[#E6EAED] shrink-0">
@@ -25,10 +33,11 @@ export function PosHeader({
         <h1 className="text-base font-bold text-[#212B36] tracking-tight">
           Welcome, Catchier 1
         </h1>
-        <p className="text-xs text-slate-400 mt-0.5 font-normal">August 01, 2026</p>
+        <p className="text-xs text-slate-400 mt-0.5 font-normal">{branchName ?? "Select a branch"}</p>
       </div>
 
       <div className="flex items-center gap-3">
+        {onBarcodeChange && <form onSubmit={(event) => { event.preventDefault(); onBarcodeSubmit?.(); }} className="relative"><Barcode className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#0E9384]"/><input aria-label="Scan barcode" autoFocus value={barcodeValue} onChange={(event) => onBarcodeChange(event.target.value)} placeholder="Scan barcode / SKU" className="h-9 w-44 rounded-lg border border-[#E6EAED] pl-8 pr-2 text-xs focus:border-[#0E9384] focus:outline-none"/></form>}
         {onToggleOffline && (
           <button
             type="button"

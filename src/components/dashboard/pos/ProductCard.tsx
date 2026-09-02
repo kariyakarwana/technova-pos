@@ -81,7 +81,7 @@ export function ProductCard({
 
         <div className="flex items-center justify-between mt-0.5">
           <span className="text-xs font-bold text-[#0E9384]">
-            ${product.price}
+            LKR {product.price.toLocaleString()}
           </span>
           <span className="text-[10px] font-medium text-[#D32F2F]">
             {product.inStockFormatted || `${product.stockCount} Pcs`}

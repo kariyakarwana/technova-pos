@@ -17,12 +17,15 @@ export interface Category {
 
 export interface Product {
   id: string;
+  sku?: string;
+  barcode?: string | null;
   name: string;
   price: number;
   stockCount: number;
   category: string;
   image: string;
   inStockFormatted?: string;
+  trackSerials?: boolean;
 }
 
 export interface CartItem {
@@ -34,6 +37,9 @@ export interface CartItem {
   image: string;
   batchNo?: string;
   inStockFormatted?: string;
+  productId?: string;
+  trackSerials?: boolean;
+  serialNumber?: string;
 }
 
 export const categories: Category[] = [
