@@ -12,7 +12,7 @@ import {
   TrendingUp,
   Wallet,
 } from "lucide-react";
-import type { KpiCardItem, TopBannerMetric } from "./AdminDashboardMock";
+import type { KpiCardItem, TopBannerMetric } from "./AdminDashboardTypes";
 
 interface DashboardMetricsGridProps {
   bannerMetrics: TopBannerMetric[];

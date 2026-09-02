@@ -64,7 +64,7 @@ export default function PromotionsRecentActivitySidebar({
 
       {/* Footer Link */}
       <Link
-        href="/promotions/activity"
+        href="/promotions/performance"
         onClick={onViewAllActivity}
         className="py-3.5 bg-slate-50/50 hover:bg-slate-100/70 border-t border-[var(--brand-stroke)] text-[var(--brand-green)] text-xs font-semibold flex items-center justify-center transition-colors cursor-pointer"
       >

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import PurchaseOrderClientView from "@/components/dashboard/purchases/order-management/PurchaseOrderClientView";
+import PurchaseOrderOperations from "@/components/operations/PurchaseOrderOperations";
 
 export const metadata: Metadata = {
   title: "Purchase Order Management | TechNova POS",
@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function PurchaseOrderManagementPage() {
-  return <PurchaseOrderClientView />;
+  return <PurchaseOrderOperations />;
 }

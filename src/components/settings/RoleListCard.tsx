@@ -1,13 +1,14 @@
 "use client";
 
-import { Info, Plus } from "lucide-react";
-import type { RoleItem } from "./settings.mock";
+import { Info, Pencil, Plus } from "lucide-react";
+import type { ApiRole } from "./settings.types";
 
 interface RoleListCardProps {
-  roles: RoleItem[];
+  roles: ApiRole[];
   selectedRoleId: string;
   onSelectRole: (id: string) => void;
   onAddRole?: () => void;
+  onEditRole?: (role: ApiRole) => void;
 }
 
 export default function RoleListCard({
@@ -15,6 +16,7 @@ export default function RoleListCard({
   selectedRoleId,
   onSelectRole,
   onAddRole,
+  onEditRole,
 }: RoleListCardProps) {
   return (
     <div className="bg-white border border-[var(--brand-stroke)] rounded-2xl shadow-xs overflow-hidden flex flex-col h-full">
@@ -45,17 +47,16 @@ export default function RoleListCard({
           const isSelected = role.id === selectedRoleId;
 
           return (
-            <button
+            <div
               key={role.id}
-              type="button"
-              onClick={() => onSelectRole(role.id)}
               className={[
-                "w-full text-left px-5 py-4 transition-all flex flex-col gap-0.5 cursor-pointer relative",
+                "w-full px-5 py-4 transition-all flex items-center gap-2 relative",
                 isSelected
                   ? "bg-[#E6F4F2] border-l-4 border-[var(--brand-green)]"
                   : "hover:bg-slate-50 border-l-4 border-transparent",
               ].join(" ")}
             >
+              <button type="button" onClick={() => onSelectRole(role.id)} className="min-w-0 flex-1 text-left cursor-pointer">
               <span
                 className={[
                   "text-xs font-bold transition-colors",
@@ -67,9 +68,11 @@ export default function RoleListCard({
                 {role.name}
               </span>
               <span className="text-[11px] text-slate-400 font-medium">
-                {role.description}
+                {role.description ?? `${role._count?.users ?? 0} assigned users`}
               </span>
-            </button>
+              </button>
+              {!role.isSystem && <button type="button" onClick={() => onEditRole?.(role)} title="Edit role name and description" className="rounded-lg border border-slate-200 p-2 text-slate-500 hover:border-[var(--brand-green)] hover:text-[var(--brand-green)]"><Pencil className="h-3.5 w-3.5" /></button>}
+            </div>
           );
         })}
       </div>

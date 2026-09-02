@@ -23,6 +23,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
               height={48}
               priority
               className="h-auto w-40 object-contain"
+              style={{ height: "auto" }}
             />
           </div>
 

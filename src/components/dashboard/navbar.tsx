@@ -13,12 +13,14 @@ import {
   User,
 } from "lucide-react";
 import { logoutAction } from "@/lib/auth/actions";
+import { useBranch } from "./BranchContext";
 
 interface NavbarProps {
   userEmail?: string | null;
 }
 
 export default function Navbar({ userEmail }: NavbarProps) {
+  const { branches, branchId, setBranchId } = useBranch();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -62,22 +64,23 @@ export default function Navbar({ userEmail }: NavbarProps) {
             <select
               id="branch-selector"
               className="cursor-pointer appearance-none bg-transparent pr-5 text-xs font-medium text-[#212B36] focus:outline-none"
+              value={branchId}
+              onChange={(event) => setBranchId(event.target.value)}
             >
-              <option>Branch 1</option>
-              <option>Branch 2</option>
-              <option>Branch 3</option>
+              {branches.length === 0 && <option value="">No branch assigned</option>}
+              {branches.map((branch) => <option key={branch.id} value={branch.id}>{branch.name}</option>)}
             </select>
             <ChevronDown className="pointer-events-none absolute right-0 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-400" />
           </div>
         </div>
 
-        <button
+        <Link
           id="navbar-add-btn"
-          type="button"
+          href="/branches"
           className="flex h-8 items-center gap-1 rounded-lg border border-[#0E9384] px-2.5 text-xs font-medium text-[#0E9384] transition-colors hover:bg-[#EEFFFD]"
         >
-          <Plus className="h-3.5 w-3.5" /> Add
-        </button>
+          <Plus className="h-3.5 w-3.5" /> Add branch
+        </Link>
 
         <button
           id="navbar-fullscreen-btn"
@@ -94,7 +97,7 @@ export default function Navbar({ userEmail }: NavbarProps) {
         </button>
 
         <Link
-          href="/notification"
+          href="/notifications"
           id="navbar-notifications-btn"
           className="relative flex h-8 w-8 items-center justify-center rounded-lg border border-[#0E9384] text-[#0E9384] transition-colors hover:bg-[#EEFFFD]"
           aria-label="Notifications"
@@ -103,14 +106,14 @@ export default function Navbar({ userEmail }: NavbarProps) {
           <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-red-500" />
         </Link>
 
-        <button
+        <Link
           id="navbar-settings-btn"
-          type="button"
+          href="/settings"
           className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#0E9384] text-[#0E9384] transition-colors hover:bg-[#EEFFFD]"
           aria-label="Settings"
         >
           <Settings className="h-4 w-4" />
-        </button>
+        </Link>
 
         <div className="relative ml-1" ref={dropdownRef}>
           <button
@@ -146,7 +149,7 @@ export default function Navbar({ userEmail }: NavbarProps) {
               </div>
               <div className="py-1">
                 <Link
-                  href="/dashboard/profile"
+                  href="/settings/profile"
                   role="menuitem"
                   onClick={() => setDropdownOpen(false)}
                   className="flex items-center gap-2.5 px-3.5 py-2 text-sm text-slate-700 hover:bg-slate-50"
@@ -154,7 +157,7 @@ export default function Navbar({ userEmail }: NavbarProps) {
                   <User className="h-3.5 w-3.5 text-slate-400" /> My Profile
                 </Link>
                 <Link
-                  href="/dashboard/settings"
+                  href="/settings"
                   role="menuitem"
                   onClick={() => setDropdownOpen(false)}
                   className="flex items-center gap-2.5 px-3.5 py-2 text-sm text-slate-700 hover:bg-slate-50"

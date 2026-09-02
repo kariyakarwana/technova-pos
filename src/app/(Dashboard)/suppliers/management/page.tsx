@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import SupplierManagementClientView from "@/components/dashboard/suppliers/management/SupplierManagementClientView";
+import SupplierOperations from "@/components/operations/SupplierOperations";
 
 export const metadata: Metadata = {
   title: "Supplier Management | TechNova POS",
@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function SupplierManagementPage() {
-  return <SupplierManagementClientView />;
+  return <SupplierOperations />;
 }

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import StockTransferClientView from "@/components/dashboard/inventory/transfer/StockTransferClientView";
+import TransferOperations from "@/components/operations/TransferOperations";
 
 export const metadata: Metadata = {
   title: "Stock Transfer Management | TechNova POS",
@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function StockTransferPage() {
-  return <StockTransferClientView />;
+  return <TransferOperations />;
 }

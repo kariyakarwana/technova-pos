@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import {
-  MOCK_PROFILE_DATA,
   type DeviceSession,
   type SettingsTabId,
 } from "./profile-settings.mock";
@@ -12,18 +11,24 @@ import SettingsNavigationTabs from "./SettingsNavigationTabs";
 import TwoFactorAuthSection from "./TwoFactorAuthSection";
 import ChangePasswordForm from "./ChangePasswordForm";
 import RecentDevicesTable from "./RecentDevicesTable";
+import { apiClient } from "@/lib/api/client";
+import type { CurrentUser } from "@/lib/auth/session";
 
-export default function ProfileSettingsClientView() {
+type Session = { id: string; userAgent: string | null; createdAt: string; lastUsedAt: string | null };
+function sessionDevice(session: Session, index: number): DeviceSession { const ua = session.userAgent ?? "Unknown device"; const mobile = /mobile|android|iphone/i.test(ua); return { id: session.id, deviceType: mobile ? "mobile" : "laptop", deviceName: mobile ? "Mobile browser" : /windows/i.test(ua) ? "Windows computer" : /macintosh/i.test(ua) ? "Mac computer" : "Web browser", location: "Protected for privacy", lastActive: session.lastUsedAt ? new Date(session.lastUsedAt).toLocaleString() : new Date(session.createdAt).toLocaleString(), isCurrent: index === 0 }; }
+
+export default function ProfileSettingsClientView({ user, sessions }: { user: CurrentUser; sessions: Session[] }) {
   const [activeTab, setActiveTab] = useState<SettingsTabId>("security");
   const [isTwoFactorEnabled, setIsTwoFactorEnabled] = useState(
-    MOCK_PROFILE_DATA.isTwoFactorEnabled
+    false
   );
   const [devices, setDevices] = useState<DeviceSession[]>(
-    MOCK_PROFILE_DATA.devices
+    sessions.map(sessionDevice)
   );
 
-  function handleSignOutDevice(id: string) {
+  async function handleSignOutDevice(id: string) {
     if (confirm("Are you sure you want to sign out this device?")) {
+      await apiClient(`/auth/sessions/${id}`, { method: "DELETE" });
       setDevices((prev) => prev.filter((d) => d.id !== id));
     }
   }
@@ -38,7 +43,7 @@ export default function ProfileSettingsClientView() {
         {/* Left Sidebar (Profile Info + Navigation Tabs) */}
         <div className="lg:col-span-4 space-y-4">
           <ProfileInfoSidebarCard
-            user={MOCK_PROFILE_DATA.user}
+            user={{ name: user.name ?? user.email, email: user.email, role: user.roles.join(", ") || "Team member", avatar: "/TechNova.svg" }}
             onEditProfile={() => alert("Opening Edit Profile dialog...")}
           />
 

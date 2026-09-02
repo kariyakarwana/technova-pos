@@ -6,35 +6,18 @@ import { ChevronDown, Layers } from "lucide-react";
 interface OrderStatisticsHeatmapCardProps {
   days: string[];
   times: string[];
+  matrix: number[][];
 }
 
 export default function OrderStatisticsHeatmapCard({
   days,
   times,
+  matrix,
 }: OrderStatisticsHeatmapCardProps) {
   const [period, setPeriod] = useState("Weekly");
 
-  // Grid activity values (0: light mint, 1: medium mint, 2: dark teal)
-  const heatmapMatrix: number[][] = [
-    // 12 mp
-    [1, 1, 1, 1, 1, 2, 2],
-    // 12 pm
-    [1, 0, 1, 1, 2, 1, 1],
-    // 02 pm
-    [1, 1, 1, 1, 1, 1, 1],
-    // 12 am
-    [1, 1, 1, 1, 1, 1, 1],
-    // 10 am
-    [2, 2, 2, 1, 1, 1, 1],
-    // 8 am
-    [1, 1, 1, 1, 1, 2, 2],
-    // 6 am
-    [1, 1, 1, 1, 1, 1, 1],
-    // 4 am
-    [2, 2, 2, 2, 1, 1, 1],
-    // 2 am
-    [2, 2, 2, 1, 1, 1, 1],
-  ];
+  const maximum = Math.max(0, ...matrix.flat());
+  const intensity = (value: number) => value === 0 ? 0 : value >= maximum * 0.67 ? 2 : 1;
 
   function getCellColor(intensity: number) {
     switch (intensity) {
@@ -90,23 +73,19 @@ export default function OrderStatisticsHeatmapCard({
         {/* 7 Columns */}
         <div className="flex-1 space-y-2">
           <div className="grid grid-rows-9 gap-1.5">
-            {heatmapMatrix.map((row, rIdx) => (
+            {matrix.map((row, rIdx) => (
               <div key={rIdx} className="grid grid-cols-7 gap-1.5 h-4">
                 {row.map((cellValue, cIdx) => (
                   <div
                     key={cIdx}
                     className={[
                       "h-full rounded-sm transition-colors cursor-pointer relative group",
-                      getCellColor(cellValue),
+                      getCellColor(intensity(cellValue)),
                     ].join(" ")}
                   >
                     {/* Hover Tooltip */}
                     <div className="absolute -top-7 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none bg-slate-900 text-white text-[9px] font-bold py-0.5 px-2 rounded whitespace-nowrap shadow-md z-30">
-                      {cellValue === 2
-                        ? "297 Orders"
-                        : cellValue === 1
-                        ? "145 Orders"
-                        : "0 Orders"}
+                      {cellValue} {cellValue === 1 ? "Order" : "Orders"}
                     </div>
                   </div>
                 ))}

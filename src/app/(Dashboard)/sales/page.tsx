@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import SalesClientView from "@/components/dashboard/sales/SalesClientView";
+import SalesOperations from "@/components/operations/SalesOperations";
 
 export const metadata: Metadata = {
   title: "Sales Report | TechNova POS",
@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function SalesPage() {
-  return <SalesClientView />;
+  return <SalesOperations />;
 }

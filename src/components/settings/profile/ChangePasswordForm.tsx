@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Eye, EyeOff, Lock } from "lucide-react";
+import { apiPost } from "@/lib/api/client";
 
 export default function ChangePasswordForm() {
   const [currentPassword, setCurrentPassword] = useState("");
@@ -13,29 +14,29 @@ export default function ChangePasswordForm() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
 
-  function handleUpdatePassword(e: React.FormEvent) {
+  const [message, setMessage] = useState<string | null>(null);
+  async function handleUpdatePassword(e: React.FormEvent) {
     e.preventDefault();
     if (!currentPassword) {
-      alert("Please enter your current password.");
-      return;
+      return setMessage("Please enter your current password.");
     }
     if (!newPassword) {
-      alert("Please enter your new password.");
-      return;
+      return setMessage("Please enter your new password.");
     }
     if (newPassword !== confirmPassword) {
-      alert("New password and confirm password do not match.");
-      return;
+      return setMessage("New password and confirmation do not match.");
     }
 
     setIsUpdating(true);
-    setTimeout(() => {
-      setIsUpdating(false);
-      alert("Password updated successfully!");
+    setMessage(null);
+    try {
+      await apiPost("/auth/change-password", { currentPassword, newPassword });
+      setMessage("Password updated. Sign in again on your other devices.");
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
-    }, 500);
+    } catch (error) { setMessage(error instanceof Error ? error.message : "Unable to update password."); }
+    finally { setIsUpdating(false); }
   }
 
   return (
@@ -52,6 +53,7 @@ export default function ChangePasswordForm() {
 
       {/* Form Fields */}
       <form onSubmit={handleUpdatePassword} className="space-y-4">
+        {message && <p role="status" className="rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-700">{message}</p>}
         {/* Current Password */}
         <div>
           <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { MapPin, Users } from "lucide-react";
-import type { TopCustomerItem } from "./AdminDashboardMock";
+import type { TopCustomerItem } from "./AdminDashboardTypes";
 
 interface TopCustomersCardProps {
   customers: TopCustomerItem[];
@@ -43,6 +43,8 @@ export default function TopCustomersCard({ customers }: TopCustomersCardProps) {
               <div className="h-10 w-10 rounded-full bg-slate-100 overflow-hidden relative shrink-0 border border-slate-100">
                 <Image
                   src={item.avatarUrl}
+                  loader={({ src }) => src}
+                  unoptimized
                   alt={item.name}
                   fill
                   className="object-cover"

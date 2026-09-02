@@ -28,6 +28,24 @@ export const PERMISSIONS = {
 
   SETTINGS_MANAGE:
     "settings:manage",
+  SETTINGS_VIEW: "settings:view",
+  REPORTS_VIEW: "reports:view",
+  BRANCHES_VIEW: "branches:view",
+  BRANCHES_MANAGE: "branches:manage",
+  PRODUCTS_VIEW: "products:view",
+  PRODUCTS_MANAGE: "products:manage",
+  INVENTORY_VIEW: "inventory:view",
+  PURCHASES_VIEW: "purchases:view",
+  SUPPLIERS_VIEW: "suppliers:view",
+  SUPPLIERS_MANAGE: "suppliers:manage",
+  CUSTOMERS_VIEW: "customers:view",
+  CUSTOMERS_MANAGE: "customers:manage",
+  SALES_VIEW: "sales:view",
+  CREDIT_MANAGE: "credit:manage",
+  DISCOUNTS_MANAGE: "discounts:manage",
+  RETURNS_MANAGE: "returns:manage",
+  WARRANTIES_MANAGE: "warranties:manage",
+  NOTIFICATIONS_MANAGE: "notifications:manage",
 } as const;
 
 export type Permission =

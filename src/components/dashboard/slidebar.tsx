@@ -19,6 +19,10 @@ import {
   Truck,
   UserCog,
   Users,
+  BarChart3,
+  History,
+  Settings,
+  WifiOff,
 } from "lucide-react";
 
 const navItems = [
@@ -32,27 +36,34 @@ const navItems = [
   { name: "Suppliers", icon: Truck, href: "/suppliers" },
   { name: "Customers", icon: Users, href: "/customers" },
   { name: "Credit Management", icon: HandCoins, href: "/credit" },
-  { name: "Returns & Refunds", icon: RotateCcw, href: "/returns-refunds" },
+  { name: "Returns & Refunds", icon: RotateCcw, href: "/returns-refunds", exact: true },
+  { name: "Return History", icon: History, href: "/returns-refunds/history" },
   { name: "AI Intelligence", icon: Bot, href: "/ai-intelligence" },
   { name: "Employees", icon: UserCog, href: "/employees" },
   { name: "Branches", icon: GitFork, href: "/branches" },
   { name: "Promotions", icon: Megaphone, href: "/promotions" },
+  { name: "Bulk Discounts", icon: Tag, href: "/discounts", permission: "discounts:manage" },
   { name: "Notification Admin", icon: BellRing, href: "/notifications" },
+  { name: "Reports", icon: BarChart3, href: "/reports", permission: "reports:view" },
+  { name: "Offline Sync", icon: WifiOff, href: "/offline-sync" },
+  { name: "Audit Log", icon: History, href: "/audit-log", permission: "audit:view" },
+  { name: "Settings", icon: Settings, href: "/settings", permission: "settings:view" },
 ] as const;
 
-export default function Sidebar() {
+export default function Sidebar({ permissions = [], roles = [] }: { permissions?: string[]; roles?: string[] }) {
   const pathname = usePathname();
+  const isSuperAdmin = roles.includes("SUPER_ADMIN");
 
   return (
     <nav
       aria-label="Dashboard navigation"
       className="flex w-full flex-col space-y-2 px-4 py-3"
     >
-      {navItems.map((item) => {
+      {navItems.filter((item) => !("permission" in item) || isSuperAdmin || permissions.includes(item.permission)).map((item) => {
         const Icon = item.icon;
         const isActive =
-          item.href === "/dashboard"
-            ? pathname === "/dashboard"
+          item.href === "/dashboard" || ("exact" in item && item.exact)
+            ? pathname === item.href
             : pathname === item.href || pathname.startsWith(`${item.href}/`);
 
         return (

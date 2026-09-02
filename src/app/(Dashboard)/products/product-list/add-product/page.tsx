@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import AddProductClientView from "@/components/dashboard/products/add/AddProductClientView";
+import ProductForm from "@/components/operations/ProductForm";
 
 export const metadata: Metadata = {
   title: "Create Product | TechNova POS",
@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function AddProductPage() {
-  return <AddProductClientView />;
+  return <ProductForm />;
 }
