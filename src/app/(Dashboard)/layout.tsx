@@ -27,18 +27,18 @@ export default async function DashboardLayout({
   return (
     <BranchProvider branches={branches}>
     <OfflineProvider>
-      <div className="min-h-screen bg-[#F9F9FF] text-[#151C27] font-sans flex flex-col">
+      <div className="flex h-screen overflow-hidden bg-[#F9F9FF] font-sans text-[#151C27]">
         {/* Offline banner sits above the sticky Navbar when isOffline === true */}
-        <OfflineBannerController />
-
-        <Navbar userEmail={user?.email} />
-
-        <div className="flex flex-1">
-          <aside className="w-72 shrink-0 border-r border-[rgba(190,201,194,0.4)] bg-white py-3 hidden md:block">
+        <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+          <OfflineBannerController />
+          <Navbar userEmail={user?.email} />
+          <div className="flex min-h-0 flex-1">
+          <aside className="hidden w-72 shrink-0 overflow-y-auto overscroll-contain border-r border-[rgba(190,201,194,0.4)] bg-white py-3 md:block">
             <Sidebar permissions={user?.permissions ?? []} roles={user?.roles ?? []} />
           </aside>
 
-          <main className="flex-1 bg-gray-50/30 overflow-y-auto">{children}</main>
+          <main className="min-w-0 flex-1 overflow-y-auto overscroll-contain bg-gray-50/30">{children}</main>
+          </div>
         </div>
       </div>
     </OfflineProvider>

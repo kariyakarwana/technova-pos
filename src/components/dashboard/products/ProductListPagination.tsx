@@ -17,6 +17,8 @@ export default function ProductListPagination({
   onPageChange,
   onRowsPerPageChange,
 }: ProductListPaginationProps) {
+  const safeTotal = Math.max(1, totalPages);
+  const pages = Array.from(new Set([1, currentPage - 1, currentPage, currentPage + 1, safeTotal])).filter((page) => page >= 1 && page <= safeTotal).sort((a, b) => a - b);
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 mt-2 border-t border-[#E4E7EC] text-xs text-slate-500">
       {/* Rows per page selector */}
@@ -49,9 +51,10 @@ export default function ProductListPagination({
           <ChevronLeft className="h-3.5 w-3.5" />
         </button>
 
-        {[1, 2, 3].map((page) => (
+        {pages.map((page, index) => (
+          <span key={page} className="contents">
+          {index > 0 && page - pages[index - 1] > 1 && <span className="px-1 font-bold text-slate-400">...</span>}
           <button
-            key={page}
             type="button"
             onClick={() => onPageChange(page)}
             className={[
@@ -63,30 +66,13 @@ export default function ProductListPagination({
           >
             {page}
           </button>
+          </span>
         ))}
-
-        {totalPages > 4 && (
-          <>
-            <span className="px-1 text-slate-400 font-bold">...</span>
-            <button
-              type="button"
-              onClick={() => onPageChange(totalPages)}
-              className={[
-                "h-7 w-7 rounded-md text-xs font-semibold transition-colors cursor-pointer",
-                currentPage === totalPages
-                  ? "bg-[#0E9384] text-white"
-                  : "border border-[#E4E7EC] bg-white text-slate-600 hover:bg-slate-50",
-              ].join(" ")}
-            >
-              {totalPages}
-            </button>
-          </>
-        )}
 
         <button
           type="button"
-          onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
-          disabled={currentPage === totalPages}
+          onClick={() => onPageChange(Math.min(safeTotal, currentPage + 1))}
+          disabled={currentPage >= safeTotal}
           className="h-7 w-7 rounded-md border border-[#E4E7EC] bg-white flex items-center justify-center text-slate-500 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
           aria-label="Next page"
         >

@@ -47,7 +47,7 @@ export default function Navbar({ userEmail }: NavbarProps) {
   const displayEmail = userEmail ?? "admin@technova.com";
 
   return (
-    <nav className="sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-[#E6EAED] bg-white px-6">
+    <nav className="z-40 flex h-16 w-full shrink-0 items-center justify-between border-b border-[#E6EAED] bg-white px-6">
       <Image
         src="/TechNova.svg"
         alt="TechNova Logo"

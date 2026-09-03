@@ -40,7 +40,13 @@ export async function apiClient<T>(
 
   if (!response.ok) {
     if (response.status === 401 && typeof window !== "undefined") {
-      window.location.href = `/login?reason=session-expired&callbackUrl=${encodeURIComponent(window.location.pathname)}`;
+      const loginUrl = new URL("/login", window.location.origin);
+      loginUrl.searchParams.set("reason", "session-expired");
+      loginUrl.searchParams.set(
+        "callbackUrl",
+        `${window.location.pathname}${window.location.search}`,
+      );
+      window.location.assign(loginUrl.toString());
     }
     throw new ApiError(
       errorMessage(body, `Request failed (${response.status}).`),

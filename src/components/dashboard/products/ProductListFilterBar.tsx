@@ -9,8 +9,8 @@ interface ProductListFilterBarProps {
   onCategoryChange: (cat: string) => void;
   selectedBrand: string;
   onBrandChange: (brand: string) => void;
-  categories: string[];
-  brands: string[];
+  categories: Array<{ id: string; name: string }>;
+  brands: Array<{ id: string; name: string }>;
 }
 
 export default function ProductListFilterBar({
@@ -46,9 +46,10 @@ export default function ProductListFilterBar({
             onChange={(e) => onCategoryChange(e.target.value)}
             className="h-8 pl-3 pr-7 text-xs bg-white border border-[#E4E7EC] rounded-lg text-slate-700 appearance-none focus:outline-none focus:border-[#0E9384] cursor-pointer shadow-xs font-medium"
           >
+            <option value="All">All categories</option>
             {categories.map((c) => (
-              <option key={c} value={c}>
-                {c === "All" ? "Category" : c}
+              <option key={c.id} value={c.id}>
+                {c.name}
               </option>
             ))}
           </select>
@@ -62,9 +63,10 @@ export default function ProductListFilterBar({
             onChange={(e) => onBrandChange(e.target.value)}
             className="h-8 pl-3 pr-7 text-xs bg-white border border-[#E4E7EC] rounded-lg text-slate-700 appearance-none focus:outline-none focus:border-[#0E9384] cursor-pointer shadow-xs font-medium"
           >
+            <option value="All">All brands</option>
             {brands.map((b) => (
-              <option key={b} value={b}>
-                {b === "All" ? "Brand" : b}
+              <option key={b.id} value={b.id}>
+                {b.name}
               </option>
             ))}
           </select>
