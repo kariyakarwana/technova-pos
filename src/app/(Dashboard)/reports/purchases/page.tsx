@@ -1,0 +1,2 @@
+import ReportTable from "@/components/reports/ReportTable";
+export default function PurchasesReportPage() { return <ReportTable title="Purchase Orders Report" endpoint="/reports/purchases" branchScoped filters={["search", "supplier", "status", "amount"]} statusOptions={["DRAFT", "SUBMITTED", "APPROVED", "PARTIALLY_RECEIVED", "RECEIVED", "CANCELLED"]} searchPlaceholder="Order number or supplier" />; }
