@@ -45,7 +45,11 @@ export default function PurchaseOrderOperations() {
   const [orders, setOrders] = useState<Order[]>([]),
     [meta, setMeta] = useState<PageMeta>({ page: 1, pageSize: 20, total: 0, pageCount: 0 }),
     [page, setPage] = useState(1), [pageSize, setPageSize] = useState(20),
-    [search, setSearch] = useState(""), [status, setStatus] = useState(""), [from, setFrom] = useState(""), [to, setTo] = useState(""),
+    [orderNumber, setOrderNumber] = useState(""),
+    [filterSupplierId, setFilterSupplierId] = useState(""),
+    [minAmount, setMinAmount] = useState(""),
+    [maxAmount, setMaxAmount] = useState(""),
+    [status, setStatus] = useState(""), [from, setFrom] = useState(""), [to, setTo] = useState(""),
     [suppliers, setSuppliers] = useState<Supplier[]>([]),
     [products, setProducts] = useState<Product[]>([]),
     [open, setOpen] = useState(false),
@@ -57,7 +61,14 @@ export default function PurchaseOrderOperations() {
     [saving, setSaving] = useState(false);
   const load = useCallback(async () => {
     const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
-    if (branchId) params.set("branchId", branchId); if (search) params.set("search", search); if (status) params.set("status", status); if (from) params.set("from", `${from}T00:00:00.000Z`); if (to) params.set("to", `${to}T23:59:59.999Z`);
+    if (branchId) params.set("branchId", branchId);
+    if (orderNumber.trim()) params.set("orderNumber", orderNumber.trim());
+    if (filterSupplierId) params.set("supplierId", filterSupplierId);
+    if (minAmount) params.set("minAmount", minAmount);
+    if (maxAmount) params.set("maxAmount", maxAmount);
+    if (status) params.set("status", status);
+    if (from) params.set("from", `${from}T00:00:00.000Z`);
+    if (to) params.set("to", `${to}T23:59:59.999Z`);
     const [o, s, p] = await Promise.all([
       apiGet<{ data: Order[]; meta: PageMeta }>(`/purchasing/orders?${params}`),
       apiGet<{ data: Supplier[] }>("/suppliers?pageSize=100"),
@@ -69,7 +80,7 @@ export default function PurchaseOrderOperations() {
     setMeta(o.meta);
     setSuppliers(s.data);
     setProducts(p.data);
-  }, [branchId, from, page, pageSize, search, status, to]);
+  }, [branchId, filterSupplierId, from, maxAmount, minAmount, orderNumber, page, pageSize, status, to]);
   useEffect(() => {
     void load().catch((e) =>
       setMessage(
@@ -77,7 +88,7 @@ export default function PurchaseOrderOperations() {
       ),
     );
   }, [load]);
-  useEffect(() => setPage(1), [branchId, from, pageSize, search, status, to]);
+  useEffect(() => setPage(1), [branchId, filterSupplierId, from, maxAmount, minAmount, orderNumber, pageSize, status, to]);
   function update(i: number, value: Partial<Line>) {
     setLines((current) =>
       current.map((line, index) =>
@@ -183,7 +194,25 @@ export default function PurchaseOrderOperations() {
           {message}
         </div>
       )}
-      <section className="grid gap-3 rounded-2xl border bg-white p-4 sm:grid-cols-2 xl:grid-cols-6"><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Order or supplier" className="h-10 rounded-xl border px-3 text-sm"/><select value={status} onChange={(e) => setStatus(e.target.value)} className="h-10 rounded-xl border px-3 text-sm"><option value="">All statuses</option><option value="DRAFT">Draft</option><option value="APPROVED">Approved</option><option value="PARTIALLY_RECEIVED">Partially received</option><option value="RECEIVED">Received</option><option value="CANCELLED">Cancelled</option></select><input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="h-10 rounded-xl border px-3"/><input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="h-10 rounded-xl border px-3"/><button type="button" onClick={() => { setSearch(""); setStatus(""); setFrom(""); setTo(""); }} className="h-10 rounded-xl border font-semibold">Clear</button></section>
+      <section className="rounded-2xl border bg-white p-4 shadow-sm">
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <div>
+            <h2 className="font-bold text-slate-800">Filter purchase orders</h2>
+            <p className="text-xs text-slate-500">Find orders by supplier, order number, value, status or date.</p>
+          </div>
+          <button type="button" onClick={() => { setOrderNumber(""); setFilterSupplierId(""); setMinAmount(""); setMaxAmount(""); setStatus(""); setFrom(""); setTo(""); }} className="h-9 rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-600 hover:border-[#0E9384] hover:text-[#0E9384]">Clear filters</button>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
+          <label className="text-xs font-semibold text-slate-600">Order number<input value={orderNumber} onChange={(e) => setOrderNumber(e.target.value)} placeholder="Search PO number" className={input}/></label>
+          <label className="text-xs font-semibold text-slate-600">Supplier<select value={filterSupplierId} onChange={(e) => setFilterSupplierId(e.target.value)} className={input}><option value="">All suppliers</option>{suppliers.map((supplier) => <option key={supplier.id} value={supplier.id}>{supplier.code} · {supplier.name}</option>)}</select></label>
+          <label className="text-xs font-semibold text-slate-600">Minimum amount<input type="number" min="0" step="0.01" value={minAmount} onChange={(e) => setMinAmount(e.target.value)} placeholder="0.00" className={input}/></label>
+          <label className="text-xs font-semibold text-slate-600">Maximum amount<input type="number" min="0" step="0.01" value={maxAmount} onChange={(e) => setMaxAmount(e.target.value)} placeholder="Any amount" className={input}/></label>
+          <label className="text-xs font-semibold text-slate-600">Status<select value={status} onChange={(e) => setStatus(e.target.value)} className={input}><option value="">All statuses</option><option value="DRAFT">Draft</option><option value="SUBMITTED">Submitted</option><option value="APPROVED">Approved</option><option value="PARTIALLY_RECEIVED">Partially received</option><option value="RECEIVED">Received</option><option value="CANCELLED">Cancelled</option></select></label>
+          <label className="text-xs font-semibold text-slate-600">From date<input type="date" value={from} max={to || undefined} onChange={(e) => setFrom(e.target.value)} className={input}/></label>
+          <label className="text-xs font-semibold text-slate-600">To date<input type="date" value={to} min={from || undefined} onChange={(e) => setTo(e.target.value)} className={input}/></label>
+        </div>
+        {minAmount && maxAmount && Number(minAmount) > Number(maxAmount) && <p className="mt-3 text-sm font-medium text-rose-600">Minimum amount cannot be greater than maximum amount.</p>}
+      </section>
       <section className="overflow-hidden rounded-2xl border bg-white shadow-sm">
         <table className="w-full text-left text-sm">
           <thead className="bg-slate-50 text-xs uppercase text-slate-500">
