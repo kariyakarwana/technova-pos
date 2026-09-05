@@ -42,6 +42,7 @@ export const config = {
   matcher: [
     "/dashboard/:path*",
     "/notifications/:path*",
+    "/notification/:path*",
     "/credit/:path*",
     "/warranties/:path*",
     "/qr-scanner/:path*",
@@ -60,5 +61,7 @@ export const config = {
     "/returns-refunds/:path*",
     "/employees/:path*",
     "/branches/:path*",
+    "/supplier-dashboard/:path*",
+    "/change-temporary-password/:path*",
   ],
 };

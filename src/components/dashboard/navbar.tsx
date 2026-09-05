@@ -97,7 +97,7 @@ export default function Navbar({ userEmail }: NavbarProps) {
         </button>
 
         <Link
-          href="/notifications"
+          href="/notification"
           id="navbar-notifications-btn"
           className="relative flex h-8 w-8 items-center justify-center rounded-lg border border-[#0E9384] text-[#0E9384] transition-colors hover:bg-[#EEFFFD]"
           aria-label="Notifications"

@@ -17,28 +17,23 @@ import {
   ArrowDown,
   ArrowUp,
   ArrowUpDown,
-  ChevronDown,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   Eye,
   Filter,
   MoreVertical,
   Search,
 } from "lucide-react";
-import type {
-  DeliveryStatus,
-  SupplierPurchaseOrder,
-} from "./supplier-portal.mock";
+import type { SupplierPurchaseOrder } from "./supplier-portal.mock";
 
 interface SupplierActiveOrdersTableProps {
   orders: SupplierPurchaseOrder[];
-  onStatusChange: (id: string, newStatus: DeliveryStatus) => void;
   onFilterToggle?: () => void;
 }
 
 export default function SupplierActiveOrdersTable({
   orders,
-  onStatusChange,
   onFilterToggle,
 }: SupplierActiveOrdersTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -131,39 +126,19 @@ export default function SupplierActiveOrdersTable({
         header: () => <span className="font-bold text-slate-600">Delivery Status</span>,
         cell: ({ row }) => {
           const status = row.original.deliveryStatus;
-          const id = row.original.id;
-
-          let bgClasses = "bg-[#B91C1C] text-white"; // Pending
+          let bgClasses = "bg-amber-100 text-amber-800";
           if (status === "Dispatched") {
-            bgClasses = "bg-[#092C4C] text-white"; // Dispatched
-          } else if (status === "Delivered") {
-            bgClasses = "bg-[var(--brand-green)] text-white"; // Delivered
+            bgClasses = "bg-[#092C4C] text-white";
+          } else if (["Received", "Accepted"].includes(status)) {
+            bgClasses = "bg-emerald-100 text-emerald-800";
+          } else if (status === "Rejected") {
+            bgClasses = "bg-rose-100 text-rose-800";
+          } else if (status === "Changes proposed") {
+            bgClasses = "bg-blue-100 text-blue-800";
           }
 
           return (
-            <div className="relative inline-block">
-              <select
-                value={status}
-                onChange={(e) =>
-                  onStatusChange(id, e.target.value as DeliveryStatus)
-                }
-                className={[
-                  "h-7 pl-3 pr-7 text-[11px] font-semibold rounded-md appearance-none focus:outline-none cursor-pointer shadow-2xs transition-colors",
-                  bgClasses,
-                ].join(" ")}
-              >
-                <option value="Pending" className="text-slate-800 bg-white">
-                  Pending
-                </option>
-                <option value="Dispatched" className="text-slate-800 bg-white">
-                  Dispatched
-                </option>
-                <option value="Delivered" className="text-slate-800 bg-white">
-                  Delivered
-                </option>
-              </select>
-              <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 text-white pointer-events-none" />
-            </div>
+            <span className={`inline-flex rounded-full px-3 py-1 text-[11px] font-semibold ${bgClasses}`}>{status}</span>
           );
         },
       },
@@ -194,7 +169,7 @@ export default function SupplierActiveOrdersTable({
         ),
       },
     ],
-    [onStatusChange]
+    []
   );
 
   // ── TanStack Table Instance ─────────────────────────────────────────────

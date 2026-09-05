@@ -1,4 +1,4 @@
 export type Branding = { logoUrl: string | null; receiptLogoUrl: string | null; primaryColor: string | null; secondaryColor: string | null };
-export type OrganizationSettings = { id: string; name: string; registrationNumber: string | null; phone: string | null; email: string | null; address: Record<string, string> | null; timezone: string; currencyCode: string; branding: Branding | null };
+export type OrganizationSettings = { id: string; name: string; registrationNumber: string | null; phone: string | null; email: string | null; address: Record<string, string> | null; timezone: string; currencyCode: string; branding: Branding | null; supplierPortalEnabled: boolean; supplierOrderChangesEnabled: boolean; supplierEmailNotificationsEnabled: boolean; supplierInAppNotificationsEnabled: boolean };
 export type ApiPermission = { id: string; key: string; description: string | null };
 export type ApiRole = { id: string; name: string; description: string | null; isSystem: boolean; permissions: Array<{ permission: ApiPermission }>; _count?: { users: number } };

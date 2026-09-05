@@ -127,6 +127,18 @@ export default function OrganizationProfileCard({
                 <div><label className="block text-xs font-semibold text-[var(--brand-black-font)] mb-1.5">Registration Number</label><input value={organization.registrationNumber ?? ""} onChange={(event) => update("registrationNumber", event.target.value)} className="w-full h-10 px-3.5 text-xs bg-white border border-[var(--brand-stroke)] rounded-xl" /></div>
                 <div><label className="block text-xs font-semibold text-[var(--brand-black-font)] mb-1.5">Logo URL</label><input type="url" value={logoUrl} onChange={(event) => updateBranding("logoUrl", event.target.value)} placeholder="https://.../logo.png" className="w-full h-10 px-3.5 text-xs bg-white border border-[var(--brand-stroke)] rounded-xl" /></div>
               </div>
+              <div className="rounded-xl border border-slate-200 p-4">
+                <h3 className="text-sm font-bold text-slate-900">Supplier portal features</h3>
+                <p className="mt-1 text-xs text-slate-500">Organization-wide controls. Individual supplier settings can disable notifications or changes further.</p>
+                <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                  {([
+                    ["Enable supplier portal", "supplierPortalEnabled"],
+                    ["Allow order change proposals", "supplierOrderChangesEnabled"],
+                    ["Supplier email notifications", "supplierEmailNotificationsEnabled"],
+                    ["Supplier in-app notifications", "supplierInAppNotificationsEnabled"],
+                  ] as const).map(([label, key]) => <label key={key} className="flex items-center justify-between rounded-lg bg-slate-50 p-3 text-xs font-semibold"><span>{label}</span><input type="checkbox" disabled={readOnly} checked={organization[key]} onChange={(event) => update(key, event.target.checked)} className="h-4 w-4 accent-[#0E9384]" /></label>)}
+                </div>
+              </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div><label className="block text-xs font-semibold text-[var(--brand-black-font)] mb-1.5">Timezone</label><input value={organization.timezone} onChange={(event) => update("timezone", event.target.value)} className="w-full h-10 px-3.5 text-xs bg-white border border-[var(--brand-stroke)] rounded-xl" /></div>
                 <div><label className="block text-xs font-semibold text-[var(--brand-black-font)] mb-1.5">Currency</label><input maxLength={3} value={organization.currencyCode} onChange={(event) => update("currencyCode", event.target.value.toUpperCase())} className="w-full h-10 px-3.5 text-xs bg-white border border-[var(--brand-stroke)] rounded-xl" /></div>

@@ -4,8 +4,10 @@ import { useState } from "react";
 import Link from "next/link";
 import { Eye, EyeOff, Lock } from "lucide-react";
 import { apiPost } from "@/lib/api/client";
+import { useRouter } from "next/navigation";
 
-export default function ChangePasswordForm() {
+export default function ChangePasswordForm({ redirectTo }: { redirectTo?: string }) {
+  const router = useRouter();
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -35,6 +37,7 @@ export default function ChangePasswordForm() {
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
+      if (redirectTo) router.replace(redirectTo);
     } catch (error) { setMessage(error instanceof Error ? error.message : "Unable to update password."); }
     finally { setIsUpdating(false); }
   }

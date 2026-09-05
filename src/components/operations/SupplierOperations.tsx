@@ -33,17 +33,6 @@ export default function SupplierOperations() {
   useEffect(() => {
     void load();
   }, [load]);
-  function startEdit(item: Supplier) {
-    setEditing(item);
-    setForm({
-      code: item.code,
-      name: item.name,
-      contactName: item.contactName ?? "",
-      phone: item.phone ?? "",
-      email: item.email ?? "",
-    });
-    setOpen(true);
-  }
   async function submit(event: React.FormEvent) {
     event.preventDefault();
     setMessage(null);
@@ -90,17 +79,13 @@ export default function SupplierOperations() {
             Maintain the approved vendor directory used by purchase orders.
           </p>
         </div>
-        <button
-          onClick={() => {
-            setEditing(null);
-            setForm(emptyForm);
-            setOpen(true);
-          }}
+        <Link
+          href="/suppliers/create"
           className="flex items-center gap-2 rounded-xl bg-[#0E9384] px-4 py-2.5 text-sm font-semibold text-white"
         >
           <Plus className="h-4 w-4" />
           Add supplier
-        </button>
+        </Link>
       </div>
       {message && (
         <div className="rounded-xl border border-teal-200 bg-teal-50 p-3 text-sm text-teal-800">
@@ -161,12 +146,12 @@ export default function SupplierOperations() {
                     >
                       View
                     </Link>
-                    <button
-                      onClick={() => startEdit(item)}
+                    <Link
+                      href={`/suppliers/${item.id}/edit`}
                       className="font-semibold text-slate-600"
                     >
                       Edit
-                    </button>
+                    </Link>
                     <button
                       onClick={() => toggle(item)}
                       className="font-semibold text-rose-600"

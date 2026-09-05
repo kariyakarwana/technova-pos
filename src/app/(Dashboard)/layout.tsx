@@ -6,6 +6,7 @@ import { OfflineProvider } from "@/components/dashboard/pos/OfflineContext";
 import OfflineBannerController from "@/components/dashboard/pos/OfflineBannerController";
 import { BranchProvider, type BranchOption } from "@/components/dashboard/BranchContext";
 import { serverApi } from "@/lib/api/server";
+import { redirect } from "next/navigation";
 
 export default async function DashboardLayout({
   children,
@@ -13,6 +14,8 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
   const user = await getCurrentUser();
+  if (user?.roles.includes("SUPPLIER")) redirect("/supplier-dashboard");
+  if (user?.mustChangePassword) redirect("/change-temporary-password");
   const branches = user
     ? await serverApi<{ data: Array<{ id: string; code: string; name: string; status: string }> }>("/branches?pageSize=100")
         .then((result): BranchOption[] => result.data.map((branch) => ({
