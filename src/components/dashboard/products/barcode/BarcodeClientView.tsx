@@ -74,6 +74,36 @@ export default function BarcodeClientView() {
         onReset={handleReset}
         onPrint={handlePrint}
       />
+      <style jsx global>{`
+        @media print {
+          body * {
+            visibility: hidden !important;
+          }
+
+          .barcode-print-root,
+          .barcode-print-root * {
+            visibility: visible !important;
+          }
+
+          .barcode-print-root {
+            position: absolute !important;
+            inset: 0 !important;
+            width: 100% !important;
+            margin: 0 !important;
+            border: 0 !important;
+            box-shadow: none !important;
+            background: white !important;
+          }
+
+          .barcode-print-actions {
+            display: none !important;
+          }
+
+          @page {
+            margin: 10mm;
+          }
+        }
+      `}</style>
     </main>
   );
 }

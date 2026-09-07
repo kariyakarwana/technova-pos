@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import PurchaseDetailsClientView from "@/components/dashboard/purchases/order-details/PurchaseDetailsClientView";
+import PurchaseOrderDetail, { type PurchaseDetail } from "@/components/operations/PurchaseOrderDetail";
+import { serverApi } from "@/lib/api/server";
 
 export const metadata: Metadata = {
   title: "Purchase Order Details | TechNova POS",
@@ -14,5 +15,6 @@ export default async function PurchaseOrderDetailsPage({
   params,
 }: PurchaseOrderDetailsPageProps) {
   const { id } = await params;
-  return <PurchaseDetailsClientView id={id} />;
+  const order = await serverApi<PurchaseDetail>(`/purchasing/orders/${id}`);
+  return <PurchaseOrderDetail initial={order} />;
 }

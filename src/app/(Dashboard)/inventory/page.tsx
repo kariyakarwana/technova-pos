@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import InventoryClientView from "@/components/dashboard/inventory/InventoryClientView";
+import InventoryOperations from "@/components/operations/InventoryOperations";
 
 export const metadata: Metadata = {
   title: "Inventory Management | TechNova POS",
@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function InventoryPage() {
-  return <InventoryClientView />;
+  return <InventoryOperations />;
 }

@@ -52,12 +52,11 @@ export default function SupplierPortalHeader({
           </button>
 
           <div className="relative">
-            <input
-              type="text"
+            <select
               value={dateRange}
               onChange={(e) => onDateRangeChange(e.target.value)}
-              className="h-9 pl-9 pr-3 text-xs bg-white border border-[var(--brand-stroke)] rounded-xl text-slate-700 font-semibold focus:outline-none focus:border-[var(--brand-green)] shadow-2xs"
-            />
+              className="h-9 pl-9 pr-8 text-xs bg-white border border-[var(--brand-stroke)] rounded-xl text-slate-700 font-semibold focus:outline-none focus:border-[var(--brand-green)] shadow-2xs"
+            ><option value="30">Last 30 days</option><option value="90">Last 90 days</option><option value="365">Last 12 months</option><option value="all">All orders</option></select>
             <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--brand-green)] pointer-events-none" />
           </div>
         </div>

@@ -39,7 +39,7 @@ export default function CustomerManagementHeader({
       <div className="flex items-center gap-3">
         {/* Add Customer Button */}
         <Link
-          href="/customers/create"
+          href="/customers"
           onClick={onAddCustomer}
           className="h-9 px-4 rounded-xl border border-[var(--brand-green)] bg-white hover:bg-[#E6F7F5] text-[var(--brand-green)] text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer"
         >

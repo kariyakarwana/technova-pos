@@ -1,75 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { AlertCircle, ShoppingBag } from "lucide-react";
-import type { PromotionActivityLogItem } from "./PromotionsMock";
+import { ShoppingBag } from "lucide-react";
+import { formatMoney, type PromotionActivity } from "./promotion-types";
 
-interface PromotionsRecentActivitySidebarProps {
-  activity: PromotionActivityLogItem[];
-  onViewAllActivity?: () => void;
-}
-
-export default function PromotionsRecentActivitySidebar({
-  activity,
-  onViewAllActivity,
-}: PromotionsRecentActivitySidebarProps) {
-  return (
-    <div className="bg-white rounded-2xl border border-[var(--brand-stroke)] shadow-xs overflow-hidden flex flex-col justify-between">
-      <div className="p-6 space-y-5">
-        {/* Title */}
-        <h2 className="text-base font-bold text-[var(--brand-black-font)]">
-          Recent Activity
-        </h2>
-
-        {/* Activity Stream */}
-        <div className="space-y-4">
-          {activity.map((item) => {
-            const isWarning = item.type === "warning";
-
-            return (
-              <div key={item.id} className="flex items-start gap-3 text-xs">
-                {/* Icon */}
-                <div
-                  className={[
-                    "h-8 w-8 rounded-full flex items-center justify-center shrink-0 shadow-2xs mt-0.5",
-                    isWarning
-                      ? "bg-rose-100 text-rose-600"
-                      : "bg-blue-100 text-blue-600",
-                  ].join(" ")}
-                >
-                  {isWarning ? (
-                    <AlertCircle className="h-4 w-4" />
-                  ) : (
-                    <ShoppingBag className="h-4 w-4" />
-                  )}
-                </div>
-
-                {/* Content */}
-                <div className="space-y-0.5 flex-1">
-                  <p className="font-semibold text-[var(--brand-black-font)] leading-snug">
-                    {item.highlightCode && (
-                      <span className="font-bold">{item.highlightCode}</span>
-                    )}{" "}
-                    {item.title.replace(item.highlightCode || "", "").trim()}
-                  </p>
-                  <p className="text-[11px] text-slate-400 font-medium">
-                    {item.subtitle}
-                  </p>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Footer Link */}
-      <Link
-        href="/promotions/activity"
-        onClick={onViewAllActivity}
-        className="py-3.5 bg-slate-50/50 hover:bg-slate-100/70 border-t border-[var(--brand-stroke)] text-[var(--brand-green)] text-xs font-semibold flex items-center justify-center transition-colors cursor-pointer"
-      >
-        View All Activity
-      </Link>
-    </div>
-  );
+export default function PromotionsRecentActivitySidebar({ activity }: { activity: PromotionActivity[] }) {
+  return <div className="flex h-full flex-col justify-between overflow-hidden rounded-2xl border border-[var(--brand-stroke)] bg-white shadow-xs">
+    <div className="space-y-5 p-6"><h2 className="text-base font-bold text-[var(--brand-black-font)]">Recent redemptions</h2><div className="space-y-4">
+      {activity.map((item) => { const customer = item.sale.customer ? `${item.sale.customer.firstName} ${item.sale.customer.lastName}`.trim() : "Walk-in customer"; return <div key={item.id} className="flex items-start gap-3 text-xs"><div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-[var(--brand-green)]"><ShoppingBag className="h-4 w-4" /></div><div><p className="font-bold text-[var(--brand-black-font)]">{item.promotionName}</p><p className="text-[11px] text-slate-500">{item.sale.invoiceNumber} · {customer}</p><p className="text-[11px] text-slate-500">{formatMoney(item.amount)} discount · {new Intl.DateTimeFormat("en-LK", { dateStyle: "medium", timeStyle: "short" }).format(new Date(item.sale.createdAt))}</p></div></div>; })}
+      {!activity.length && <p className="py-8 text-center text-xs text-slate-500">Promotion redemptions will appear here after sales are completed.</p>}
+    </div></div>
+    <Link href="/promotions/performance" className="border-t border-[var(--brand-stroke)] bg-slate-50 py-3.5 text-center text-xs font-semibold text-[var(--brand-green)] hover:bg-slate-100">View complete performance</Link>
+  </div>;
 }

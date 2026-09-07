@@ -210,7 +210,7 @@ export default function UpdateEmployeePage() {
 
             {/* Form Footer Buttons */}
             <div className="flex items-center justify-end gap-3 mt-10 pt-6 border-t border-gray-100">
-              <Link href="/employee-management">
+              <Link href="/employees">
                 <button 
                   type="button"
                   className="px-6 py-2 text-sm font-medium text-white bg-[#0F172A] rounded-md hover:bg-slate-800 transition-colors"

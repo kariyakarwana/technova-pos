@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ChevronDown, Tag } from "lucide-react";
-import type { CategoryMetric } from "./AdminDashboardMock";
+import type { CategoryMetric } from "./AdminDashboardTypes";
 
 interface TopCategoriesCardProps {
   categories: CategoryMetric[];
@@ -70,7 +70,6 @@ export default function TopCategoriesCard({
               strokeWidth="14"
               strokeDasharray="238.7"
               strokeDashoffset="181.4"
-              strokeDashoffset-offset="119.35"
               fill="transparent"
               className="rotate-[180deg] origin-center"
             />

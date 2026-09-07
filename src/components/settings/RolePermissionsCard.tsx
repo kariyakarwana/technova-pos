@@ -8,14 +8,11 @@ import {
   SlidersHorizontal,
   Users,
 } from "lucide-react";
-import {
-  ALL_PERMISSIONS,
-  PERMISSION_GROUPS,
-  type RoleItem,
-} from "./settings.mock";
+import type { ApiPermission, ApiRole } from "./settings.types";
 
 interface RolePermissionsCardProps {
-  currentRole: RoleItem;
+  currentRole: ApiRole;
+  permissions: ApiPermission[];
   selectedPermissionIds: string[];
   onTogglePermission: (permissionId: string) => void;
   onReset: () => void;
@@ -25,6 +22,7 @@ interface RolePermissionsCardProps {
 
 export default function RolePermissionsCard({
   currentRole,
+  permissions,
   selectedPermissionIds,
   onTogglePermission,
   onReset,
@@ -59,6 +57,7 @@ export default function RolePermissionsCard({
           <button
             type="button"
             onClick={onReset}
+            disabled={currentRole.isSystem}
             className="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-lg border border-[var(--brand-green)] text-[var(--brand-green)] bg-white hover:bg-emerald-50/40 text-xs font-semibold shadow-2xs transition-colors cursor-pointer"
           >
             <RotateCcw className="h-3 w-3" />
@@ -68,20 +67,18 @@ export default function RolePermissionsCard({
           <button
             type="button"
             onClick={onSave}
-            disabled={isSaving}
+            disabled={isSaving || currentRole.isSystem}
             className="inline-flex items-center gap-1.5 h-8 px-4 rounded-lg bg-[#0E7A6E] hover:bg-[#0C6A60] active:scale-[0.98] text-white text-xs font-bold shadow-2xs transition-all cursor-pointer disabled:opacity-50"
           >
-            <span>{isSaving ? "Saving..." : "Save Rules"}</span>
+            <span>{currentRole.isSystem ? "System role" : isSaving ? "Saving..." : "Save Rules"}</span>
           </button>
         </div>
       </div>
 
       {/* Permission Groups Body */}
       <div className="p-6 space-y-6 flex-1 overflow-y-auto">
-        {PERMISSION_GROUPS.map((group) => {
-          const groupPermissions = ALL_PERMISSIONS.filter(
-            (p) => p.group === group
-          );
+        {Array.from(new Set(permissions.map((permission) => permission.key.split(":")[0]))).map((group) => {
+          const groupPermissions = permissions.filter((permission) => permission.key.startsWith(`${group}:`));
 
           return (
             <div key={group} className="space-y-3">
@@ -89,7 +86,7 @@ export default function RolePermissionsCard({
               <div className="flex items-center gap-2 pb-2 border-b border-[var(--brand-stroke)]">
                 {getGroupIcon(group)}
                 <h3 className="text-xs font-bold text-[var(--brand-black-font)] tracking-tight">
-                  {group}
+                  {group.replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase())}
                 </h3>
               </div>
 
@@ -97,19 +94,19 @@ export default function RolePermissionsCard({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {groupPermissions.map((perm) => {
                   const isChecked =
-                    perm.locked || selectedPermissionIds.includes(perm.id);
+                    selectedPermissionIds.includes(perm.id);
 
                   return (
                     <div
                       key={perm.id}
                       onClick={() => {
-                        if (!perm.locked) {
+                        if (!currentRole.isSystem) {
                           onTogglePermission(perm.id);
                         }
                       }}
                       className={[
                         "flex items-start gap-3 p-2.5 rounded-xl transition-all select-none",
-                        perm.locked
+                        currentRole.isSystem
                           ? "cursor-not-allowed opacity-80"
                           : "cursor-pointer hover:bg-slate-50",
                       ].join(" ")}
@@ -118,9 +115,9 @@ export default function RolePermissionsCard({
                       <div
                         className={[
                           "h-5 w-5 rounded-md flex items-center justify-center shrink-0 mt-0.5 transition-colors border",
-                          isChecked && !perm.locked
+                          isChecked && !currentRole.isSystem
                             ? "bg-[#0E7A6E] border-[#0E7A6E] text-white"
-                            : isChecked && perm.locked
+                            : isChecked && currentRole.isSystem
                             ? "bg-slate-400 border-slate-400 text-white"
                             : "border-slate-300 bg-white",
                         ].join(" ")}
@@ -131,10 +128,10 @@ export default function RolePermissionsCard({
                       {/* Label & Description */}
                       <div className="space-y-0.5">
                         <span className="text-xs font-bold text-[var(--brand-black-font)] block">
-                          {perm.label}
+                          {perm.key.replaceAll(":", " · ").replaceAll("_", " ")}
                         </span>
                         <p className="text-[11px] text-slate-500 font-medium leading-relaxed">
-                          {perm.description}
+                          {perm.description ?? "Allows this operation."}
                         </p>
                       </div>
                     </div>

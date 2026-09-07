@@ -9,7 +9,7 @@ export default function SupplierQuickNavCards() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
         {/* Card 1: Suppliers */}
         <Link
-          href="/suppliers/supplier-list"
+          href="/suppliers/management"
           className="group h-32 rounded-2xl bg-[#246A66] hover:bg-[#1D5753] text-white p-6 flex flex-col justify-between transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer"
         >
           <div className="h-10 w-10 rounded-xl bg-white/15 flex items-center justify-center text-white group-hover:scale-105 transition-transform">

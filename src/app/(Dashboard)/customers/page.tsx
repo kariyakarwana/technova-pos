@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import CustomerManagementClientView from "@/components/dashboard/customers/management/CustomerManagementClientView";
+import CustomerOperations from "@/components/operations/CustomerOperations";
 
 export const metadata: Metadata = {
   title: "Customer Management | TechNova POS",
@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function CustomersPage() {
-  return <CustomerManagementClientView />;
+  return <CustomerOperations />;
 }

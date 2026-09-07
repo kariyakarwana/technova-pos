@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import UpdateSupplierHeader from "./UpdateSupplierHeader";
 import UpdateSupplierInformationCard from "./UpdateSupplierInformationCard";
 import UpdateSupplierContactDetailsCard from "./UpdateSupplierContactDetailsCard";
 import UpdateSupplierFinancialDetailsCard from "./UpdateSupplierFinancialDetailsCard";
 import UpdateSupplierFormActions from "./UpdateSupplierFormActions";
+import { apiGet, apiPatch } from "@/lib/api/client";
 
 interface UpdateSupplierClientViewProps {
   id?: string;
@@ -19,54 +20,91 @@ export default function UpdateSupplierClientView({
 
   // Initial prefilled values
   const [isPreferred, setIsPreferred] = useState(true);
-  const [companyName, setCompanyName] = useState("Global IT Traders");
+  const [companyName, setCompanyName] = useState("");
   const [supplierId] = useState(id ? String(id) : "SUP-1001");
-  const [description, setDescription] = useState(
-    "Primary enterprise hardware provider for servers, switches, and high-performance NVMe storage modules."
-  );
+  const [description, setDescription] = useState("");
 
-  const [contactName, setContactName] = useState("Sarah Chen");
-  const [email, setEmail] = useState("schen@globalit.cn");
-  const [phone, setPhone] = useState("+86 (123) 456-7890");
-  const [website, setWebsite] = useState("https://www.globalittraders.cn");
-  const [address, setAddress] = useState("123 Technology Blvd, Suite 400");
-  const [city, setCity] = useState("Shenzhen");
-  const [state, setState] = useState("Guangdong");
-  const [zipCode, setZipCode] = useState("518000");
+  const [contactName, setContactName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [website, setWebsite] = useState("");
+  const [address, setAddress] = useState("");
+  const [city, setCity] = useState("");
+  const [state, setState] = useState("");
+  const [zipCode, setZipCode] = useState("");
 
-  const [taxId, setTaxId] = useState("VAT-88429910");
+  const [taxId, setTaxId] = useState("");
   const [paymentTerms, setPaymentTerms] = useState("Net 30");
-  const [creditLimit, setCreditLimit] = useState("25000.00");
+  const [creditLimit, setCreditLimit] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [portalEnabled, setPortalEnabled] = useState(false);
+  const [allowOrderChanges, setAllowOrderChanges] = useState(true);
+  const [emailNotificationsEnabled, setEmailNotificationsEnabled] = useState(true);
+  const [inAppNotificationsEnabled, setInAppNotificationsEnabled] = useState(true);
+  const [message, setMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!id) return;
+    apiGet<{
+      name: string; contactName: string | null; email: string | null; phone: string | null;
+      address: Record<string, string> | null; portalEnabled: boolean;
+      allowOrderChanges: boolean | null; emailNotificationsEnabled: boolean | null;
+      inAppNotificationsEnabled: boolean | null;
+    }>(`/suppliers/${id}`).then((supplier) => {
+      const values = supplier.address ?? {};
+      setCompanyName(supplier.name);
+      setContactName(supplier.contactName ?? "");
+      setEmail(supplier.email ?? "");
+      setPhone(supplier.phone ?? "");
+      setAddress(values.address ?? ""); setCity(values.city ?? "");
+      setState(values.state ?? ""); setZipCode(values.zipCode ?? "");
+      setWebsite(values.website ?? ""); setDescription(values.description ?? "");
+      setTaxId(values.taxId ?? ""); setPaymentTerms(values.paymentTerms ?? "Net 30");
+      setCreditLimit(values.creditLimit ?? ""); setIsPreferred(values.preferred === "true");
+      setPortalEnabled(supplier.portalEnabled);
+      setAllowOrderChanges(supplier.allowOrderChanges ?? true);
+      setEmailNotificationsEnabled(supplier.emailNotificationsEnabled ?? true);
+      setInAppNotificationsEnabled(supplier.inAppNotificationsEnabled ?? true);
+    }).catch((error) => setMessage(error instanceof Error ? error.message : "Unable to load supplier."));
+  }, [id]);
 
   function handleCancel() {
     router.push("/suppliers/management");
   }
 
   function handleSaveDraft() {
-    alert("Supplier updates saved as Draft.");
+    setMessage("Supplier drafts are not enabled. Save the updates when they are ready.");
   }
 
-  function handleSaveCreate() {
+  async function handleSaveCreate() {
     if (!companyName.trim()) {
-      alert("Please enter a Company Name.");
+      setMessage("Please enter a Company Name.");
       return;
     }
     if (!contactName.trim()) {
-      alert("Please enter a Primary Contact Name.");
+      setMessage("Please enter a Primary Contact Name.");
       return;
     }
     if (!email.trim()) {
-      alert("Please enter a valid Email Address.");
+      setMessage("Please enter a valid Email Address.");
       return;
     }
 
     setIsSubmitting(true);
-    setTimeout(() => {
+    setMessage(null);
+    try {
+      await apiPatch(`/suppliers/${id}`, {
+        name: companyName.trim(), contactName: contactName.trim(), email: email.trim(),
+        phone: phone.trim() || undefined,
+        address: { address, city, state, zipCode, website, description, taxId, paymentTerms, creditLimit, preferred: String(isPreferred) },
+        portalEnabled, allowOrderChanges, emailNotificationsEnabled, inAppNotificationsEnabled,
+      });
+      router.push(`/suppliers/${id}`); router.refresh();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Unable to update supplier.");
+    } finally {
       setIsSubmitting(false);
-      alert(`Supplier "${companyName}" updated successfully!`);
-      router.push("/suppliers/management");
-    }, 600);
+    }
   }
 
   return (
@@ -79,6 +117,7 @@ export default function UpdateSupplierClientView({
 
       {/* 2. Form Stack */}
       <div className="space-y-6 max-w-5xl">
+        {message && <div role="status" className="rounded-xl border border-teal-200 bg-teal-50 p-4 text-sm text-teal-800">{message}</div>}
         {/* Card 1: Supplier Information */}
         <UpdateSupplierInformationCard
           companyName={companyName}
@@ -117,6 +156,19 @@ export default function UpdateSupplierClientView({
           creditLimit={creditLimit}
           onCreditLimitChange={setCreditLimit}
         />
+
+        <section className="rounded-2xl border border-[var(--brand-stroke)] bg-white p-6 shadow-xs">
+          <h2 className="font-bold text-slate-900">Supplier portal access</h2>
+          <p className="mt-1 text-sm text-slate-500">Enabling access for the first time creates the supplier login and emails a temporary password. Disabling it immediately blocks that login.</p>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            {[
+              ["Supplier login enabled", portalEnabled, setPortalEnabled],
+              ["Allow proposed order changes", allowOrderChanges, setAllowOrderChanges],
+              ["Email notifications", emailNotificationsEnabled, setEmailNotificationsEnabled],
+              ["In-app notifications", inAppNotificationsEnabled, setInAppNotificationsEnabled],
+            ].map(([label, checked, setter]) => <label key={String(label)} className="flex items-center justify-between rounded-xl border border-slate-200 p-4 text-sm font-semibold text-slate-700">{String(label)}<input type="checkbox" checked={Boolean(checked)} onChange={(event) => (setter as (value: boolean) => void)(event.target.checked)} className="h-4 w-4 accent-[#0E9384]" /></label>)}
+          </div>
+        </section>
 
         {/* Card 4: Action Buttons */}
         <UpdateSupplierFormActions

@@ -1,0 +1,2 @@
+import ReportTable from "@/components/reports/ReportTable";
+export default function StockMovementsReportPage() { return <ReportTable title="Stock Movement Report" endpoint="/reports/stock-movements" branchScoped filters={["search", "product", "status"]} statusOptions={["PURCHASE_RECEIPT", "SALE", "RETURN_IN", "RETURN_OUT", "ADJUSTMENT_IN", "ADJUSTMENT_OUT", "TRANSFER_IN", "TRANSFER_OUT"]} searchPlaceholder="SKU, product, reason or reference" />; }

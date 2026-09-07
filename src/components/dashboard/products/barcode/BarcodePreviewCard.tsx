@@ -18,7 +18,7 @@ export default function BarcodePreviewCard({
   return (
     <div className="space-y-6">
       {/* Printable Sheet Preview */}
-      <div className="p-6 bg-white border border-[var(--brand-stroke)] rounded-2xl shadow-xs space-y-4">
+      <div className="barcode-print-root p-6 bg-white border border-[var(--brand-stroke)] rounded-2xl shadow-xs space-y-4">
         <h2 className="text-sm font-bold text-[var(--brand-black-font)]">
           Barcode Preview
         </h2>
@@ -81,7 +81,7 @@ export default function BarcodePreviewCard({
       </div>
 
       {/* Action Footer */}
-      <div className="flex items-center justify-end gap-3 pt-2">
+      <div className="barcode-print-actions flex items-center justify-end gap-3 pt-2">
         <button
           type="button"
           onClick={onReset}

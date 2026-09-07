@@ -52,7 +52,7 @@ export default function InventorySidebarWidgets() {
 
           {/* Adjustment Dashboard */}
           <Link
-            href="/inventory/adjustments"
+            href="/inventory/adjustment"
             className="w-full h-10 rounded-xl border border-[#E4E7EC] bg-white hover:bg-slate-50 text-[#1D2939] text-xs font-semibold flex items-center justify-center gap-2 transition-colors shadow-xs"
           >
             <SlidersHorizontal className="h-4 w-4 text-slate-500" />
@@ -61,7 +61,7 @@ export default function InventorySidebarWidgets() {
 
           {/* Transfer Dashboard */}
           <Link
-            href="/inventory/transfers"
+            href="/inventory/transfer"
             className="w-full h-10 rounded-xl border border-[#E4E7EC] bg-white hover:bg-slate-50 text-[#1D2939] text-xs font-semibold flex items-center justify-center gap-2 transition-colors shadow-xs"
           >
             <Truck className="h-4 w-4 text-slate-500" />

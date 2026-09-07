@@ -28,7 +28,8 @@ export default async function LoginPage() {
   const user = await getCurrentUser();
 
   if (user) {
-    redirect("/dashboard");
+    if (user.mustChangePassword) redirect("/change-temporary-password");
+    redirect(user.roles.includes("SUPPLIER") ? "/supplier-dashboard" : "/dashboard");
   }
 
   return (
@@ -48,8 +49,7 @@ export default async function LoginPage() {
       <GoogleButton />
 
       <p className="mt-5 text-center text-xs leading-5 text-slate-400">
-        Access is limited to authorised
-        TechNova employees.
+        Access is limited to authorised TechNova employees and supplier contacts.
       </p>
     </AuthLayout>
   );

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { MonthlySalesPurchase } from "./AdminDashboardMock";
+import type { MonthlySalesPurchase } from "./AdminDashboardTypes";
 
 interface SalesPurchaseChartCardProps {
   data: MonthlySalesPurchase[];
@@ -12,7 +12,11 @@ export default function SalesPurchaseChartCard({
 }: SalesPurchaseChartCardProps) {
   const [activeTimeframe, setActiveTimeframe] = useState("1Y");
   const timeframes = ["1D", "1W", "1M", "3M", "6M", "1Y"];
-  const maxScale = 60; // 60K
+  const totalPurchase = data.reduce((sum, item) => sum + item.purchase, 0);
+  const totalSales = data.reduce((sum, item) => sum + item.sales, 0);
+  const maxValue = Math.max(1, ...data.flatMap((item) => [item.purchase, item.sales]));
+  const maxScale = Math.ceil(maxValue / 1000) * 1000 || 1;
+  const compact = (value: number) => new Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 1 }).format(value);
 
   return (
     <div className="bg-white rounded-2xl border border-[var(--brand-stroke)] p-6 shadow-xs flex flex-col justify-between space-y-6">
@@ -58,7 +62,7 @@ export default function SalesPurchaseChartCard({
               Total Purchase
             </span>
             <span className="text-sm font-bold text-[var(--brand-black-font)]">
-              49K
+              {compact(totalPurchase)}
             </span>
           </div>
         </div>
@@ -71,7 +75,7 @@ export default function SalesPurchaseChartCard({
               Total Sales
             </span>
             <span className="text-sm font-bold text-[var(--brand-black-font)]">
-              38K
+              {compact(totalSales)}
             </span>
           </div>
         </div>
@@ -81,13 +85,7 @@ export default function SalesPurchaseChartCard({
       <div className="flex items-end gap-3 pt-4">
         {/* Y-Axis */}
         <div className="flex flex-col justify-between h-44 text-[11px] font-semibold text-slate-400 pb-6 shrink-0">
-          <span>60K</span>
-          <span>50K</span>
-          <span>40K</span>
-          <span>30K</span>
-          <span>20K</span>
-          <span>10K</span>
-          <span>0</span>
+          {Array.from({ length: 7 }, (_, index) => <span key={index}>{compact(maxScale * (6 - index) / 6)}</span>)}
         </div>
 
         {/* Dual Bars Container */}
@@ -115,7 +113,7 @@ export default function SalesPurchaseChartCard({
 
                 {/* Tooltip on Hover */}
                 <div className="absolute -top-10 z-30 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none bg-slate-800 text-white text-[10px] py-1 px-2 rounded whitespace-nowrap shadow-md">
-                  P: {item.purchase}K | S: {item.sales}K
+                  Purchase: {compact(item.purchase)} | Sales: {compact(item.sales)}
                 </div>
 
                 {/* Month Label */}

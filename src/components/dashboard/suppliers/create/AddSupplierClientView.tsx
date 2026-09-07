@@ -7,6 +7,7 @@ import SupplierInformationCard from "./SupplierInformationCard";
 import SupplierContactDetailsCard from "./SupplierContactDetailsCard";
 import SupplierFinancialDetailsCard from "./SupplierFinancialDetailsCard";
 import AddSupplierFormActions from "./AddSupplierFormActions";
+import { apiPost } from "@/lib/api/client";
 
 export default function AddSupplierClientView() {
   const router = useRouter();
@@ -14,7 +15,7 @@ export default function AddSupplierClientView() {
   // State
   const [isPreferred, setIsPreferred] = useState(false);
   const [companyName, setCompanyName] = useState("");
-  const [supplierId] = useState("SUP-1006");
+  const [supplierId] = useState(() => `SUP-${Date.now().toString().slice(-8)}`);
   const [description, setDescription] = useState("");
 
   const [contactName, setContactName] = useState("");
@@ -30,35 +31,67 @@ export default function AddSupplierClientView() {
   const [paymentTerms, setPaymentTerms] = useState("Net 30");
   const [creditLimit, setCreditLimit] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [portalEnabled, setPortalEnabled] = useState(true);
+  const [allowOrderChanges, setAllowOrderChanges] = useState(true);
+  const [emailNotificationsEnabled, setEmailNotificationsEnabled] = useState(true);
+  const [inAppNotificationsEnabled, setInAppNotificationsEnabled] = useState(true);
+  const [message, setMessage] = useState<string | null>(null);
 
   function handleCancel() {
     router.push("/suppliers");
   }
 
   function handleSaveDraft() {
-    alert("Supplier saved as Draft.");
+    setMessage("Supplier drafts are not enabled. Use Save & Create when the details are ready.");
   }
 
-  function handleSaveCreate() {
+  async function handleSaveCreate() {
     if (!companyName.trim()) {
-      alert("Please enter a Company Name.");
+      setMessage("Please enter a Company Name.");
       return;
     }
     if (!contactName.trim()) {
-      alert("Please enter a Primary Contact Name.");
+      setMessage("Please enter a Primary Contact Name.");
       return;
     }
     if (!email.trim()) {
-      alert("Please enter a valid Email Address.");
+      setMessage("Please enter a valid Email Address.");
       return;
     }
 
     setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
-      alert(`Supplier "${companyName}" created successfully!`);
+    setMessage(null);
+    try {
+      await apiPost("/suppliers", {
+        code: supplierId,
+        name: companyName.trim(),
+        contactName: contactName.trim(),
+        email: email.trim(),
+        phone: phone.trim() || undefined,
+        address: {
+          address,
+          city,
+          state,
+          zipCode,
+          website,
+          description,
+          taxId,
+          paymentTerms,
+          creditLimit,
+          preferred: String(isPreferred),
+        },
+        portalEnabled,
+        allowOrderChanges,
+        emailNotificationsEnabled,
+        inAppNotificationsEnabled,
+      });
       router.push("/suppliers/management");
-    }, 600);
+      router.refresh();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Unable to create supplier.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -71,6 +104,7 @@ export default function AddSupplierClientView() {
 
       {/* 2. Form Stack */}
       <div className="space-y-6 max-w-5xl">
+        {message && <div role="status" className="rounded-xl border border-teal-200 bg-teal-50 p-4 text-sm text-teal-800">{message}</div>}
         {/* Card 1: Supplier Information */}
         <SupplierInformationCard
           companyName={companyName}
@@ -109,6 +143,24 @@ export default function AddSupplierClientView() {
           creditLimit={creditLimit}
           onCreditLimitChange={setCreditLimit}
         />
+
+        <section className="rounded-2xl border border-[var(--brand-stroke)] bg-white p-6 shadow-xs">
+          <h2 className="font-bold text-slate-900">Supplier portal access</h2>
+          <p className="mt-1 text-sm text-slate-500">When enabled, a secure temporary password is generated and emailed to this supplier contact.</p>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            {[
+              ["Create supplier login", portalEnabled, setPortalEnabled],
+              ["Allow proposed order changes", allowOrderChanges, setAllowOrderChanges],
+              ["Email notifications", emailNotificationsEnabled, setEmailNotificationsEnabled],
+              ["In-app notifications", inAppNotificationsEnabled, setInAppNotificationsEnabled],
+            ].map(([label, checked, setter]) => (
+              <label key={String(label)} className="flex items-center justify-between rounded-xl border border-slate-200 p-4 text-sm font-semibold text-slate-700">
+                {String(label)}
+                <input type="checkbox" checked={Boolean(checked)} onChange={(event) => (setter as (value: boolean) => void)(event.target.checked)} className="h-4 w-4 accent-[#0E9384]" />
+              </label>
+            ))}
+          </div>
+        </section>
 
         {/* Card 4: Action Buttons */}
         <AddSupplierFormActions

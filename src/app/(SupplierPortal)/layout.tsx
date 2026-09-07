@@ -1,18 +1,21 @@
 import React from "react";
-import Navbar from "@/components/dashboard/navbar";
+import SupplierPortalNavbar from "@/components/supplier-portal/layout/SupplierPortalNavbar";
 import SupplierPortalSidebar from "@/components/supplier-portal/layout/SupplierPortalSidebar";
-import { getCurrentUser } from "@/lib/auth/session";
+import { requireAuthenticatedUser } from "@/lib/auth/session";
+import { redirect } from "next/navigation";
 
 export default async function SupplierPortalLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const user = await getCurrentUser();
+  const user = await requireAuthenticatedUser("/supplier-dashboard");
+  if (!user.roles.includes("SUPPLIER")) redirect("/forbidden");
+  if (user.mustChangePassword) redirect("/change-temporary-password");
 
   return (
     <div className="min-h-screen bg-[#F9F9FF] text-[#151C27] font-sans flex flex-col">
-      <Navbar userEmail={user?.email} />
+      <SupplierPortalNavbar userEmail={user.email} />
 
       <div className="flex flex-1">
         <aside className="w-72 shrink-0 border-r border-[rgba(190,201,194,0.4)] bg-white py-3 hidden md:block">

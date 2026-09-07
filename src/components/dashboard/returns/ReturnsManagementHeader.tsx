@@ -47,7 +47,7 @@ export default function ReturnsManagementHeader({
 
         {/* Process New Return */}
         <Link
-          href="/returns-refunds/create"
+          href="/returns-refunds"
           onClick={onProcessReturn}
           className="h-9 px-4 rounded-xl bg-[var(--brand-green)] hover:bg-[#0B6E63] text-white text-xs font-bold flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer"
         >

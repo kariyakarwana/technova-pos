@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Archive, LayoutGrid, ScanBarcode } from "lucide-react";
+import { Archive, BadgeCheck, LayoutGrid, ScanBarcode } from "lucide-react";
 import PageHeader from "@/components/common/PageHeader";
 import NavigationActionCard from "@/components/common/NavigationActionCard";
 
@@ -17,6 +17,11 @@ const productActions = [
     title: "View Categories",
     href: "/products/categories",
     icon: LayoutGrid,
+  },
+  {
+    title: "Manage Brands",
+    href: "/products/brands",
+    icon: BadgeCheck,
   },
   {
     title: "Barcode Operations",

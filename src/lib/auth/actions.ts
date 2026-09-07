@@ -33,12 +33,17 @@ export async function loginAction(_state: AuthActionState, formData: FormData): 
   if (!parsed.success) return { status: "error", message: "Enter a valid email and password.", fieldErrors: fields(parsed.error) };
   const response = await request("/auth/login", parsed.data);
   if (!response.ok) return { status: "error", message: await message(response, "Email or password is incorrect, or the account is unavailable.") };
-  const result = (await response.json()) as { accessToken: string; expiresIn: number };
+  const result = (await response.json()) as {
+    accessToken: string;
+    expiresIn: number;
+    user: { roles: string[]; mustChangePassword?: boolean };
+  };
   const store = await cookies();
   store.set(ACCESS_COOKIE, result.accessToken, { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", maxAge: result.expiresIn });
   const refreshToken = response.headers.get("set-cookie")?.match(/technova_refresh=([^;]+)/)?.[1];
   if (refreshToken) store.set(REFRESH_COOKIE, refreshToken, { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", maxAge: 8 * 60 * 60 });
-  redirect("/dashboard");
+  if (result.user.mustChangePassword) redirect("/change-temporary-password");
+  redirect(result.user.roles.includes("SUPPLIER") ? "/supplier-dashboard" : "/dashboard");
 }
 
 export async function logoutAction(): Promise<void> {

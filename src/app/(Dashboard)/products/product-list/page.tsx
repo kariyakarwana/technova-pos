@@ -1,10 +1,15 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  MOCK_PRODUCTS,
   type ProductItem,
 } from "@/components/dashboard/products/products.mock";
+import { apiGet, apiPatch } from "@/lib/api/client";
+import { useBranch } from "@/components/dashboard/BranchContext";
+
+type ApiProduct = { id: string; sku: string; name: string; sellingPrice: string | number; unit?: string; images: Array<{ url: string }>; category: { name: string } | null; brand: { name: string } | null; stockLevels: Array<{ quantityOnHand: string | number }> };
+type Lookup = { id: string; name: string };
+type ProductPage = { data: ApiProduct[]; meta: { page: number; pageSize: number; total: number; pageCount: number } };
 import ProductListHeader from "@/components/dashboard/products/ProductListHeader";
 import ProductListFilterBar from "@/components/dashboard/products/ProductListFilterBar";
 import ProductListTable, {
@@ -14,7 +19,9 @@ import ProductListTable, {
 import ProductListPagination from "@/components/dashboard/products/ProductListPagination";
 
 export default function ProductListPage() {
-  const [products, setProducts] = useState<ProductItem[]>(MOCK_PRODUCTS);
+  const { branchId } = useBranch();
+  const [products, setProducts] = useState<ProductItem[]>([]);
+  const [totalPages, setTotalPages] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedBrand, setSelectedBrand] = useState("All");
@@ -24,38 +31,11 @@ export default function ProductListPage() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
   const [isFilterCollapsed, setIsFilterCollapsed] = useState<boolean>(false);
-
-  const categories = useMemo(
-    () => ["All", ...Array.from(new Set(MOCK_PRODUCTS.map((p) => p.category)))],
-    []
-  );
-
-  const brands = useMemo(
-    () => ["All", ...Array.from(new Set(MOCK_PRODUCTS.map((p) => p.brand)))],
-    []
-  );
+  const [categories, setCategories] = useState<Lookup[]>([]);
+  const [brands, setBrands] = useState<Lookup[]>([]);
 
   const filteredProducts = useMemo(() => {
-    let result = [...products];
-
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase().trim();
-      result = result.filter(
-        (p) =>
-          p.name.toLowerCase().includes(q) ||
-          p.sku.toLowerCase().includes(q) ||
-          p.category.toLowerCase().includes(q) ||
-          p.brand.toLowerCase().includes(q)
-      );
-    }
-
-    if (selectedCategory !== "All") {
-      result = result.filter((p) => p.category === selectedCategory);
-    }
-
-    if (selectedBrand !== "All") {
-      result = result.filter((p) => p.brand === selectedBrand);
-    }
+    const result = [...products];
 
     result.sort((a, b) => {
       const aVal = a[sortField];
@@ -72,7 +52,7 @@ export default function ProductListPage() {
     });
 
     return result;
-  }, [products, searchQuery, selectedCategory, selectedBrand, sortField, sortOrder]);
+  }, [products, sortField, sortOrder]);
 
   function handleToggleSelectAll() {
     if (selectedIds.length === filteredProducts.length) {
@@ -97,13 +77,28 @@ export default function ProductListPage() {
     }
   }
 
-  function handleDelete(id: string) {
+  async function handleDelete(id: string) {
+    await apiPatch(`/catalog/products/${id}`, { status: "INACTIVE" });
     setProducts((prev) => prev.filter((p) => p.id !== id));
-    setSelectedIds((prev) => prev.filter((item) => item !== id));
   }
 
+  const loadProducts = useCallback(async () => {
+    const params = new URLSearchParams({ page: String(currentPage), pageSize: String(rowsPerPage), status: "ACTIVE" });
+    if (branchId) params.set("branchId", branchId);
+    if (searchQuery.trim()) params.set("search", searchQuery.trim());
+    if (selectedCategory !== "All") params.set("categoryId", selectedCategory);
+    if (selectedBrand !== "All") params.set("brandId", selectedBrand);
+    const result = await apiGet<ProductPage>(`/catalog/products?${params}`);
+    setProducts(result.data.map((product) => ({ id: product.id, sku: product.sku, name: product.name, category: product.category?.name ?? "Uncategorized", brand: product.brand?.name ?? "Unbranded", price: Number(product.sellingPrice), unit: product.unit ?? "unit", qty: product.stockLevels.reduce((sum, stock) => sum + Number(stock.quantityOnHand), 0), createdBy: "TechNova", productImage: product.images[0]?.url ?? "/TechNova.svg", avatarImage: "/TechNova.svg" })));
+    setTotalPages(Math.max(1, result.meta.pageCount));
+  }, [branchId, currentPage, rowsPerPage, searchQuery, selectedBrand, selectedCategory]);
+
+  useEffect(() => { const timer = setTimeout(() => void loadProducts(), 250); return () => clearTimeout(timer); }, [loadProducts]);
+  useEffect(() => { void Promise.all([apiGet<Lookup[]>("/catalog/categories"), apiGet<Lookup[]>("/catalog/brands")]).then(([categoryRows, brandRows]) => { setCategories(categoryRows); setBrands(brandRows); }); }, []);
+  useEffect(() => setCurrentPage(1), [branchId, rowsPerPage, searchQuery, selectedBrand, selectedCategory]);
+
   function handleRefresh() {
-    setProducts(MOCK_PRODUCTS);
+    void loadProducts();
     setSearchQuery("");
     setSelectedCategory("All");
     setSelectedBrand("All");
@@ -151,7 +146,7 @@ export default function ProductListPage() {
         {/* Pagination Controls */}
         <ProductListPagination
           currentPage={currentPage}
-          totalPages={15}
+          totalPages={totalPages}
           rowsPerPage={rowsPerPage}
           onPageChange={setCurrentPage}
           onRowsPerPageChange={setRowsPerPage}
