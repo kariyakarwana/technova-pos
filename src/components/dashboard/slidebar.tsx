@@ -56,7 +56,7 @@ export default function Sidebar({ permissions = [], roles = [] }: { permissions?
   return (
     <nav
       aria-label="Dashboard navigation"
-      className="flex w-full flex-col space-y-2 px-4 py-3"
+      className="flex w-full flex-col gap-2 px-4 py-3"
     >
       {navItems.filter((item) => !("permission" in item) || isSuperAdmin || permissions.includes(item.permission)).map((item) => {
         const Icon = item.icon;
@@ -70,13 +70,13 @@ export default function Sidebar({ permissions = [], roles = [] }: { permissions?
             key={item.href}
             href={item.href}
             aria-current={isActive ? "page" : undefined}
-            className={`relative flex h-11 w-full items-center rounded-[16px] border-[1.5px] font-medium transition-all duration-200 ${
+            className={`grid h-11 w-full grid-cols-[1.25rem_minmax(0,1fr)_1.25rem] items-center gap-3 rounded-2xl border-[1.5px] px-4 font-medium transition-all duration-200 ${
               isActive
                 ? "border-[#004532] bg-[#004532] font-semibold shadow-md shadow-[#004532]/25"
                 : "border-[#0E9384] bg-white hover:bg-[#EEFFFD]"
             }`}
           >
-            <span className="absolute left-4 flex items-center justify-center">
+            <span className="flex h-5 w-5 items-center justify-center">
               <Icon
                 className={`h-5 w-5 shrink-0 ${
                   isActive ? "text-white" : "text-[#0E9384]"
@@ -85,12 +85,13 @@ export default function Sidebar({ permissions = [], roles = [] }: { permissions?
               />
             </span>
             <span
-              className={`flex-1 pr-9 text-center text-sm ${
+              className={`min-w-0 whitespace-nowrap text-center text-sm leading-none ${
                 isActive ? "font-semibold text-white" : "text-[#0E9384]"
               }`}
             >
               {item.name}
             </span>
+            <span aria-hidden="true" className="h-5 w-5" />
           </Link>
         );
       })}
