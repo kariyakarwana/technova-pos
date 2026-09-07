@@ -13,6 +13,9 @@ type Sale = {
   id: string;
   invoiceNumber: string;
   status: string;
+  subtotal: string | number;
+  discountTotal: string | number;
+  taxTotal: string | number;
   total: string | number;
   paidTotal: string | number;
   balanceDue: string | number;
@@ -28,7 +31,9 @@ const escapeHtml = (value: unknown) => String(value ?? "").replaceAll("&", "&amp
 
 export default function SalesOperations({ isSuperAdmin = false }: { isSuperAdmin?: boolean }) {
   const { branchId, branches } = useBranch();
-  const [salesBranchId, setSalesBranchId] = useState(branchId);
+  const [salesBranchId, setSalesBranchId] = useState(
+    isSuperAdmin ? "" : branchId,
+  );
   const [result, setResult] = useState<{ data: Sale[]; meta: PageMeta }>({
     data: [],
     meta: initialMeta,
@@ -85,8 +90,8 @@ export default function SalesOperations({ isSuperAdmin = false }: { isSuperAdmin
   function printSales() {
     const printable = window.open("", "_blank");
     if (!printable) return window.alert("Allow pop-ups to open the printable sales report.");
-    const body = result.data.map((sale) => `<tr><td>${escapeHtml(sale.invoiceNumber)}</td><td>${escapeHtml(sale.customer ? `${sale.customer.firstName} ${sale.customer.lastName ?? ""}` : "Walk-in")}</td><td>${sale._count.items}</td><td>${Number(sale.total).toLocaleString()}</td><td>${Number(sale.paidTotal).toLocaleString()}</td><td>${Number(sale.balanceDue).toLocaleString()}</td><td>${escapeHtml(sale.status.replaceAll("_", " "))}</td></tr>`).join("");
-    printable.document.write(`<!doctype html><html><head><title>TechNova Sales Report</title><style>@page{size:landscape;margin:12mm}body{font-family:Arial;color:#1D2939}h1{font-size:20px}p{font-size:11px;color:#667085}table{width:100%;border-collapse:collapse;font-size:10px}th,td{border:1px solid #E4E7EC;padding:7px;text-align:left}th{background:#E9F7F5;color:#0B6E63}</style></head><body><h1>TechNova Sales Report</h1><p>Page ${result.meta.page} · ${result.data.length} displayed rows · Printed ${escapeHtml(new Date().toLocaleString())}</p><table><thead><tr><th>Invoice</th><th>Customer</th><th>Items</th><th>Total</th><th>Paid</th><th>Balance</th><th>Status</th></tr></thead><tbody>${body}</tbody></table><script>window.onload=()=>window.print()<\/script></body></html>`);
+    const body = result.data.map((sale) => `<tr><td>${escapeHtml(sale.invoiceNumber)}</td><td>${escapeHtml(sale.customer ? `${sale.customer.firstName} ${sale.customer.lastName ?? ""}` : "Walk-in")}</td><td>${sale._count.items}</td><td>${Number(sale.subtotal).toLocaleString()}</td><td>${Number(sale.discountTotal).toLocaleString()}</td><td>${Number(sale.taxTotal).toLocaleString()}</td><td>${Number(sale.total).toLocaleString()}</td><td>${Number(sale.paidTotal).toLocaleString()}</td><td>${Number(sale.balanceDue).toLocaleString()}</td><td>${escapeHtml(sale.status.replaceAll("_", " "))}</td></tr>`).join("");
+    printable.document.write(`<!doctype html><html><head><title>TechNova Sales Report</title><style>@page{size:landscape;margin:12mm}body{font-family:Arial;color:#1D2939}h1{font-size:20px}p{font-size:11px;color:#667085}table{width:100%;border-collapse:collapse;font-size:10px}th,td{border:1px solid #E4E7EC;padding:7px;text-align:left}th{background:#E9F7F5;color:#0B6E63}</style></head><body><h1>TechNova Sales Report</h1><p>Page ${result.meta.page} · ${result.data.length} displayed rows · Printed ${escapeHtml(new Date().toLocaleString())}</p><table><thead><tr><th>Invoice</th><th>Customer</th><th>Items</th><th>Original amount</th><th>Discount given</th><th>Tax</th><th>Final amount</th><th>Paid</th><th>Balance</th><th>Status</th></tr></thead><tbody>${body}</tbody></table><script>window.onload=()=>window.print()<\/script></body></html>`);
     printable.document.close();
   }
   return (
@@ -157,6 +162,7 @@ export default function SalesOperations({ isSuperAdmin = false }: { isSuperAdmin
             setCashierId("");
             setFrom("");
             setTo("");
+            if (isSuperAdmin) setSalesBranchId("");
           }}
           className="h-10 rounded-lg border border-[#E4E7EC] bg-white text-xs font-semibold text-slate-600 hover:bg-slate-50"
         >
@@ -178,7 +184,10 @@ export default function SalesOperations({ isSuperAdmin = false }: { isSuperAdmin
                 <th className="px-4 py-3">Customer</th>
                 <th className="px-4 py-3">Cashier</th>
                 <th className="px-4 py-3">Items</th>
-                <th className="px-4 py-3">Total</th>
+                <th className="px-4 py-3">Original amount</th>
+                <th className="px-4 py-3">Discount given</th>
+                <th className="px-4 py-3">Tax</th>
+                <th className="px-4 py-3">Final amount</th>
                 <th className="px-4 py-3">Paid</th>
                 <th className="px-4 py-3">Balance</th>
                 <th className="px-4 py-3">Status</th>
@@ -208,7 +217,17 @@ export default function SalesOperations({ isSuperAdmin = false }: { isSuperAdmin
                   <td className="px-4 py-3 text-xs text-slate-600">{sale.createdBy.email}</td>
                   <td className="px-4 py-3">{sale._count.items}</td>
                   <td className="px-4 py-3">
-                    <span className="font-semibold text-[#1D2939]">LKR {Number(sale.total).toLocaleString()}</span>
+                    <span className="font-semibold text-[#1D2939]">LKR {Number(sale.subtotal).toLocaleString()}</span>
+                    <p className="text-[10px] text-slate-400">Before discount</p>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className="font-semibold text-rose-600">- LKR {Number(sale.discountTotal).toLocaleString()}</span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className="text-slate-600">LKR {Number(sale.taxTotal).toLocaleString()}</span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className="font-semibold text-[#0E9384]">LKR {Number(sale.total).toLocaleString()}</span>
                   </td>
                   <td className="px-4 py-3">
                     <span className="text-emerald-700">LKR {Number(sale.paidTotal).toLocaleString()}</span>

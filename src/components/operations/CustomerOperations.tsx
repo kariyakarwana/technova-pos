@@ -17,7 +17,6 @@ type Customer = {
   loyaltyAccount: { pointsBalance: string | number } | null;
 };
 const blank = {
-  customerNumber: "",
   firstName: "",
   lastName: "",
   phone: "",
@@ -50,7 +49,6 @@ export default function CustomerOperations() {
   function edit(customer: Customer) {
     setEditing(customer);
     setForm({
-      customerNumber: customer.customerNumber,
       firstName: customer.firstName,
       lastName: customer.lastName ?? "",
       phone: customer.phone ?? "",
@@ -69,16 +67,33 @@ export default function CustomerOperations() {
       creditLimit: form.creditLimit,
     };
     try {
-      if (editing) await apiPatch(`/customers/${editing.id}`, payload);
-      else
-        await apiPost("/customers", {
-          ...payload,
-          customerNumber: form.customerNumber,
-        });
+      if (editing) {
+        await apiPatch(`/customers/${editing.id}`, payload);
+        setMessage("Customer updated successfully.");
+      } else {
+        const created = await apiPost<
+          Customer & {
+            welcomeNotifications: {
+              emailQueued: boolean;
+              whatsappQueued: boolean;
+            };
+          }
+        >("/customers", payload);
+        const channels = [
+          created.welcomeNotifications.emailQueued ? "email" : null,
+          created.welcomeNotifications.whatsappQueued ? "WhatsApp" : null,
+        ].filter(Boolean);
+        setMessage(
+          `Customer ${created.customerNumber} created successfully.${
+            channels.length
+              ? ` Welcome message queued by ${channels.join(" and ")}.`
+              : " Add an email address or phone number to send a welcome message."
+          }`,
+        );
+      }
       setOpen(false);
       setEditing(null);
       setForm(blank);
-      setMessage("Customer saved successfully.");
       await load();
     } catch (error) {
       setMessage(
@@ -213,17 +228,10 @@ export default function CustomerOperations() {
             </h2>
             <div className="grid gap-4 sm:grid-cols-2">
               {!editing && (
-                <label className="text-xs font-semibold">
-                  Customer number
-                  <input
-                    required
-                    value={form.customerNumber}
-                    onChange={(e) =>
-                      setForm({ ...form, customerNumber: e.target.value })
-                    }
-                    className="mt-1 h-10 w-full rounded-xl border px-3"
-                  />
-                </label>
+                <div className="rounded-xl border border-teal-200 bg-teal-50 p-3 text-xs text-teal-800 sm:col-span-2">
+                  <span className="font-semibold">Customer number</span>
+                  <span className="ml-2">Generated automatically when the customer is saved.</span>
+                </div>
               )}
               <label className="text-xs font-semibold">
                 First name
