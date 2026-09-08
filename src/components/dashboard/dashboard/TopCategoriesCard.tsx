@@ -8,14 +8,18 @@ interface TopCategoriesCardProps {
   categories: CategoryMetric[];
   totalCategories: number;
   totalProducts: number;
+  limit?: number;
+  initialPeriod?: string;
 }
 
 export default function TopCategoriesCard({
   categories,
   totalCategories,
   totalProducts,
+  limit = 3,
+  initialPeriod = "Weekly",
 }: TopCategoriesCardProps) {
-  const [period, setPeriod] = useState("Weekly");
+  const [period, setPeriod] = useState(initialPeriod);
 
   return (
     <div className="bg-white rounded-2xl border border-[var(--brand-stroke)] p-5 shadow-xs flex flex-col justify-between space-y-4">
@@ -101,7 +105,7 @@ export default function TopCategoriesCard({
 
         {/* Categories Legend */}
         <div className="space-y-2 flex-1">
-          {categories.map((cat) => (
+          {categories.slice(0, limit).map((cat) => (
             <div key={cat.name} className="flex items-center justify-between text-xs">
               <div className="flex items-center gap-2">
                 <span

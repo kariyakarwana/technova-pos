@@ -7,10 +7,12 @@ import type { LowStockItem } from "./AdminDashboardTypes";
 
 interface LowStockProductsCardProps {
   products: LowStockItem[];
+  limit?: number;
 }
 
 export default function LowStockProductsCard({
   products,
+  limit = 5,
 }: LowStockProductsCardProps) {
   return (
     <div className="bg-white rounded-2xl border border-[var(--brand-stroke)] p-5 shadow-xs flex flex-col justify-between space-y-4">
@@ -35,7 +37,7 @@ export default function LowStockProductsCard({
 
       {/* Product List */}
       <div className="space-y-3">
-        {products.map((item) => (
+        {products.slice(0, limit).map((item) => (
           <div
             key={item.id}
             className="flex items-center justify-between gap-3 text-xs"

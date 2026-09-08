@@ -5,12 +5,14 @@ import type { MonthlySalesPurchase } from "./AdminDashboardTypes";
 
 interface SalesPurchaseChartCardProps {
   data: MonthlySalesPurchase[];
+  initialTimeframe?: string;
 }
 
 export default function SalesPurchaseChartCard({
   data,
+  initialTimeframe = "1Y",
 }: SalesPurchaseChartCardProps) {
-  const [activeTimeframe, setActiveTimeframe] = useState("1Y");
+  const [activeTimeframe, setActiveTimeframe] = useState(initialTimeframe);
   const timeframes = ["1D", "1W", "1M", "3M", "6M", "1Y"];
   const totalPurchase = data.reduce((sum, item) => sum + item.purchase, 0);
   const totalSales = data.reduce((sum, item) => sum + item.sales, 0);
