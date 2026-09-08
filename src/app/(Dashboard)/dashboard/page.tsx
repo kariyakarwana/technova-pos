@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import AdminDashboardClientView from "@/components/dashboard/dahsboard/AdminDashboardClientView";
+import AdminDashboardClientView from "@/components/dashboard/dashboard/AdminDashboardClientView";
 
 export const metadata: Metadata = {
   title: "Admin Overview Dashboard | TechNova POS",
