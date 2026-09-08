@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import StockReceiveClientView from "@/components/dashboard/inventory/receive/StockReceiveClientView";
+import StockReceiptQueue from "@/components/operations/StockReceiptQueue";
 
 export const metadata: Metadata = {
   title: "Stock Receive From Supplier | TechNova POS",
@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function StockReceivePage() {
-  return <StockReceiveClientView />;
+  return <StockReceiptQueue />;
 }

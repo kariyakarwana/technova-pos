@@ -17,13 +17,24 @@ import { useBranch } from "./BranchContext";
 
 interface NavbarProps {
   userEmail?: string | null;
+  organizationName?: string | null;
+  logoUrl?: string | null;
 }
 
-export default function Navbar({ userEmail }: NavbarProps) {
+export default function Navbar({
+  userEmail,
+  organizationName,
+  logoUrl,
+}: NavbarProps) {
   const { branches, branchId, setBranchId } = useBranch();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const [logoFailed, setLogoFailed] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setLogoFailed(false);
+  }, [logoUrl]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -49,11 +60,14 @@ export default function Navbar({ userEmail }: NavbarProps) {
   return (
     <nav className="z-40 flex h-16 w-full shrink-0 items-center justify-between border-b border-[#E6EAED] bg-white px-6">
       <Image
-        src="/TechNova.svg"
-        alt="TechNova Logo"
+        src={logoUrl && !logoFailed ? logoUrl : "/TechNova.svg"}
+        alt={`${organizationName ?? "TechNova"} logo`}
         width={140}
         height={36}
         priority
+        loader={({ src }) => src}
+        unoptimized
+        onError={() => setLogoFailed(true)}
         className="h-9 w-auto object-contain"
       />
 
@@ -67,8 +81,14 @@ export default function Navbar({ userEmail }: NavbarProps) {
               value={branchId}
               onChange={(event) => setBranchId(event.target.value)}
             >
-              {branches.length === 0 && <option value="">No branch assigned</option>}
-              {branches.map((branch) => <option key={branch.id} value={branch.id}>{branch.name}</option>)}
+              {branches.length === 0 && (
+                <option value="">No branch assigned</option>
+              )}
+              {branches.map((branch) => (
+                <option key={branch.id} value={branch.id}>
+                  {branch.name}
+                </option>
+              ))}
             </select>
             <ChevronDown className="pointer-events-none absolute right-0 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-400" />
           </div>
@@ -162,7 +182,8 @@ export default function Navbar({ userEmail }: NavbarProps) {
                   onClick={() => setDropdownOpen(false)}
                   className="flex items-center gap-2.5 px-3.5 py-2 text-sm text-slate-700 hover:bg-slate-50"
                 >
-                  <Settings className="h-3.5 w-3.5 text-slate-400" /> Account Settings
+                  <Settings className="h-3.5 w-3.5 text-slate-400" /> Account
+                  Settings
                 </Link>
               </div>
               <div className="border-t border-slate-100 pt-1">

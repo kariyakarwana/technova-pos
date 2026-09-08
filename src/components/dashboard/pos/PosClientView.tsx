@@ -18,6 +18,7 @@ type ApiProduct = {
   name: string;
   sellingPrice: number | string;
   images: Array<{ url: string }>;
+  videos: Array<{ url: string }>;
   trackSerials: boolean;
   category: { name: string } | null;
   stockLevels: Array<{
@@ -95,6 +96,7 @@ function LivePos() {
             ? item.stockLevels
             : [];
           const images = Array.isArray(item.images) ? item.images : [];
+          const videos = Array.isArray(item.videos) ? item.videos : [];
           const stock =
             Number(levels[0]?.quantityOnHand ?? 0) -
             Number(levels[0]?.quantityReserved ?? 0);
@@ -109,6 +111,7 @@ function LivePos() {
             image: images[0]?.url ?? "/technova-logo.svg",
             inStockFormatted: `${stock} Pcs`,
             trackSerials: item.trackSerials,
+            videoUrl: videos[0]?.url,
           };
         }),
       );
@@ -264,9 +267,13 @@ function LivePos() {
         "Select a customer and due date for a credit purchase.",
       );
     const creditAmount = quote.total - paid;
-    const availableCredit = Number(selectedCustomer?.creditLimit ?? 0) - Number(selectedCustomer?.currentBalance ?? 0);
+    const availableCredit =
+      Number(selectedCustomer?.creditLimit ?? 0) -
+      Number(selectedCustomer?.currentBalance ?? 0);
     if (credit && creditAmount > availableCredit + 0.01)
-      return setMessage(`Customer credit limit exceeded. Available credit is LKR ${Math.max(0, availableCredit).toLocaleString()}.`);
+      return setMessage(
+        `Customer credit limit exceeded. Available credit is LKR ${Math.max(0, availableCredit).toLocaleString()}.`,
+      );
     if (credit && new Date(dueDate).getTime() <= Date.now())
       return setMessage("Credit due date must be in the future.");
     const payload = {
