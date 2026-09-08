@@ -1,5 +1,6 @@
 import Image from "next/image";
-import { Minus, Plus } from "lucide-react";
+import { Minus, Play, Plus, X } from "lucide-react";
+import { useState } from "react";
 import type { Product } from "./pos.mock";
 
 interface ProductCardProps {
@@ -15,6 +16,7 @@ export function ProductCard({
   onRemove,
   isSelected = false,
 }: ProductCardProps) {
+  const [videoOpen, setVideoOpen] = useState(false);
   const isOutOfStock = product.stockCount === 0;
 
   function handleBadgeClick(e: React.MouseEvent) {
@@ -69,6 +71,20 @@ export function ProductCard({
             <Plus className="h-3 w-3 stroke-[3]" />
           )}
         </button>
+        {product.videoUrl && (
+          <button
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation();
+              setVideoOpen(true);
+            }}
+            aria-label={`Play ${product.name} video`}
+            className="absolute bottom-1.5 left-1.5 z-10 flex items-center gap-1 rounded-full bg-slate-950/80 px-2 py-1 text-[9px] font-semibold text-white"
+          >
+            <Play className="h-3 w-3 fill-current" />
+            Video
+          </button>
+        )}
       </div>
 
       <div className="flex flex-col gap-1 px-0.5">
@@ -88,9 +104,37 @@ export function ProductCard({
           </span>
         </div>
       </div>
+      {videoOpen && product.videoUrl && (
+        <div
+          onClick={(event) => event.stopPropagation()}
+          className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/75 p-4"
+        >
+          <div className="w-full max-w-3xl rounded-2xl bg-white p-4 shadow-2xl">
+            <div className="mb-3 flex items-center justify-between">
+              <div>
+                <h2 className="font-bold text-slate-900">{product.name}</h2>
+                <p className="text-xs text-slate-500">Product video</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setVideoOpen(false)}
+                className="rounded-lg p-2 text-slate-500 hover:bg-slate-100"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <video
+              src={product.videoUrl}
+              controls
+              autoPlay
+              preload="metadata"
+              className="aspect-video w-full rounded-xl bg-slate-950 object-contain"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
 export default ProductCard;
-

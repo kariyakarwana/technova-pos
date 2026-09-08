@@ -26,6 +26,7 @@ export interface Product {
   image: string;
   inStockFormatted?: string;
   trackSerials?: boolean;
+  videoUrl?: string;
 }
 
 export interface CartItem {
@@ -60,7 +61,8 @@ export const products: Product[] = [
     stockCount: 40,
     inStockFormatted: "40 Pcs",
     category: "Appliances",
-    image: "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?w=400&auto=format&fit=crop&q=80",
+    image:
+      "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?w=400&auto=format&fit=crop&q=80",
   },
   {
     id: "p02",
@@ -69,7 +71,8 @@ export const products: Product[] = [
     stockCount: 26,
     inStockFormatted: "26 Pcs",
     category: "Headset",
-    image: "https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?w=400&auto=format&fit=crop&q=80",
+    image:
+      "https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?w=400&auto=format&fit=crop&q=80",
   },
   {
     id: "p03",
@@ -78,7 +81,8 @@ export const products: Product[] = [
     stockCount: 12,
     inStockFormatted: "12 Pcs",
     category: "Appliances",
-    image: "https://images.unsplash.com/photo-1558317374-067fb5f30001?w=400&auto=format&fit=crop&q=80",
+    image:
+      "https://images.unsplash.com/photo-1558317374-067fb5f30001?w=400&auto=format&fit=crop&q=80",
   },
   {
     id: "p04",
@@ -87,7 +91,8 @@ export const products: Product[] = [
     stockCount: 18,
     inStockFormatted: "18 Pcs",
     category: "Mobiles",
-    image: "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=400&auto=format&fit=crop&q=80",
+    image:
+      "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=400&auto=format&fit=crop&q=80",
   },
   {
     id: "p05",
@@ -96,7 +101,8 @@ export const products: Product[] = [
     stockCount: 35,
     inStockFormatted: "35 Pcs",
     category: "Appliances",
-    image: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=400&auto=format&fit=crop&q=80",
+    image:
+      "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=400&auto=format&fit=crop&q=80",
   },
   {
     id: "p06",
@@ -105,7 +111,8 @@ export const products: Product[] = [
     stockCount: 10,
     inStockFormatted: "10 Pcs",
     category: "Appliances",
-    image: "https://images.unsplash.com/photo-1578643463396-0997cb5328c1?w=400&auto=format&fit=crop&q=80",
+    image:
+      "https://images.unsplash.com/photo-1578643463396-0997cb5328c1?w=400&auto=format&fit=crop&q=80",
   },
   {
     id: "p07",
@@ -114,7 +121,8 @@ export const products: Product[] = [
     stockCount: 8,
     inStockFormatted: "08 Pcs",
     category: "Watches",
-    image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&auto=format&fit=crop&q=80",
+    image:
+      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&auto=format&fit=crop&q=80",
   },
   {
     id: "p08",
@@ -123,7 +131,8 @@ export const products: Product[] = [
     stockCount: 12,
     inStockFormatted: "12 Pcs",
     category: "Watches",
-    image: "https://images.unsplash.com/photo-1611591475155-42e924a10977?w=400&auto=format&fit=crop&q=80",
+    image:
+      "https://images.unsplash.com/photo-1611591475155-42e924a10977?w=400&auto=format&fit=crop&q=80",
   },
   {
     id: "p09",
@@ -132,7 +141,8 @@ export const products: Product[] = [
     stockCount: 30,
     inStockFormatted: "30 Pcs",
     category: "Appliances",
-    image: "https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=400&auto=format&fit=crop&q=80",
+    image:
+      "https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=400&auto=format&fit=crop&q=80",
   },
   {
     id: "p10",
@@ -141,7 +151,8 @@ export const products: Product[] = [
     stockCount: 15,
     inStockFormatted: "15 Pcs",
     category: "Appliances",
-    image: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400&auto=format&fit=crop&q=80",
+    image:
+      "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400&auto=format&fit=crop&q=80",
   },
   {
     id: "p11",
@@ -150,7 +161,8 @@ export const products: Product[] = [
     stockCount: 45,
     inStockFormatted: "45 Pcs",
     category: "Appliances",
-    image: "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=400&auto=format&fit=crop&q=80",
+    image:
+      "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=400&auto=format&fit=crop&q=80",
   },
   {
     id: "p12",
@@ -159,7 +171,8 @@ export const products: Product[] = [
     stockCount: 22,
     inStockFormatted: "22 Pcs",
     category: "Laptops",
-    image: "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=400&auto=format&fit=crop&q=80",
+    image:
+      "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=400&auto=format&fit=crop&q=80",
   },
   {
     id: "p13",
@@ -168,7 +181,8 @@ export const products: Product[] = [
     stockCount: 56,
     inStockFormatted: "56 Pcs",
     category: "Appliances",
-    image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&auto=format&fit=crop&q=80",
+    image:
+      "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&auto=format&fit=crop&q=80",
   },
   {
     id: "p14",
@@ -177,7 +191,8 @@ export const products: Product[] = [
     stockCount: 30,
     inStockFormatted: "30 Pcs",
     category: "Shoes",
-    image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&auto=format&fit=crop&q=80",
+    image:
+      "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&auto=format&fit=crop&q=80",
   },
   {
     id: "p15",
@@ -186,7 +201,8 @@ export const products: Product[] = [
     stockCount: 20,
     inStockFormatted: "20 Pcs",
     category: "Headset",
-    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&auto=format&fit=crop&q=80",
+    image:
+      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&auto=format&fit=crop&q=80",
   },
   {
     id: "p16",
@@ -195,7 +211,8 @@ export const products: Product[] = [
     stockCount: 12,
     inStockFormatted: "12 Pcs",
     category: "Shoes",
-    image: "https://images.unsplash.com/photo-1533867617858-e7b97e060509?w=400&auto=format&fit=crop&q=80",
+    image:
+      "https://images.unsplash.com/photo-1533867617858-e7b97e060509?w=400&auto=format&fit=crop&q=80",
   },
   {
     id: "p17",
@@ -204,7 +221,8 @@ export const products: Product[] = [
     stockCount: 20,
     inStockFormatted: "20 Pcs",
     category: "Appliances",
-    image: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=400&auto=format&fit=crop&q=80",
+    image:
+      "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=400&auto=format&fit=crop&q=80",
   },
   {
     id: "p18",
@@ -213,7 +231,8 @@ export const products: Product[] = [
     stockCount: 15,
     inStockFormatted: "15 Pcs",
     category: "Mobiles",
-    image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&auto=format&fit=crop&q=80",
+    image:
+      "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&auto=format&fit=crop&q=80",
   },
   {
     id: "p19",
@@ -222,7 +241,8 @@ export const products: Product[] = [
     stockCount: 16,
     inStockFormatted: "16 Pcs",
     category: "Appliances",
-    image: "https://images.unsplash.com/photo-1613478223719-2ab802602423?w=400&auto=format&fit=crop&q=80",
+    image:
+      "https://images.unsplash.com/photo-1613478223719-2ab802602423?w=400&auto=format&fit=crop&q=80",
   },
   {
     id: "p20",
@@ -231,7 +251,8 @@ export const products: Product[] = [
     stockCount: 35,
     inStockFormatted: "35 Pcs",
     category: "Appliances",
-    image: "https://images.unsplash.com/photo-1517668808822-9ebb02f2a0e6?w=400&auto=format&fit=crop&q=80",
+    image:
+      "https://images.unsplash.com/photo-1517668808822-9ebb02f2a0e6?w=400&auto=format&fit=crop&q=80",
   },
 ];
 
@@ -244,7 +265,8 @@ export const initialCartItems: CartItem[] = [
     inStockFormatted: "10",
     qty: 1,
     batchNo: "",
-    image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&auto=format&fit=crop&q=80",
+    image:
+      "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&auto=format&fit=crop&q=80",
   },
   {
     id: "cart-02",
@@ -254,7 +276,8 @@ export const initialCartItems: CartItem[] = [
     inStockFormatted: "08",
     qty: 1,
     batchNo: "",
-    image: "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=400&auto=format&fit=crop&q=80",
+    image:
+      "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=400&auto=format&fit=crop&q=80",
   },
   {
     id: "cart-03",
@@ -264,6 +287,7 @@ export const initialCartItems: CartItem[] = [
     inStockFormatted: "07",
     qty: 1,
     batchNo: "",
-    image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&auto=format&fit=crop&q=80",
+    image:
+      "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&auto=format&fit=crop&q=80",
   },
 ];
