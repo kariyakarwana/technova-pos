@@ -7,10 +7,16 @@ import type { RecentSaleItem } from "./AdminDashboardTypes";
 
 interface RecentSalesCardProps {
   sales: RecentSaleItem[];
+  limit?: number;
+  initialPeriod?: string;
 }
 
-export default function RecentSalesCard({ sales }: RecentSalesCardProps) {
-  const [period, setPeriod] = useState("Today");
+export default function RecentSalesCard({
+  sales,
+  limit = 5,
+  initialPeriod = "Today",
+}: RecentSalesCardProps) {
+  const [period, setPeriod] = useState(initialPeriod);
 
   function getStatusBadge(status: "Processing" | "Cancelled" | "OnHold" | "Completed") {
     switch (status) {
@@ -71,7 +77,7 @@ export default function RecentSalesCard({ sales }: RecentSalesCardProps) {
 
       {/* Sales List */}
       <div className="space-y-3">
-        {sales.map((item) => (
+        {sales.slice(0, limit).map((item) => (
           <div
             key={item.id}
             className="flex items-center justify-between gap-3 text-xs"
