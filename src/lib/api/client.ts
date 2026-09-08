@@ -12,7 +12,7 @@ export class ApiError extends Error {
 function errorMessage(body: unknown, fallback: string): string {
   if (body && typeof body === "object" && "message" in body) {
     const message = (body as { message?: string | string[] }).message;
-    return Array.isArray(message) ? message.join(" ") : message ?? fallback;
+    return Array.isArray(message) ? message.join(" ") : (message ?? fallback);
   }
   return fallback;
 }
@@ -71,4 +71,10 @@ export function apiPatch<T>(path: string, body: unknown): Promise<T> {
 
 export function apiDelete<T>(path: string): Promise<T> {
   return apiClient<T>(path, { method: "DELETE" });
+}
+
+export function apiUpload<T>(path: string, file: File): Promise<T> {
+  const body = new FormData();
+  body.append("file", file);
+  return apiClient<T>(path, { method: "POST", body });
 }
