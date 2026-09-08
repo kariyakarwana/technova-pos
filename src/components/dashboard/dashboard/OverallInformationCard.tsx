@@ -11,6 +11,7 @@ interface OverallInformationCardProps {
   firstTimeRate: string;
   returnAmount: string;
   returnRate: string;
+  initialPeriod?: string;
 }
 
 export default function OverallInformationCard({
@@ -21,8 +22,9 @@ export default function OverallInformationCard({
   firstTimeRate,
   returnAmount,
   returnRate,
+  initialPeriod = "Today",
 }: OverallInformationCardProps) {
-  const [filterPeriod, setFilterPeriod] = useState("Today");
+  const [filterPeriod, setFilterPeriod] = useState(initialPeriod);
 
   return (
     <div className="bg-white rounded-2xl border border-[var(--brand-stroke)] p-6 shadow-xs flex flex-col justify-between space-y-6">

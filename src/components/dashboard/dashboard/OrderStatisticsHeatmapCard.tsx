@@ -7,14 +7,16 @@ interface OrderStatisticsHeatmapCardProps {
   days: string[];
   times: string[];
   matrix: number[][];
+  initialPeriod?: string;
 }
 
 export default function OrderStatisticsHeatmapCard({
   days,
   times,
   matrix,
+  initialPeriod = "Weekly",
 }: OrderStatisticsHeatmapCardProps) {
-  const [period, setPeriod] = useState("Weekly");
+  const [period, setPeriod] = useState(initialPeriod);
 
   const maximum = Math.max(0, ...matrix.flat());
   const intensity = (value: number) => value === 0 ? 0 : value >= maximum * 0.67 ? 2 : 1;

@@ -7,9 +7,13 @@ import type { TopCustomerItem } from "./AdminDashboardTypes";
 
 interface TopCustomersCardProps {
   customers: TopCustomerItem[];
+  limit?: number;
 }
 
-export default function TopCustomersCard({ customers }: TopCustomersCardProps) {
+export default function TopCustomersCard({
+  customers,
+  limit = 5,
+}: TopCustomersCardProps) {
   return (
     <div className="bg-white rounded-2xl border border-[var(--brand-stroke)] p-5 shadow-xs flex flex-col justify-between space-y-4">
       {/* Header */}
@@ -33,7 +37,7 @@ export default function TopCustomersCard({ customers }: TopCustomersCardProps) {
 
       {/* Customer List */}
       <div className="space-y-3">
-        {customers.map((item) => (
+        {customers.slice(0, limit).map((item) => (
           <div
             key={item.id}
             className="flex items-center justify-between gap-3 text-xs"
