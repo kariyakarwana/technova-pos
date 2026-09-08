@@ -1,43 +1,22 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import type { MonthlySalesPurchase } from "./AdminDashboardTypes";
 
 interface SalesPurchaseChartCardProps {
   data: MonthlySalesPurchase[];
-  initialTimeframe?: string;
 }
 
 export default function SalesPurchaseChartCard({
   data,
-  initialTimeframe = "1Y",
 }: SalesPurchaseChartCardProps) {
-  const [activeTimeframe, setActiveTimeframe] = useState(initialTimeframe);
+  const [activeTimeframe, setActiveTimeframe] = useState("1Y");
   const timeframes = ["1D", "1W", "1M", "3M", "6M", "1Y"];
-
-  const visibleData = useMemo(() => {
-    if (!data || data.length === 0) return [];
-    if (activeTimeframe === "1D" || activeTimeframe === "1W" || activeTimeframe === "1M") {
-      return data.slice(-1);
-    }
-    if (activeTimeframe === "3M") {
-      return data.slice(-3);
-    }
-    if (activeTimeframe === "6M") {
-      return data.slice(-6);
-    }
-    return data;
-  }, [data, activeTimeframe]);
-
-  const totalPurchase = visibleData.reduce((sum, item) => sum + item.purchase, 0);
-  const totalSales = visibleData.reduce((sum, item) => sum + item.sales, 0);
-  const maxValue = Math.max(1, ...visibleData.flatMap((item) => [item.purchase, item.sales]));
+  const totalPurchase = data.reduce((sum, item) => sum + item.purchase, 0);
+  const totalSales = data.reduce((sum, item) => sum + item.sales, 0);
+  const maxValue = Math.max(1, ...data.flatMap((item) => [item.purchase, item.sales]));
   const maxScale = Math.ceil(maxValue / 1000) * 1000 || 1;
-  const compact = (value: number) =>
-    new Intl.NumberFormat("en", {
-      notation: "compact",
-      maximumFractionDigits: 1,
-    }).format(value);
+  const compact = (value: number) => new Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 1 }).format(value);
 
   return (
     <div className="bg-white rounded-2xl border border-[var(--brand-stroke)] p-6 shadow-xs flex flex-col justify-between space-y-6">
@@ -110,14 +89,8 @@ export default function SalesPurchaseChartCard({
         </div>
 
         {/* Dual Bars Container */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: `repeat(${Math.max(1, visibleData.length)}, minmax(0, 1fr))`,
-          }}
-          className="flex-1 gap-1.5 sm:gap-3 items-end h-44 pb-6 border-b border-slate-100"
-        >
-          {visibleData.map((item) => {
+        <div className="flex-1 grid grid-cols-12 gap-1.5 sm:gap-3 items-end h-44 pb-6 border-b border-slate-100">
+          {data.map((item) => {
             const purchasePercent = (item.purchase / maxScale) * 100;
             const salesPercent = (item.sales / maxScale) * 100;
 
@@ -152,11 +125,6 @@ export default function SalesPurchaseChartCard({
           })}
         </div>
       </div>
-      {(activeTimeframe === "1D" || activeTimeframe === "1W") && (
-        <p className="text-[10px] text-slate-400 italic text-right">
-          * Note: Daily breakdown is not available in the monthly report dataset; showing current month.
-        </p>
-      )}
     </div>
   );
 }

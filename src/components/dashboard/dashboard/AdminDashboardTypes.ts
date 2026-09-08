@@ -3,6 +3,6 @@ export interface KpiCardItem { title: string; amount: string; changeText: string
 export interface MonthlySalesPurchase { month: string; purchase: number; sales: number; }
 export interface TopProductItem { id: string; name: string; price: string; salesCount: string; trend: string; isPositive: boolean; imageUrl: string; }
 export interface LowStockItem { id: string; name: string; skuId: string; inStock: number; imageUrl: string; }
-export interface RecentSaleItem { id: string; name: string; category: string; price: string; date: string; rawDate?: string; status: "Processing" | "Cancelled" | "OnHold" | "Completed"; imageUrl: string; }
+export interface RecentSaleItem { id: string; name: string; category: string; price: string; date: string; status: "Processing" | "Cancelled" | "OnHold" | "Completed"; imageUrl: string; }
 export interface TopCustomerItem { id: string; name: string; country: string; orderCount: string; spentAmount: string; avatarUrl: string; }
 export interface CategoryMetric { name: string; percentage: number; salesCount: number; color: string; }

@@ -7,16 +7,14 @@ interface OrderStatisticsHeatmapCardProps {
   days: string[];
   times: string[];
   matrix: number[][];
-  initialPeriod?: string;
 }
 
 export default function OrderStatisticsHeatmapCard({
   days,
   times,
   matrix,
-  initialPeriod = "Weekly",
 }: OrderStatisticsHeatmapCardProps) {
-  const [period, setPeriod] = useState(initialPeriod);
+  const [period, setPeriod] = useState("Weekly");
 
   const maximum = Math.max(0, ...matrix.flat());
   const intensity = (value: number) => value === 0 ? 0 : value >= maximum * 0.67 ? 2 : 1;
@@ -77,49 +75,29 @@ export default function OrderStatisticsHeatmapCard({
           <div className="grid grid-rows-9 gap-1.5">
             {matrix.map((row, rIdx) => (
               <div key={rIdx} className="grid grid-cols-7 gap-1.5 h-4">
-                {row.map((cellValue, cIdx) => {
-                  const todayDayIdx = (new Date().getDay() + 6) % 7;
-                  const isDimmed = period === "Today" && cIdx !== todayDayIdx;
-                  return (
-                    <div
-                      key={cIdx}
-                      className={[
-                        "h-full rounded-sm transition-all cursor-pointer relative group",
-                        getCellColor(intensity(cellValue)),
-                        isDimmed ? "opacity-25" : "opacity-100",
-                      ].join(" ")}
-                    >
-                      {/* Hover Tooltip */}
-                      <div className="absolute -top-7 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none bg-slate-900 text-white text-[9px] font-bold py-0.5 px-2 rounded whitespace-nowrap shadow-md z-30">
-                        {cellValue} {cellValue === 1 ? "Order" : "Orders"}
-                      </div>
+                {row.map((cellValue, cIdx) => (
+                  <div
+                    key={cIdx}
+                    className={[
+                      "h-full rounded-sm transition-colors cursor-pointer relative group",
+                      getCellColor(intensity(cellValue)),
+                    ].join(" ")}
+                  >
+                    {/* Hover Tooltip */}
+                    <div className="absolute -top-7 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none bg-slate-900 text-white text-[9px] font-bold py-0.5 px-2 rounded whitespace-nowrap shadow-md z-30">
+                      {cellValue} {cellValue === 1 ? "Order" : "Orders"}
                     </div>
-                  );
-                })}
+                  </div>
+                ))}
               </div>
             ))}
           </div>
 
           {/* X-Axis Day Labels */}
-          <div className="grid grid-cols-7 gap-1.5 text-center text-[10px] font-semibold pt-1">
-            {days.map((day, idx) => {
-              const todayDayIdx = (new Date().getDay() + 6) % 7;
-              const isToday = idx === todayDayIdx;
-              return (
-                <span
-                  key={day}
-                  className={
-                    period === "Today"
-                      ? isToday
-                        ? "text-[var(--brand-green)] font-bold"
-                        : "text-slate-300"
-                      : "text-slate-500"
-                  }
-                >
-                  {day}
-                </span>
-              );
-            })}
+          <div className="grid grid-cols-7 gap-1.5 text-center text-[10px] font-semibold text-slate-500 pt-1">
+            {days.map((day) => (
+              <span key={day}>{day}</span>
+            ))}
           </div>
         </div>
       </div>
