@@ -7,12 +7,15 @@ import type { TopProductItem } from "./AdminDashboardTypes";
 
 interface TopSellingProductsCardProps {
   products: TopProductItem[];
+  limit?: number;
 }
 
 export default function TopSellingProductsCard({
   products,
+  limit,
 }: TopSellingProductsCardProps) {
   const [period, setPeriod] = useState("Today");
+  const visibleProducts = limit !== undefined && limit > 0 ? products.slice(0, limit) : products;
 
   return (
     <div className="bg-white rounded-2xl border border-[var(--brand-stroke)] p-5 shadow-xs flex flex-col justify-between space-y-4">
@@ -44,7 +47,7 @@ export default function TopSellingProductsCard({
 
       {/* Product List */}
       <div className="space-y-3">
-        {products.map((item) => (
+        {visibleProducts.map((item) => (
           <div
             key={item.id}
             className="flex items-center justify-between gap-3 text-xs"

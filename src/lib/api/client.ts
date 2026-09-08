@@ -65,6 +65,10 @@ export function apiPost<T>(path: string, body: unknown): Promise<T> {
   return apiClient<T>(path, { method: "POST", body: JSON.stringify(body) });
 }
 
+export function apiPut<T>(path: string, body: unknown): Promise<T> {
+  return apiClient<T>(path, { method: "PUT", body: JSON.stringify(body) });
+}
+
 export function apiPatch<T>(path: string, body: unknown): Promise<T> {
   return apiClient<T>(path, { method: "PATCH", body: JSON.stringify(body) });
 }

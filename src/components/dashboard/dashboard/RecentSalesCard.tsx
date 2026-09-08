@@ -1,16 +1,77 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Image from "next/image";
 import { ChevronDown, ShoppingBag } from "lucide-react";
 import type { RecentSaleItem } from "./AdminDashboardTypes";
 
 interface RecentSalesCardProps {
   sales: RecentSaleItem[];
+  limit?: number;
+  initialPeriod?: string;
 }
 
-export default function RecentSalesCard({ sales }: RecentSalesCardProps) {
-  const [period, setPeriod] = useState("Today");
+export default function RecentSalesCard({
+  sales,
+  limit,
+  initialPeriod = "Today",
+}: RecentSalesCardProps) {
+  const [period, setPeriod] = useState(initialPeriod);
+
+  const filteredSales = useMemo(() => {
+    if (!sales || sales.length === 0) return [];
+    const now = new Date();
+    const startOfToday = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      0,
+      0,
+      0,
+      0,
+    );
+    const dayOfWeek = (now.getDay() + 6) % 7;
+    const startOfWeek = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate() - dayOfWeek,
+      0,
+      0,
+      0,
+      0,
+    );
+    const startOfMonth = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      1,
+      0,
+      0,
+      0,
+      0,
+    );
+
+    return sales.filter((s) => {
+      if (!s.rawDate) return true;
+      const saleDate = new Date(s.rawDate);
+      if (isNaN(saleDate.getTime())) return true;
+
+      if (period === "Today") {
+        return saleDate >= startOfToday && saleDate <= now;
+      }
+      if (period === "Weekly") {
+        return saleDate >= startOfWeek && saleDate <= now;
+      }
+      if (period === "Monthly") {
+        return saleDate >= startOfMonth && saleDate <= now;
+      }
+      return true;
+    });
+  }, [sales, period]);
+
+  const visibleSales =
+    limit !== undefined && limit > 0
+      ? filteredSales.slice(0, limit)
+      : filteredSales;
 
   function getStatusBadge(status: "Processing" | "Cancelled" | "OnHold" | "Completed") {
     switch (status) {
@@ -71,7 +132,12 @@ export default function RecentSalesCard({ sales }: RecentSalesCardProps) {
 
       {/* Sales List */}
       <div className="space-y-3">
-        {sales.map((item) => (
+        {visibleSales.length === 0 ? (
+          <p className="py-6 text-center text-xs text-slate-400">
+            No sales records found for this period.
+          </p>
+        ) : (
+          visibleSales.map((item) => (
           <div
             key={item.id}
             className="flex items-center justify-between gap-3 text-xs"
@@ -108,7 +174,8 @@ export default function RecentSalesCard({ sales }: RecentSalesCardProps) {
               <div>{getStatusBadge(item.status)}</div>
             </div>
           </div>
-        ))}
+        ))
+      )}
       </div>
     </div>
   );
