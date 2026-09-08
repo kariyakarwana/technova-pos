@@ -7,10 +7,12 @@ import type { TopProductItem } from "./AdminDashboardTypes";
 
 interface TopSellingProductsCardProps {
   products: TopProductItem[];
+  limit?: number;
 }
 
 export default function TopSellingProductsCard({
   products,
+  limit = 5,
 }: TopSellingProductsCardProps) {
   const [period, setPeriod] = useState("Today");
 
@@ -44,7 +46,7 @@ export default function TopSellingProductsCard({
 
       {/* Product List */}
       <div className="space-y-3">
-        {products.map((item) => (
+        {products.slice(0, limit).map((item) => (
           <div
             key={item.id}
             className="flex items-center justify-between gap-3 text-xs"

@@ -17,11 +17,15 @@ import type { KpiCardItem, TopBannerMetric } from "./AdminDashboardTypes";
 interface DashboardMetricsGridProps {
   bannerMetrics: TopBannerMetric[];
   kpiCards: KpiCardItem[];
+  showBanners?: boolean;
+  showKpis?: boolean;
 }
 
 export default function DashboardMetricsGrid({
   bannerMetrics,
   kpiCards,
+  showBanners = true,
+  showKpis = true,
 }: DashboardMetricsGridProps) {
   function getBannerIcon(name: string) {
     switch (name) {
@@ -56,7 +60,7 @@ export default function DashboardMetricsGrid({
   return (
     <div className="space-y-5">
       {/* Row 1: 4 Colored Solid / Gradient Banner Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      {showBanners && <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {bannerMetrics.map((item, idx) => (
           <div
             key={idx}
@@ -92,10 +96,10 @@ export default function DashboardMetricsGrid({
             </div>
           </div>
         ))}
-      </div>
+      </div>}
 
       {/* Row 2: 4 White KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      {showKpis && <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {kpiCards.map((item, idx) => (
           <div
             key={idx}
@@ -148,7 +152,7 @@ export default function DashboardMetricsGrid({
             </div>
           </div>
         ))}
-      </div>
+      </div>}
     </div>
   );
 }
