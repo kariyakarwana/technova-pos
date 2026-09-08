@@ -7,9 +7,15 @@ import type { TopCustomerItem } from "./AdminDashboardTypes";
 
 interface TopCustomersCardProps {
   customers: TopCustomerItem[];
+  limit?: number;
 }
 
-export default function TopCustomersCard({ customers }: TopCustomersCardProps) {
+export default function TopCustomersCard({
+  customers,
+  limit,
+}: TopCustomersCardProps) {
+  const visibleCustomers = limit !== undefined && limit > 0 ? customers.slice(0, limit) : customers;
+
   return (
     <div className="bg-white rounded-2xl border border-[var(--brand-stroke)] p-5 shadow-xs flex flex-col justify-between space-y-4">
       {/* Header */}
@@ -31,46 +37,52 @@ export default function TopCustomersCard({ customers }: TopCustomersCardProps) {
         </Link>
       </div>
 
-      {/* Customer List */}
+      {/* Customers List */}
       <div className="space-y-3">
-        {customers.map((item) => (
-          <div
-            key={item.id}
-            className="flex items-center justify-between gap-3 text-xs"
-          >
-            {/* Left: Avatar & Name/Country */}
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="h-10 w-10 rounded-full bg-slate-100 overflow-hidden relative shrink-0 border border-slate-100">
-                <Image
-                  src={item.avatarUrl}
-                  loader={({ src }) => src}
-                  unoptimized
-                  alt={item.name}
-                  fill
-                  className="object-cover"
-                  sizes="40px"
-                />
-              </div>
+        {visibleCustomers.length === 0 ? (
+          <p className="py-6 text-center text-xs text-slate-400">
+            No customer records found.
+          </p>
+        ) : (
+          visibleCustomers.map((item) => (
+            <div
+              key={item.id}
+              className="flex items-center justify-between gap-3 text-xs"
+            >
+              {/* Left: Avatar & Name/Country */}
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="h-10 w-10 rounded-full bg-slate-100 overflow-hidden relative shrink-0 border border-slate-100">
+                  <Image
+                    src={item.avatarUrl}
+                    loader={({ src }) => src}
+                    unoptimized
+                    alt={item.name}
+                    fill
+                    className="object-cover"
+                    sizes="40px"
+                  />
+                </div>
 
-              <div className="min-w-0">
-                <p className="font-bold text-[var(--brand-black-font)] truncate text-[11px]">
-                  {item.name}
-                </p>
-                <div className="flex items-center gap-1 text-[10px] text-slate-400 font-medium">
-                  <MapPin className="h-2.5 w-2.5 text-slate-400" />
-                  <span>
-                    {item.country} • {item.orderCount}
-                  </span>
+                <div className="min-w-0">
+                  <p className="font-bold text-[var(--brand-black-font)] truncate text-[11px]">
+                    {item.name}
+                  </p>
+                  <div className="flex items-center gap-1 text-[10px] text-slate-400 font-medium">
+                    <MapPin className="h-2.5 w-2.5 text-slate-400" />
+                    <span>
+                      {item.country} • {item.orderCount}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Right: Total Spend */}
-            <span className="text-xs font-bold text-[var(--brand-black-font)] shrink-0">
-              {item.spentAmount}
-            </span>
-          </div>
-        ))}
+              {/* Right: Total Spend */}
+              <span className="text-xs font-bold text-[var(--brand-black-font)] shrink-0">
+                {item.spentAmount}
+              </span>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
