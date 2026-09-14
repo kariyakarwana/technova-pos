@@ -17,6 +17,7 @@ import ProductListTable, {
   type SortOrder,
 } from "@/components/dashboard/products/ProductListTable";
 import ProductListPagination from "@/components/dashboard/products/ProductListPagination";
+import ProductImportDialog from "@/components/dashboard/products/ProductImportDialog";
 
 export default function ProductListPage() {
   const { branchId } = useBranch();
@@ -33,6 +34,7 @@ export default function ProductListPage() {
   const [isFilterCollapsed, setIsFilterCollapsed] = useState<boolean>(false);
   const [categories, setCategories] = useState<Lookup[]>([]);
   const [brands, setBrands] = useState<Lookup[]>([]);
+  const [isImportOpen, setIsImportOpen] = useState(false);
 
   const filteredProducts = useMemo(() => {
     const result = [...products];
@@ -112,7 +114,7 @@ export default function ProductListPage() {
         onRefresh={handleRefresh}
         isCollapsed={isFilterCollapsed}
         onToggleCollapse={() => setIsFilterCollapsed((prev) => !prev)}
-        onImport={() => alert("Import product modal / CSV upload triggered")}
+        onImport={() => setIsImportOpen(true)}
       />
 
       {/* Main Content Card */}
@@ -152,6 +154,13 @@ export default function ProductListPage() {
           onRowsPerPageChange={setRowsPerPage}
         />
       </div>
+      <ProductImportDialog
+        open={isImportOpen}
+        categories={categories}
+        brands={brands}
+        onClose={() => setIsImportOpen(false)}
+        onImported={loadProducts}
+      />
     </main>
   );
 }
