@@ -616,31 +616,6 @@ export default function PurchaseOrderDetail({
           </div>
         </section>
       )}
-      <style jsx global>{`
-        @media print {
-          body * {
-            visibility: hidden !important;
-          }
-          .qr-label-print-root,
-          .qr-label-print-root * {
-            visibility: visible !important;
-          }
-          .qr-label-print-root {
-            position: absolute !important;
-            inset: 0 !important;
-            width: 100% !important;
-            border: 0 !important;
-            box-shadow: none !important;
-            background: white !important;
-          }
-          .qr-label-print-controls {
-            display: none !important;
-          }
-          @page {
-            margin: 10mm;
-          }
-        }
-      `}</style>
     </main>
   );
 }
