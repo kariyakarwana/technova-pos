@@ -239,3 +239,39 @@
     box-shadow: 0 4px 10px 0 rgb(14 147 132 / 0.30);
   }
 }
+
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+
+  .qr-label-print-root,
+  .qr-label-print-root *,
+  .barcode-print-root,
+  .barcode-print-root * {
+    visibility: visible !important;
+  }
+
+  .qr-label-print-root,
+  .barcode-print-root {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    background: white !important;
+  }
+
+  .barcode-print-root {
+    margin: 0 !important;
+  }
+
+  .qr-label-print-controls,
+  .barcode-print-actions {
+    display: none !important;
+  }
+
+  @page {
+    margin: 10mm;
+  }
+}

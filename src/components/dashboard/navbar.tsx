@@ -94,13 +94,13 @@ export default function Navbar({
           </div>
         </div>
 
-        <Link
+        {/* <Link
           id="navbar-add-btn"
           href="/branches"
           className="flex h-8 items-center gap-1 rounded-lg border border-[#0E9384] px-2.5 text-xs font-medium text-[#0E9384] transition-colors hover:bg-[#EEFFFD]"
         >
           <Plus className="h-3.5 w-3.5" /> Add branch
-        </Link>
+        </Link> */}
 
         <button
           id="navbar-fullscreen-btn"

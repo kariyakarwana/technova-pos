@@ -14,7 +14,8 @@ type Customer = {
   creditLimit: string | number;
   currentBalance: string | number;
   status: string;
-  loyaltyAccount: { pointsBalance: string | number } | null;
+  loyaltyAccount: { points: string | number } | null;
+  user?: { status: string; lastLoginAt: string | null } | null;
 };
 const blank = {
   firstName: "",
@@ -62,8 +63,8 @@ export default function CustomerOperations() {
     const payload = {
       firstName: form.firstName,
       lastName: form.lastName || undefined,
-      phone: form.phone || undefined,
-      email: form.email || undefined,
+      phone: form.phone.trim(),
+      email: form.email.trim().toLowerCase(),
       creditLimit: form.creditLimit,
     };
     try {
@@ -77,6 +78,8 @@ export default function CustomerOperations() {
               emailQueued: boolean;
               whatsappQueued: boolean;
             };
+            credentialsCreated: boolean;
+            temporaryPasswordSent: boolean;
           }
         >("/customers", payload);
         const channels = [
@@ -84,10 +87,10 @@ export default function CustomerOperations() {
           created.welcomeNotifications.whatsappQueued ? "WhatsApp" : null,
         ].filter(Boolean);
         setMessage(
-          `Customer ${created.customerNumber} created successfully.${
+          `Customer ${created.customerNumber} and mobile login created successfully.${
             channels.length
-              ? ` Welcome message queued by ${channels.join(" and ")}.`
-              : " Add an email address or phone number to send a welcome message."
+              ? ` Temporary credentials queued by ${channels.join(" and ")}.`
+              : " Credentials could not be queued; check notification delivery settings."
           }`,
         );
       }
@@ -187,7 +190,7 @@ export default function CustomerOperations() {
                     </p>
                   </td>
                   <td className="px-4 py-3">
-                    {Number(customer.loyaltyAccount?.pointsBalance ?? 0)} pts
+                    {Number(customer.loyaltyAccount?.points ?? 0)} pts
                   </td>
                   <td className="px-4 py-3">{customer.status}</td>
                   <td className="space-x-3 px-4 py-3 text-right">
@@ -229,8 +232,10 @@ export default function CustomerOperations() {
             <div className="grid gap-4 sm:grid-cols-2">
               {!editing && (
                 <div className="rounded-xl border border-teal-200 bg-teal-50 p-3 text-xs text-teal-800 sm:col-span-2">
-                  <span className="font-semibold">Customer number</span>
-                  <span className="ml-2">Generated automatically when the customer is saved.</span>
+                  <p className="font-semibold">Customer number and mobile login</p>
+                  <p className="mt-1 leading-5">
+                    The customer number and a one-time password are generated automatically. Credentials are sent to the customer by Gmail and WhatsApp, and the customer must change the password after signing in.
+                  </p>
                 </div>
               )}
               <label className="text-xs font-semibold">
@@ -255,21 +260,29 @@ export default function CustomerOperations() {
                 />
               </label>
               <label className="text-xs font-semibold">
-                Phone
+                Phone <span className="text-rose-600">*</span>
                 <input
+                  required
+                  type="tel"
+                  pattern="\+[1-9][0-9]{7,14}"
+                  placeholder="+94771234567"
                   value={form.phone}
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}
                   className="mt-1 h-10 w-full rounded-xl border px-3"
                 />
               </label>
               <label className="text-xs font-semibold">
-                Email
+                Email <span className="text-rose-600">*</span>
                 <input
+                  required
                   type="email"
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
                   className="mt-1 h-10 w-full rounded-xl border px-3"
                 />
+                <span className="mt-1 block font-normal text-slate-500">
+                  Used to deliver the temporary password.
+                </span>
               </label>
               <label className="text-xs font-semibold">
                 Credit limit
