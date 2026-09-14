@@ -6,6 +6,7 @@ import { CalendarDays, RotateCcw } from "lucide-react";
 import { useBranch } from "@/components/dashboard/BranchContext";
 import { apiGet } from "@/lib/api/client";
 import ReportExportActions from "@/components/reports/ReportExportActions";
+import { BackButton } from "@/components/ui/back-button";
 import PaginationControls, { type PageMeta } from "./PaginationControls";
 
 type ReturnRecord = {
@@ -76,7 +77,23 @@ export default function ReturnHistory() {
   ];
 
   return <main className="space-y-6 bg-[#F8FAFC] p-6">
-    <header className="flex flex-wrap items-end justify-between gap-3"><div><p className="text-xs font-semibold uppercase text-[#0E9384]">Returns & Refunds / History</p><h1 className="text-2xl font-bold">Return History</h1><p className="text-sm text-slate-500">Complete refund, store-credit, points and exchange audit trail.</p></div><div className="flex flex-wrap gap-2"><Link href="/returns-refunds" className="rounded-xl border bg-white px-4 py-2 text-sm font-semibold">Process a return</Link><ReportExportActions title="Return History" rows={exportRows} serverCsvUrl={`/api/backend/returns/history.csv${exportParams.size ? `?${exportParams}` : ""}`}/></div></header>
+    <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#0E9384]">
+          Returns & Refunds / History
+        </p>
+        <h1 className="mt-1 text-2xl font-bold text-slate-900">
+          Return History
+        </h1>
+        <p className="mt-1 text-sm text-slate-500">
+          Complete refund, store-credit, points and exchange audit trail.
+        </p>
+      </div>
+      <div className="flex flex-wrap items-center gap-3 self-start sm:self-auto">
+        <ReportExportActions title="Return History" rows={exportRows} serverCsvUrl={`/api/backend/returns/history.csv${exportParams.size ? `?${exportParams}` : ""}`}/>
+        <BackButton href="/returns-refunds" label="Back to Returns" />
+      </div>
+    </header>
     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{cards.map((card) => <article key={card.label} className="rounded-2xl bg-gradient-to-r from-[#025148] to-[#0E9384] p-5 text-white shadow"><p className="text-xs uppercase text-white/70">{card.label}</p><p className="mt-2 text-2xl font-bold">{card.value}</p></article>)}</div>
     {message && <p className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-amber-800">{message}</p>}
     <section className="rounded-2xl border bg-white shadow-sm">

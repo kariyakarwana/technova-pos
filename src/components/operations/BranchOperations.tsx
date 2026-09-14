@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Building2, Pencil, Plus, Search, X } from "lucide-react";
 import { apiGet, apiPatch, apiPost } from "@/lib/api/client";
+import { BackButton } from "@/components/ui/back-button";
 import PaginationControls, { type PageMeta } from "./PaginationControls";
 
 type Branch = { id: string; code: string; name: string; phone: string | null; email: string | null; address: Record<string, string> | null; status: "ACTIVE" | "INACTIVE" };
@@ -12,11 +13,17 @@ type Form = { code: string; name: string; phone: string; email: string; street: 
 const emptyForm: Form = { code: "", name: "", phone: "", email: "", street: "", city: "", country: "Sri Lanka" };
 function FieldError({ message }: { message?: string }) { return message ? <span className="mt-1 block text-[11px] font-medium text-rose-600">{message}</span> : null; }
 
-export default function BranchOperations() {
+export default function BranchOperations({
+  initialShowForm = false,
+}: {
+  initialShowForm?: boolean;
+} = {}) {
   const router = useRouter();
+  const pathname = usePathname();
+  const parentHref = pathname.startsWith("/settings") ? "/settings/branches" : "/branches";
   const [branches, setBranches] = useState<Branch[]>([]);
   const [editing, setEditing] = useState<Branch | null>(null);
-  const [showForm, setShowForm] = useState(false);
+  const [showForm, setShowForm] = useState(initialShowForm);
   const [form, setForm] = useState<Form>(emptyForm);
   const [errors, setErrors] = useState<Partial<Record<keyof Form, string>>>({});
   const [message, setMessage] = useState<string | null>(null);
@@ -69,7 +76,30 @@ export default function BranchOperations() {
   const fieldClass = (field: keyof Form) => `mt-1 h-10 w-full rounded-xl border px-3 outline-none transition focus:ring-2 focus:ring-[#0E9384]/10 ${errors[field] ? "border-rose-400 bg-rose-50/40" : "border-slate-200 focus:border-[#0E9384]"}`;
 
   return <main className="space-y-5 bg-[#F8FAFC] p-6">
-    <header className="flex flex-wrap items-end justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-wider text-[#0E9384]">Organization</p><h1 className="text-2xl font-bold">Branch Management</h1><p className="text-sm text-slate-500">Configure locations used by staff, stock, purchasing and POS.</p></div>{!showForm && <button type="button" onClick={beginAdd} className="inline-flex items-center gap-2 rounded-xl bg-[#0E9384] px-4 py-2.5 text-sm font-semibold text-white"><Plus className="h-4 w-4"/>Add branch</button>}</header>
+    <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-wider text-[#0E9384]">Organization</p>
+        <h1 className="text-2xl font-bold text-slate-900">Branch Management</h1>
+        <p className="text-sm text-slate-500">Configure locations used by staff, stock, purchasing and POS.</p>
+      </div>
+      {!showForm ? (
+        <button type="button" onClick={beginAdd} className="inline-flex items-center gap-2 rounded-xl bg-[#0E9384] px-4 py-2.5 text-sm font-semibold text-white">
+          <Plus className="h-4 w-4"/>Add branch
+        </button>
+      ) : (
+        <BackButton
+          href="/settings/branches"
+          label="Back to Branches"
+          className="self-start sm:self-auto"
+          onClick={() => {
+            closeForm();
+            if (pathname.includes("add-branch")) {
+              router.push(parentHref);
+            }
+          }}
+        />
+      )}
+    </header>
     {message && <div role="alert" className={`rounded-xl border p-3 text-sm ${messageKind === "error" ? "border-rose-200 bg-rose-50 text-rose-700" : "border-teal-200 bg-teal-50 text-teal-800"}`}>{message}</div>}
     {showForm ? <form noValidate onSubmit={save} className="overflow-hidden rounded-2xl border bg-white shadow-sm">
       <div className="flex items-center justify-between border-b px-5 py-4"><div className="flex items-center gap-3"><span className="rounded-xl bg-teal-50 p-2 text-[#0E9384]"><Building2 className="h-5 w-5"/></span><div><h2 className="font-bold">{editing ? "Update branch" : "Add new branch"}</h2><p className="text-xs text-slate-500">Fields marked with * are required.</p></div></div><button type="button" onClick={closeForm} className="rounded-lg p-2 text-slate-500 hover:bg-slate-100"><X className="h-5 w-5"/></button></div>

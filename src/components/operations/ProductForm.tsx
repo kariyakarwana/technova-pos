@@ -13,6 +13,7 @@ import {
 } from "@/lib/api/client";
 import BarcodeScannerButton from "./BarcodeScannerButton";
 import ProductMediaUploadFields from "./ProductMediaUploadFields";
+import { BackButton } from "@/components/ui/back-button";
 
 type Lookup = { id: string; name: string };
 export type EditableProduct = {
@@ -160,8 +161,8 @@ export default function ProductForm({
   const input =
     "mt-1 h-10 w-full rounded-xl border border-slate-200 bg-white px-3 outline-none focus:border-[#0E9384] focus:ring-2 focus:ring-[#0E9384]/10";
   return (
-    <div className="min-h-full overflow-x-hidden bg-[#F8FAFC] p-6">
-      <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+    <div className="w-full h-auto bg-[#F8FAFC] p-6">
+      <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#0E9384]">
             Products / {product ? "Update" : "Create"}
@@ -169,19 +170,17 @@ export default function ProductForm({
           <h1 className="mt-1 text-2xl font-bold text-slate-900">
             {product ? "Update Product" : "Create Product"}
           </h1>
-          <p className="text-sm text-slate-500">
+          <p className="mt-1 text-sm text-slate-500">
             Maintain catalog, pricing, stock controls, images and serialized
             warranty tracking.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="rounded-xl border bg-white px-4 py-2 text-sm font-semibold"
-        >
-          Back to products
-        </button>
-      </div>
+        <BackButton
+          href="/products/product-list"
+          label="Back to Product List"
+          className="self-start sm:self-auto"
+        />
+      </header>
       {message && (
         <div className="mb-5 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
           {message}
