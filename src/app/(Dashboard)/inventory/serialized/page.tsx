@@ -5,6 +5,8 @@ import Link from "next/link";
 import { BackButton } from "@/components/ui/back-button";
 import { useBranch } from "@/components/dashboard/BranchContext";
 import { apiGet } from "@/lib/api/client";
+
+type Unit = {
   id: string;
   serialNumber: string;
   status: string;
