@@ -54,9 +54,6 @@ export default function SupplierNotificationsClient({
     <main className="space-y-6 p-6 lg:p-8">
       <header className="flex items-end justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-[#0E9384]">
-            Supplier portal
-          </p>
           <h1 className="text-2xl font-bold">Notifications</h1>
         </div>
         <button
