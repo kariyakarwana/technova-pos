@@ -64,7 +64,7 @@ export default function AddProductClientView() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--brand-app-bg)]">
+    <div className="w-full h-auto bg-[var(--brand-app-bg)]">
       <div className="p-6 space-y-6 pb-28">
         {/* Header */}
         <AddProductHeader />

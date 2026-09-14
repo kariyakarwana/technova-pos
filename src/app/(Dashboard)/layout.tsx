@@ -43,7 +43,7 @@ export default async function DashboardLayout({
   return (
     <BranchProvider branches={branches}>
       <OfflineProvider>
-        <div className="flex h-screen overflow-hidden bg-[#F9F9FF] font-sans text-[#151C27]">
+        <div className="flex h-screen w-screen overflow-hidden bg-[#F9F9FF] font-sans text-[#151C27]">
           {/* Offline banner sits above the sticky Navbar when isOffline === true */}
           <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
             <OfflineBannerController />

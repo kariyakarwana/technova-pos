@@ -53,10 +53,11 @@ export default function RootLayout({
         ${geistMono.variable}
         ${notoSans.variable}
         h-full
+        overflow-hidden
         antialiased
       `}
     >
-      <body className="min-h-full bg-white font-sans text-slate-900">
+      <body className="h-full overflow-hidden bg-white font-sans text-slate-900">
         {children}
       </body>
     </html>
