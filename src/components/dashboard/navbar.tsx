@@ -8,7 +8,6 @@ import {
   ChevronDown,
   LogOut,
   Maximize,
-  Plus,
   Settings,
   User,
 } from "lucide-react";
