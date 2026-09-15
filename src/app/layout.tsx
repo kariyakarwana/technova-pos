@@ -1,11 +1,6 @@
-import type {
-  Metadata,
-} from "next";
+import type { Metadata } from "next";
 
-import {
-  Geist_Mono,
-  Noto_Sans,
-} from "next/font/google";
+import { Geist_Mono, Noto_Sans } from "next/font/google";
 
 import "./globals.css";
 
@@ -17,13 +12,6 @@ const geistMono = Geist_Mono({
 const notoSans = Noto_Sans({
   variable: "--font-noto-sans",
   subsets: ["latin"],
-  weight: [
-    "400",
-    "500",
-    "600",
-    "700",
-    "800",
-  ],
 });
 
 export const metadata: Metadata = {
@@ -53,11 +41,10 @@ export default function RootLayout({
         ${geistMono.variable}
         ${notoSans.variable}
         h-full
-        overflow-hidden
         antialiased
       `}
     >
-      <body className="h-full overflow-hidden bg-white font-sans text-slate-900">
+      <body className="min-h-full overflow-x-hidden bg-white font-sans text-slate-900">
         {children}
       </body>
     </html>

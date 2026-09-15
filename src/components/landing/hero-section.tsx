@@ -89,10 +89,11 @@ export default function HeroSection() {
             <div className="relative flex justify-center lg:justify-end w-full">
               <div className="relative w-full max-w-2xl">
                 <Image
-                  width={2432}
-                  height={1442}
-                  src="/posmachine.png"
+                  width={965}
+                  height={881}
+                  src="/posmachine.webp"
                   alt="Ultimate POS System Product Screenshot"
+                  sizes="(min-width: 1024px) 50vw, 100vw"
                   className="w-full h-auto object-contain drop-shadow-2xl"
                   priority
                 />
@@ -104,7 +105,7 @@ export default function HeroSection() {
       </div>
 
 
-      <section className="bg-slate-50 py-12 lg:py-12 border-t border-slate-100 w-full">
+      <section className="defer-below-fold bg-slate-50 py-12 lg:py-12 border-t border-slate-100 w-full">
         <div className="w-full px-3 sm:px-4">
           <div className="text-center max-w-2xl mx-auto mb-12">
             <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl" style={{ fontFamily: "var(--font-noto-sans), sans-serif" }}>

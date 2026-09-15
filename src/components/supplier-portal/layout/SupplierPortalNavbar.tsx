@@ -14,7 +14,7 @@ export default function SupplierPortalNavbar({
   const [pending, startTransition] = useTransition();
   return (
     <nav className="z-40 flex h-16 shrink-0 items-center justify-between border-b border-slate-200 bg-white px-6">
-      <Image src="/TechNova.svg" alt="TechNova" width={140} height={36} priority className="h-9 w-auto object-contain" />
+      <Image src="/technova-logo.webp" alt="TechNova" width={140} height={45} priority className="h-9 w-auto object-contain" />
       <div className="flex items-center gap-2">
         <Link href="/supplier-dashboard/notifications" className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-[#0E9384] text-[#0E9384]" aria-label="Notifications">
           <Bell className="h-4 w-4" />

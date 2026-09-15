@@ -17,8 +17,8 @@ type ApiProduct = {
   barcode: string | null;
   name: string;
   sellingPrice: number | string;
-  images: Array<{ url: string }>;
-  videos: Array<{ url: string }>;
+  images: Array<{ id: string; url: string; objectKey: string | null }>;
+  videos: Array<{ id: string; url: string }>;
   trackSerials: boolean;
   category: { name: string } | null;
   stockLevels: Array<{
@@ -108,10 +108,14 @@ function LivePos() {
             price: Number(item.sellingPrice),
             stockCount: stock,
             category: item.category?.name ?? "Uncategorized",
-            image: images[0]?.url ?? "/technova-logo.svg",
+            image: images[0]?.objectKey
+              ? `/api/backend/catalog/products/${encodeURIComponent(item.id)}/images/${encodeURIComponent(images[0].id)}/content`
+              : (images[0]?.url ?? "/technova-logo.webp"),
             inStockFormatted: `${stock} Pcs`,
             trackSerials: item.trackSerials,
-            videoUrl: videos[0]?.url,
+            videoUrl: videos[0]
+              ? `/api/backend/catalog/products/${encodeURIComponent(item.id)}/videos/${encodeURIComponent(videos[0].id)}/content`
+              : undefined,
           };
         }),
       );

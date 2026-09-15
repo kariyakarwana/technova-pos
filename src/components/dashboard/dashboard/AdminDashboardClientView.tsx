@@ -1,16 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 import { useBranch } from "@/components/dashboard/BranchContext";
 import { DashboardLayoutRenderer } from "@/components/dashboard/dashboard/registry";
-import { DashboardBuilderGrid } from "@/components/dashboard/dashboard/builder/dashboard-builder-grid";
 import { DashboardBuilderToolbar } from "@/components/dashboard/dashboard/builder/dashboard-builder-toolbar";
-import { WidgetPicker } from "@/components/dashboard/dashboard/builder/widget-picker";
-import { TemplatePicker } from "@/components/dashboard/dashboard/builder/template-picker";
-import { VisualThemePanel } from "@/components/dashboard/dashboard/builder/visual-theme-panel";
-import { ApplyTemplateDialog } from "@/components/dashboard/dashboard/builder/apply-template-dialog";
-import { SaveTemplateDialog } from "@/components/dashboard/dashboard/builder/save-template-dialog";
-import { WidgetSettingsDialog } from "@/components/dashboard/dashboard/builder/widget-settings-dialog";
 import { Button } from "@/components/ui/button";
 import {
   getDashboards,
@@ -33,6 +27,48 @@ import type {
 } from "@/types/dashboard";
 import type { KpiCardItem, TopBannerMetric } from "./AdminDashboardTypes";
 
+const DashboardBuilderGrid = dynamic(() =>
+  import("@/components/dashboard/dashboard/builder/dashboard-builder-grid").then(
+    (module) => module.DashboardBuilderGrid,
+  ),
+);
+
+const WidgetPicker = dynamic(() =>
+  import("@/components/dashboard/dashboard/builder/widget-picker").then(
+    (module) => module.WidgetPicker,
+  ),
+);
+
+const TemplatePicker = dynamic(() =>
+  import("@/components/dashboard/dashboard/builder/template-picker").then(
+    (module) => module.TemplatePicker,
+  ),
+);
+
+const VisualThemePanel = dynamic(() =>
+  import("@/components/dashboard/dashboard/builder/visual-theme-panel").then(
+    (module) => module.VisualThemePanel,
+  ),
+);
+
+const ApplyTemplateDialog = dynamic(() =>
+  import("@/components/dashboard/dashboard/builder/apply-template-dialog").then(
+    (module) => module.ApplyTemplateDialog,
+  ),
+);
+
+const SaveTemplateDialog = dynamic(() =>
+  import("@/components/dashboard/dashboard/builder/save-template-dialog").then(
+    (module) => module.SaveTemplateDialog,
+  ),
+);
+
+const WidgetSettingsDialog = dynamic(() =>
+  import("@/components/dashboard/dashboard/builder/widget-settings-dialog").then(
+    (module) => module.WidgetSettingsDialog,
+  ),
+);
+
 const money = (value: number) =>
   new Intl.NumberFormat("en-LK", {
     style: "currency",
@@ -49,7 +85,7 @@ const compact = (value: number) =>
 const delta = (value: number) =>
   `${value >= 0 ? "+" : ""}${Math.round(value)}%`;
 
-const fallbackImage = "/posmachine.png";
+const fallbackImage = "/posmachine.webp";
 
 export default function AdminDashboardClientView() {
   const { branchId } = useBranch();

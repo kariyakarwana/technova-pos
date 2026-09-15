@@ -33,7 +33,10 @@ export default function CompanyLogoPicker({
     return () => URL.revokeObjectURL(next);
   }, [selectedFile]);
 
-  const shownUrl = previewUrl || (!removeRequested ? currentUrl : "");
+  const savedLogoUrl = currentUrl
+    ? "/api/backend/organization/logo/content"
+    : "";
+  const shownUrl = previewUrl || (!removeRequested ? savedLogoUrl : "");
   function choose(file?: File) {
     if (!file) return;
     if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
