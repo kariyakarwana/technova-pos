@@ -43,7 +43,7 @@ export default function ProfileSettingsClientView({ user, sessions }: { user: Cu
         {/* Left Sidebar (Profile Info + Navigation Tabs) */}
         <div className="lg:col-span-4 space-y-4">
           <ProfileInfoSidebarCard
-            user={{ name: user.name ?? user.email, email: user.email, role: user.roles.join(", ") || "Team member", avatar: "/TechNova.svg" }}
+            user={{ name: user.name ?? user.email, email: user.email, role: user.roles.join(", ") || "Team member", avatar: "/technova-logo.webp" }}
             onEditProfile={() => alert("Opening Edit Profile dialog...")}
           />
 

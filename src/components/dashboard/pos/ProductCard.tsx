@@ -17,7 +17,10 @@ export function ProductCard({
   isSelected = false,
 }: ProductCardProps) {
   const [videoOpen, setVideoOpen] = useState(false);
+  const [imageFailed, setImageFailed] = useState(false);
+  const [videoFailed, setVideoFailed] = useState(false);
   const isOutOfStock = product.stockCount === 0;
+  const imageSource = imageFailed ? "/technova-logo.webp" : product.image;
 
   function handleBadgeClick(e: React.MouseEvent) {
     e.stopPropagation();
@@ -46,12 +49,15 @@ export function ProductCard({
     >
       <div className="relative w-full aspect-[4/3] rounded-lg overflow-hidden bg-slate-100 mb-1.5">
         <Image
-          src={product.image}
+          src={imageSource}
           alt={product.name}
           fill
           sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 15vw"
           className="object-cover group-hover:scale-105 transition-transform duration-300"
           unoptimized
+          onError={() => {
+            if (imageSource !== "/technova-logo.webp") setImageFailed(true);
+          }}
         />
 
         <button
@@ -71,7 +77,7 @@ export function ProductCard({
             <Plus className="h-3 w-3 stroke-[3]" />
           )}
         </button>
-        {product.videoUrl && (
+        {product.videoUrl && !videoFailed && (
           <button
             type="button"
             onClick={(event) => {
@@ -128,6 +134,10 @@ export function ProductCard({
               controls
               autoPlay
               preload="metadata"
+              onError={() => {
+                setVideoFailed(true);
+                setVideoOpen(false);
+              }}
               className="aspect-video w-full rounded-xl bg-slate-950 object-contain"
             />
           </div>

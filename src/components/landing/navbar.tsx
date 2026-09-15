@@ -24,10 +24,11 @@ export default function Navbar() {
                     <Link href="/" className="flex items-center gap-3 shrink-0">
                         <div className="relative flex items-center">
                             <Image
-                            src="/technova-logo.svg"
+                            src="/technova-logo.webp"
                             alt="TechNova"
-                            width={200}
-                            height={48}
+                            width={206}
+                            height={66}
+                            sizes="(min-width: 1024px) 200px, (min-width: 640px) 192px, 144px"
                             className="h-auto w-36 object-contain sm:w-48 lg:w-[200px]"
                             style={{ height: "auto" }}
                             priority
@@ -85,6 +86,8 @@ export default function Navbar() {
                     onClick={() => setIsOpen(!isOpen)}
                     className="md:hidden p-2 text-slate-700 hover:text-teal-600 focus:outline-none cursor-pointer"
                     aria-label="Toggle Menu"
+                    aria-controls="mobile-navigation"
+                    aria-expanded={isOpen}
                 >
                     {isOpen ? <X className="w-7 h-7" /> : <Menu className="w-7 h-7" />}
                 </button>
@@ -93,7 +96,7 @@ export default function Navbar() {
 
 
             {isOpen && (
-                <div className="md:hidden absolute top-full left-0 w-full bg-white border-b border-slate-200 shadow-lg px-6 py-6 flex flex-col gap-4 animate-in fade-in slide-in-from-top-2 duration-200">
+                <div id="mobile-navigation" className="md:hidden absolute top-full left-0 w-full bg-white border-b border-slate-200 shadow-lg px-6 py-6 flex flex-col gap-4 animate-in fade-in slide-in-from-top-2 duration-200">
                     <Link
                         href="/"
                         onClick={() => setIsOpen(false)}

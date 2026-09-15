@@ -17,10 +17,10 @@ export function AuthLayout({ children }: AuthLayoutProps) {
         <section className="flex flex-col p-6 sm:p-8 lg:px-10 lg:py-6">
           <div className="flex justify-center pt-2 pb-2">
             <Image
-              src="/technova-logo.svg"
+              src="/technova-logo.webp"
               alt="TechNova"
               width={160}
-              height={48}
+              height={51}
               priority
               className="h-auto w-40 object-contain"
               style={{ height: "auto" }}

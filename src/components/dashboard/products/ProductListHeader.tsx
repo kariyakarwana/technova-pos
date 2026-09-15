@@ -4,7 +4,7 @@ import Link from "next/link";
 import {
   ChevronRight,
   ChevronUp,
-  Download,
+  FileUp,
   FileSpreadsheet,
   FileText,
   PlusCircle,
@@ -103,7 +103,7 @@ export default function ProductListHeader({
           onClick={onImport}
           className="h-8 px-3.5 rounded-lg bg-[#0E9384] hover:bg-[#0B6E63] text-white text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer"
         >
-          <Download className="h-3.5 w-3.5" />
+          <FileUp className="h-3.5 w-3.5" />
           <span>Import Product</span>
         </button>
       </div>

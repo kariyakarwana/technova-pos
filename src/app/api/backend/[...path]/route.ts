@@ -21,6 +21,8 @@ async function forward(
   });
   const contentType = request.headers.get("content-type");
   if (contentType) headers.set("content-type", contentType);
+  const range = request.headers.get("range");
+  if (range) headers.set("range", range);
   if (token) headers.set("authorization", `Bearer ${token}`);
   const idempotencyKey = request.headers.get("idempotency-key");
   if (idempotencyKey) headers.set("idempotency-key", idempotencyKey);
@@ -79,8 +81,18 @@ async function handler(
     "content-type",
     backend.headers.get("content-type") ?? "application/json",
   );
-  const disposition = backend.headers.get("content-disposition");
-  if (disposition) headers.set("content-disposition", disposition);
+  for (const name of [
+    "accept-ranges",
+    "cache-control",
+    "content-disposition",
+    "content-length",
+    "content-range",
+    "etag",
+    "last-modified",
+  ]) {
+    const value = backend.headers.get(name);
+    if (value) headers.set(name, value);
+  }
   const response = new NextResponse(backend.body, {
     status: backend.status,
     headers,
@@ -102,6 +114,7 @@ async function handler(
 }
 
 export const GET = handler;
+export const HEAD = handler;
 export const POST = handler;
 export const PATCH = handler;
 export const PUT = handler;

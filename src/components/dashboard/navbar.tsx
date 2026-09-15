@@ -55,18 +55,22 @@ export default function Navbar({
   }
 
   const displayEmail = userEmail ?? "admin@technova.com";
+  const resolvedLogo =
+    logoUrl && !logoFailed ? logoUrl : "/technova-logo.webp";
 
   return (
     <nav className="z-40 flex h-16 w-full shrink-0 items-center justify-between border-b border-[#E6EAED] bg-white px-6">
-      <Image
-        src={logoUrl && !logoFailed ? logoUrl : "/TechNova.svg"}
+      {/* The logo is streamed through an authenticated route, so the browser must load it directly. */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        key={resolvedLogo}
+        src={resolvedLogo}
         alt={`${organizationName ?? "TechNova"} logo`}
-        width={140}
-        height={36}
-        priority
-        loader={({ src }) => src}
-        unoptimized
-        onError={() => setLogoFailed(true)}
+        width="140"
+        height="45"
+        onError={() => {
+          if (resolvedLogo !== "/technova-logo.webp") setLogoFailed(true);
+        }}
         className="h-9 w-auto object-contain"
       />
 

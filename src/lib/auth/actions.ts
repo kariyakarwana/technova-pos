@@ -31,13 +31,29 @@ async function message(response: Response, fallback: string): Promise<string> {
 export async function loginAction(_state: AuthActionState, formData: FormData): Promise<AuthActionState> {
   const parsed = loginSchema.safeParse({ email: formData.get("email"), password: formData.get("password") });
   if (!parsed.success) return { status: "error", message: "Enter a valid email and password.", fieldErrors: fields(parsed.error) };
-  const response = await request("/auth/login", parsed.data);
+  let response: Response;
+  try {
+    response = await request("/auth/login", parsed.data);
+  } catch {
+    return {
+      status: "error",
+      message: "The sign-in service is unavailable. Start the backend service and try again.",
+    };
+  }
   if (!response.ok) return { status: "error", message: await message(response, "Email or password is incorrect, or the account is unavailable.") };
-  const result = (await response.json()) as {
+  let result: {
     accessToken: string;
     expiresIn: number;
     user: { roles: string[]; mustChangePassword?: boolean };
   };
+  try {
+    result = (await response.json()) as typeof result;
+  } catch {
+    return {
+      status: "error",
+      message: "The sign-in service returned an invalid response. Please try again.",
+    };
+  }
   const store = await cookies();
   store.set(ACCESS_COOKIE, result.accessToken, { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", maxAge: result.expiresIn });
   const refreshToken = response.headers.get("set-cookie")?.match(/technova_refresh=([^;]+)/)?.[1];

@@ -36,7 +36,7 @@ export default async function DashboardLayout({
   const organization = user
     ? await serverApi<{
         name: string;
-        branding: { logoUrl: string | null } | null;
+        branding: { logoUrl: string | null; updatedAt: string } | null;
       }>("/organization").catch(() => null)
     : null;
 
@@ -50,7 +50,7 @@ export default async function DashboardLayout({
             <Navbar
               userEmail={user?.email}
               organizationName={organization?.name}
-              logoUrl={organization?.branding?.logoUrl}
+              logoUrl={`/api/backend/organization/logo/content?v=${encodeURIComponent(organization?.branding?.updatedAt ?? "current")}`}
             />
             <div className="flex min-h-0 flex-1">
               <aside className="hidden w-72 shrink-0 overflow-y-auto overscroll-contain border-r border-[rgba(190,201,194,0.4)] bg-white py-3 md:block">
