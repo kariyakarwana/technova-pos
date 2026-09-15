@@ -10,6 +10,7 @@ import {
   PlusCircle,
   RotateCw,
 } from "lucide-react";
+import { BackButton } from "@/components/ui/back-button";
 
 interface ProductListHeaderProps {
   onRefresh?: () => void;
@@ -39,7 +40,14 @@ export default function ProductListHeader({
             Dashboard
           </Link>
           <ChevronRight className="h-3 w-3 text-slate-300" />
-          <span className="text-slate-500">Products</span>
+          <Link
+            href="/products"
+            className="hover:text-[#0E9384] transition-colors"
+          >
+            Products
+          </Link>
+          <ChevronRight className="h-3 w-3 text-slate-300" />
+          <span className="text-slate-500">Product List</span>
         </div>
       </div>
 
@@ -106,6 +114,12 @@ export default function ProductListHeader({
           <FileUp className="h-3.5 w-3.5" />
           <span>Import Product</span>
         </button>
+
+        <BackButton
+          href="/products"
+          label="Back to Products"
+          size="sm"
+        />
       </div>
     </div>
   );
