@@ -3,12 +3,23 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Download, FileUp, Pencil, RefreshCw } from "lucide-react";
 import { apiGet, apiPatch, apiPost } from "@/lib/api/client";
+import { BackButton } from "@/components/ui/back-button";
 import PaginationControls, { type PageMeta } from "./PaginationControls";
 
 type TaxonomyItem = { id: string; name: string; description: string | null; status: "ACTIVE" | "INACTIVE"; parent?: { id: string; name: string } | null; _count: { products: number; children?: number } };
 function parseCsvLine(line: string) { const cells: string[] = []; let value = "", quoted = false; for (let index = 0; index < line.length; index += 1) { const char = line[index]; if (char === '"' && quoted && line[index + 1] === '"') { value += '"'; index += 1; } else if (char === '"') quoted = !quoted; else if (char === "," && !quoted) { cells.push(value.trim()); value = ""; } else value += char; } cells.push(value.trim()); return cells; }
 
-export default function TaxonomyOperations({ kind }: { kind: "categories" | "brands" }) {
+interface TaxonomyOperationsProps {
+  kind: "categories" | "brands";
+  backHref?: string;
+  backLabel?: string;
+}
+
+export default function TaxonomyOperations({
+  kind,
+  backHref = "/products",
+  backLabel = "Back to Products",
+}: TaxonomyOperationsProps) {
   const [items, setItems] = useState<TaxonomyItem[]>([]);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -61,7 +72,23 @@ export default function TaxonomyOperations({ kind }: { kind: "categories" | "bra
   function downloadTemplate() { const content = kind === "categories" ? "name,description,parent\nComputers,Desktop and laptop computers,\nLaptops,Portable computers,Computers\n" : "name,description\nLenovo,Computer manufacturer\nApple,Consumer electronics\n"; const url = URL.createObjectURL(new Blob([content], { type: "text/csv" })); const link = document.createElement("a"); link.href = url; link.download = `${kind}-import-template.csv`; link.click(); URL.revokeObjectURL(url); }
 
   return <main className="space-y-6 p-6">
-    <div className="flex flex-wrap items-end justify-between gap-3"><div><p className="text-xs font-semibold uppercase tracking-wider text-[#0E9384]">Product catalog</p><h1 className="text-2xl font-bold">{label} Management</h1><p className="text-sm text-slate-500">Maintain the classifications used by products, purchasing and reports.</p></div><div className="flex gap-2"><button type="button" onClick={downloadTemplate} className="inline-flex items-center gap-2 rounded-xl border bg-white px-3 py-2 text-xs font-semibold"><Download className="h-4 w-4"/>CSV template</button><button type="button" disabled={importing} onClick={() => fileRef.current?.click()} className="inline-flex items-center gap-2 rounded-xl bg-[#0E9384] px-4 py-2 text-xs font-semibold text-white disabled:opacity-50"><FileUp className="h-4 w-4"/>{importing ? "Importing…" : `Import ${kind}`}</button><input ref={fileRef} hidden type="file" accept=".csv,text/csv" onChange={(event) => { const file = event.target.files?.[0]; if (file) void importCsv(file); }}/></div></div>
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-wider text-[#0E9384]">Product catalog</p>
+        <h1 className="text-2xl font-bold">{label} Management</h1>
+        <p className="text-sm text-slate-500">Maintain the classifications used by products, purchasing and reports.</p>
+      </div>
+      <div className="flex items-center gap-2 flex-wrap self-start sm:self-auto">
+        <button type="button" onClick={downloadTemplate} className="inline-flex items-center gap-2 rounded-xl border bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-50 transition-colors shadow-2xs">
+          <Download className="h-4 w-4"/>CSV template
+        </button>
+        <button type="button" disabled={importing} onClick={() => fileRef.current?.click()} className="inline-flex items-center gap-2 rounded-xl bg-[#0E9384] px-4 py-2 text-xs font-semibold text-white hover:bg-[#0B6E63] disabled:opacity-50 transition-colors shadow-2xs">
+          <FileUp className="h-4 w-4"/>{importing ? "Importing…" : `Import ${kind}`}
+        </button>
+        <BackButton href={backHref} label={backLabel} />
+        <input ref={fileRef} hidden type="file" accept=".csv,text/csv" onChange={(event) => { const file = event.target.files?.[0]; if (file) void importCsv(file); }}/>
+      </div>
+    </div>
     {message && <div className="rounded-xl border border-teal-200 bg-teal-50 p-3 text-sm text-teal-800">{message}</div>}
     <div className="grid gap-6 xl:grid-cols-[360px_1fr]">
       <form onSubmit={save} className="h-fit space-y-4 rounded-2xl border bg-white p-5 shadow-sm"><h2 className="font-bold">{editing ? `Edit ${label}` : `New ${label}`}</h2><label className="block text-xs font-semibold">Name<input required minLength={2} value={name} onChange={(e) => setName(e.target.value)} className="mt-1 h-10 w-full rounded-xl border px-3" /></label>{kind === "categories" && <label className="block text-xs font-semibold">Parent category<select value={parentId} onChange={(e) => setParentId(e.target.value)} className="mt-1 h-10 w-full rounded-xl border px-3"><option value="">None (top level)</option>{items.filter((item) => item.id !== editing?.id).map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>}<label className="block text-xs font-semibold">Description<textarea value={description} onChange={(e) => setDescription(e.target.value)} className="mt-1 min-h-24 w-full rounded-xl border p-3" /></label><div className="flex gap-2"><button className="rounded-xl bg-[#0E9384] px-4 py-2 font-semibold text-white">Save</button>{editing && <button type="button" onClick={reset} className="rounded-xl border px-4 py-2">Cancel</button>}</div></form>
