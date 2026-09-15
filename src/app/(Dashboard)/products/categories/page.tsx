@@ -1,2 +1,11 @@
 import TaxonomyOperations from "@/components/operations/TaxonomyOperations";
-export default function CategoriesPage() { return <TaxonomyOperations kind="categories" />; }
+
+export default function CategoriesPage() {
+  return (
+    <TaxonomyOperations
+      kind="categories"
+      backHref="/products"
+      backLabel="Back to Products"
+    />
+  );
+}
