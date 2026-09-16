@@ -41,6 +41,7 @@ export default function RootLayout({
         ${geistMono.variable}
         ${notoSans.variable}
         h-full
+        overflow-hidden
         antialiased
       `}
     >
