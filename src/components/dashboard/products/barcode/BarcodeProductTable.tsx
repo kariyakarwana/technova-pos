@@ -1,240 +1,212 @@
 "use client";
 
 import Image from "next/image";
-import { ChevronDown, ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
-import type { BarcodeProductItem } from "./BarcodeMock";
-
-interface BarcodeProductTableProps {
-  products: BarcodeProductItem[];
-  quantities: Record<string, number>;
-  onQuantityChange: (id: string, qty: number) => void;
-  onDeleteRow: (id: string) => void;
-  currentPage: number;
-  totalPages: number;
-  pageSize: number;
-  onPageChange: (p: number) => void;
-  onPageSizeChange: (s: number) => void;
-}
+import { ChevronLeft, ChevronRight, Loader2, Plus } from "lucide-react";
+import Code128Barcode, { canEncodeCode128 } from "./Code128Barcode";
+import type { BarcodeProductItem } from "./BarcodeTypes";
 
 export default function BarcodeProductTable({
   products,
+  queuedIds,
   quantities,
-  onQuantityChange,
-  onDeleteRow,
+  loading,
+  generatingId,
   currentPage,
   totalPages,
   pageSize,
+  total,
+  onToggle,
+  onQuantityChange,
+  onGenerate,
   onPageChange,
   onPageSizeChange,
-}: BarcodeProductTableProps) {
-  const pages = Array.from({ length: Math.min(totalPages, 4) }, (_, i) => i + 1);
+}: {
+  products: BarcodeProductItem[];
+  queuedIds: Set<string>;
+  quantities: Record<string, number>;
+  loading: boolean;
+  generatingId: string | null;
+  currentPage: number;
+  totalPages: number;
+  pageSize: number;
+  total: number;
+  onToggle(product: BarcodeProductItem): void;
+  onQuantityChange(id: string, quantity: number): void;
+  onGenerate(product: BarcodeProductItem): void;
+  onPageChange(page: number): void;
+  onPageSizeChange(size: number): void;
+}) {
+  const pages = Array.from(
+    new Set(
+      [1, currentPage - 1, currentPage, currentPage + 1, totalPages].filter(
+        (page) => page >= 1 && page <= totalPages,
+      ),
+    ),
+  ).sort((a, b) => a - b);
 
   return (
-    <div className="bg-white rounded-2xl border border-[var(--brand-stroke)] shadow-xs overflow-hidden">
+    <section className="overflow-hidden rounded-2xl border border-[var(--brand-stroke)] bg-white shadow-xs">
       <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse min-w-[700px]">
+        <table className="w-full min-w-[880px] border-collapse text-left">
           <thead>
-            <tr className="bg-[#F9FAFB] text-slate-500 text-[11px] font-bold border-b border-[var(--brand-stroke)] tracking-wider uppercase">
-              <th className="py-3.5 px-4 font-bold text-[var(--brand-black-font)]">
-                Product
-              </th>
-              <th className="py-3.5 px-4 font-bold text-[var(--brand-black-font)]">
-                SKU
-              </th>
-              <th className="py-3.5 px-4 font-bold text-[var(--brand-black-font)]">
-                Code
-              </th>
-              <th className="py-3.5 px-4 font-bold text-[var(--brand-black-font)]">
-                Barcode
-              </th>
-              <th className="py-3.5 px-4 font-bold text-[var(--brand-black-font)]">
-                Qty
-              </th>
-              <th className="py-3.5 px-4 font-bold text-[var(--brand-black-font)] text-right">
-                Action
-              </th>
+            <tr className="border-b border-[var(--brand-stroke)] bg-[#F9FAFB] text-[11px] font-bold uppercase tracking-wider text-slate-500">
+              <th className="px-4 py-3.5">Print</th>
+              <th className="px-4 py-3.5">Product</th>
+              <th className="px-4 py-3.5">SKU</th>
+              <th className="px-4 py-3.5">Barcode</th>
+              <th className="px-4 py-3.5">Available</th>
+              <th className="px-4 py-3.5">Copies</th>
             </tr>
           </thead>
-
-          <tbody className="divide-y divide-[var(--brand-stroke)] text-xs text-[var(--brand-black-font)]">
-            {products.map((item) => {
-              const qty = quantities[item.id] ?? 100;
-
+          <tbody className="divide-y divide-[var(--brand-stroke)] text-xs">
+            {products.map((product) => {
+              const encodable = Boolean(
+                product.barcodeCode && canEncodeCode128(product.barcodeCode),
+              );
+              const selected = queuedIds.has(product.id);
               return (
-                <tr
-                  key={item.id}
-                  className="hover:bg-slate-50/70 transition-colors"
-                >
-                  {/* Product */}
-                  <td className="py-4 px-4 font-bold text-[var(--brand-black-font)]">
+                <tr key={product.id} className="hover:bg-slate-50/70">
+                  <td className="px-4 py-4">
+                    <input
+                      type="checkbox"
+                      aria-label={`Include ${product.name} in print queue`}
+                      checked={selected}
+                      disabled={!encodable}
+                      onChange={() => onToggle(product)}
+                      className="h-4 w-4 accent-[var(--brand-green)] disabled:opacity-40"
+                    />
+                  </td>
+                  <td className="px-4 py-4 font-semibold text-slate-800">
                     <div className="flex items-center gap-3">
-                      <div className="h-9 w-9 rounded-xl bg-slate-100 overflow-hidden relative shrink-0 border border-slate-100">
+                      <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg border bg-slate-50">
                         <Image
-                          src={item.productImage}
-                          alt={item.name}
+                          src={product.productImage}
+                          alt=""
                           fill
+                          unoptimized
+                          sizes="40px"
                           className="object-cover"
-                          sizes="36px"
                         />
                       </div>
-                      <span className="truncate max-w-[180px]">{item.name}</span>
+                      <span className="max-w-[220px] truncate">{product.name}</span>
                     </div>
                   </td>
-
-                  {/* SKU */}
-                  <td className="py-4 px-4 text-slate-600 font-medium">
-                    {item.sku}
+                  <td className="px-4 py-4 font-mono text-slate-600">
+                    {product.sku}
                   </td>
-
-                  {/* Code */}
-                  <td className="py-4 px-4 font-mono text-[11px] text-slate-700">
-                    {item.barcodeCode}
-                  </td>
-
-                  {/* Barcode Graphic */}
-                  <td className="py-4 px-4">
-                    <div className="flex flex-col items-start py-1">
-                      <svg
-                        className="w-24 h-6"
-                        viewBox="0 0 112 28"
-                        fill="currentColor"
+                  <td className="px-4 py-4">
+                    {product.barcodeCode ? (
+                      encodable ? (
+                        <div className="w-40">
+                          <Code128Barcode value={product.barcodeCode} height={28} />
+                          <p className="mt-1 truncate font-mono text-[10px] text-slate-500">
+                            {product.barcodeCode}
+                          </p>
+                        </div>
+                      ) : (
+                        <span className="text-rose-600">Unsupported characters</span>
+                      )
+                    ) : (
+                      <button
+                        type="button"
+                        disabled={generatingId === product.id}
+                        onClick={() => onGenerate(product)}
+                        className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-teal-200 bg-teal-50 px-3 font-semibold text-[#0E9384] disabled:opacity-60"
                       >
-                        <rect x="0" y="0" width="2" height="28" fill="#151C27" />
-                        <rect x="4" y="0" width="1" height="28" fill="#151C27" />
-                        <rect x="7" y="0" width="3" height="28" fill="#151C27" />
-                        <rect x="12" y="0" width="1" height="28" fill="#151C27" />
-                        <rect x="15" y="0" width="2" height="28" fill="#151C27" />
-                        <rect x="19" y="0" width="4" height="28" fill="#151C27" />
-                        <rect x="25" y="0" width="1" height="28" fill="#151C27" />
-                        <rect x="28" y="0" width="2" height="28" fill="#151C27" />
-                        <rect x="32" y="0" width="3" height="28" fill="#151C27" />
-                        <rect x="37" y="0" width="1" height="28" fill="#151C27" />
-                        <rect x="40" y="0" width="2" height="28" fill="#151C27" />
-                        <rect x="44" y="0" width="1" height="28" fill="#151C27" />
-                        <rect x="47" y="0" width="3" height="28" fill="#151C27" />
-                        <rect x="52" y="0" width="2" height="28" fill="#151C27" />
-                        <rect x="56" y="0" width="1" height="28" fill="#151C27" />
-                        <rect x="59" y="0" width="4" height="28" fill="#151C27" />
-                        <rect x="65" y="0" width="2" height="28" fill="#151C27" />
-                        <rect x="69" y="0" width="1" height="28" fill="#151C27" />
-                        <rect x="72" y="0" width="3" height="28" fill="#151C27" />
-                        <rect x="77" y="0" width="2" height="28" fill="#151C27" />
-                        <rect x="81" y="0" width="1" height="28" fill="#151C27" />
-                        <rect x="84" y="0" width="2" height="28" fill="#151C27" />
-                        <rect x="88" y="0" width="3" height="28" fill="#151C27" />
-                        <rect x="93" y="0" width="1" height="28" fill="#151C27" />
-                        <rect x="96" y="0" width="2" height="28" fill="#151C27" />
-                        <rect x="100" y="0" width="4" height="28" fill="#151C27" />
-                        <rect x="106" y="0" width="1" height="28" fill="#151C27" />
-                        <rect x="109" y="0" width="2" height="28" fill="#151C27" />
-                      </svg>
-                    </div>
+                        {generatingId === product.id ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          <Plus className="h-3.5 w-3.5" />
+                        )}
+                        Generate
+                      </button>
+                    )}
                   </td>
-
-                  {/* Quantity */}
-                  <td className="py-4 px-4">
+                  <td className="px-4 py-4 font-semibold text-slate-700">
+                    {product.stock}
+                  </td>
+                  <td className="px-4 py-4">
                     <input
                       type="number"
                       min={1}
-                      value={qty}
-                      onChange={(e) =>
-                        onQuantityChange(item.id, parseInt(e.target.value, 10) || 1)
+                      max={100}
+                      disabled={!selected}
+                      value={quantities[product.id] ?? 1}
+                      onChange={(event) =>
+                        onQuantityChange(
+                          product.id,
+                          Math.max(1, Math.min(100, Number(event.target.value) || 1)),
+                        )
                       }
-                      className="w-16 h-8 px-2 text-center rounded-lg border border-[var(--brand-stroke)] bg-white text-xs text-[var(--brand-black-font)] focus:outline-none focus:border-[var(--brand-green)]"
+                      className="h-8 w-16 rounded-lg border px-2 text-center outline-none focus:border-[var(--brand-green)] disabled:bg-slate-100"
                     />
-                  </td>
-
-                  {/* Actions */}
-                  <td className="py-4 px-4 text-right">
-                    <button
-                      type="button"
-                      onClick={() => onDeleteRow(item.id)}
-                      title="Delete"
-                      className="h-7 w-7 rounded-lg hover:text-rose-500 hover:bg-rose-50 flex items-center justify-center ml-auto transition-colors cursor-pointer text-slate-400"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
                   </td>
                 </tr>
               );
             })}
+            {!loading && products.length === 0 && (
+              <tr>
+                <td colSpan={6} className="px-4 py-12 text-center text-sm text-slate-500">
+                  No active products match the current filters.
+                </td>
+              </tr>
+            )}
+            {loading && (
+              <tr>
+                <td colSpan={6} className="px-4 py-12 text-center text-sm text-slate-500">
+                  Loading products…
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
-
-      {/* Pagination Strip */}
-      <div className="p-4 border-t border-[var(--brand-stroke)] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 bg-[#FAFAFC]">
+      <div className="flex flex-col items-center justify-between gap-3 border-t bg-slate-50/60 p-4 text-xs text-slate-500 sm:flex-row">
         <div className="flex items-center gap-2">
-          <span>Show</span>
-          <div className="relative">
-            <select
-              value={pageSize}
-              onChange={(e) => onPageSizeChange(Number(e.target.value))}
-              className="h-8 pl-2.5 pr-7 bg-white border border-[var(--brand-stroke)] rounded-lg text-slate-700 font-semibold appearance-none focus:outline-none cursor-pointer"
-            >
-              <option value={10}>10</option>
-              <option value={20}>20</option>
-              <option value={50}>50</option>
-            </select>
-            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 text-slate-400 pointer-events-none" />
-          </div>
-          <span>entries</span>
+          <span>{total} products</span>
+          <select
+            value={pageSize}
+            onChange={(event) => onPageSizeChange(Number(event.target.value))}
+            className="h-8 rounded-lg border bg-white px-2 text-slate-700"
+          >
+            <option value={10}>10 per page</option>
+            <option value={20}>20 per page</option>
+            <option value={50}>50 per page</option>
+          </select>
         </div>
-
         <div className="flex items-center gap-1">
           <button
             type="button"
-            disabled={currentPage === 1}
+            disabled={currentPage <= 1}
             onClick={() => onPageChange(currentPage - 1)}
-            className="h-8 w-8 rounded-lg border border-[var(--brand-stroke)] bg-white flex items-center justify-center text-slate-500 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
+            className="grid h-8 w-8 place-items-center rounded-lg border bg-white disabled:opacity-40"
           >
-            <ChevronLeft className="h-3.5 w-3.5" />
+            <ChevronLeft className="h-4 w-4" />
           </button>
-
-          {pages.map((p) => (
+          {pages.map((page) => (
             <button
-              key={p}
+              key={page}
               type="button"
-              onClick={() => onPageChange(p)}
-              className={[
-                "h-8 w-8 rounded-lg font-bold text-xs flex items-center justify-center transition-colors cursor-pointer",
-                currentPage === p
-                  ? "bg-[var(--brand-green)] text-white shadow-2xs"
-                  : "bg-white border border-[var(--brand-stroke)] text-slate-600 hover:bg-slate-50",
-              ].join(" ")}
+              onClick={() => onPageChange(page)}
+              className={`h-8 min-w-8 rounded-lg px-2 font-semibold ${
+                page === currentPage
+                  ? "bg-[var(--brand-green)] text-white"
+                  : "border bg-white text-slate-600"
+              }`}
             >
-              {p}
+              {page}
             </button>
           ))}
-
-          {totalPages > 4 && (
-            <>
-              <span className="px-1 text-slate-400">...</span>
-              <button
-                type="button"
-                onClick={() => onPageChange(totalPages)}
-                className={[
-                  "h-8 w-8 rounded-lg font-bold text-xs flex items-center justify-center transition-colors cursor-pointer",
-                  currentPage === totalPages
-                    ? "bg-[var(--brand-green)] text-white shadow-2xs"
-                    : "bg-white border border-[var(--brand-stroke)] text-slate-600 hover:bg-slate-50",
-                ].join(" ")}
-              >
-                {totalPages}
-              </button>
-            </>
-          )}
-
           <button
             type="button"
-            disabled={currentPage === totalPages}
+            disabled={currentPage >= totalPages}
             onClick={() => onPageChange(currentPage + 1)}
-            className="h-8 w-8 rounded-lg border border-[var(--brand-stroke)] bg-white flex items-center justify-center text-slate-500 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
+            className="grid h-8 w-8 place-items-center rounded-lg border bg-white disabled:opacity-40"
           >
-            <ChevronRight className="h-3.5 w-3.5" />
+            <ChevronRight className="h-4 w-4" />
           </button>
         </div>
       </div>
-    </div>
+    </section>
   );
 }

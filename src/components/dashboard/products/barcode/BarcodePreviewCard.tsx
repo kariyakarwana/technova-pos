@@ -1,105 +1,128 @@
 "use client";
 
 import { Printer, RefreshCw } from "lucide-react";
-import type { BarcodeProductItem } from "./BarcodeMock";
+import Code128Barcode from "./Code128Barcode";
+import type {
+  BarcodeLabelSettings,
+  BarcodeProductItem,
+} from "./BarcodeTypes";
 
-interface BarcodePreviewCardProps {
-  products: BarcodeProductItem[];
-  quantities: Record<string, number>;
-  onReset?: () => void;
-  onPrint?: () => void;
-}
+type PrintableLabel = {
+  key: string;
+  product: BarcodeProductItem;
+};
 
 export default function BarcodePreviewCard({
   products,
+  quantities,
+  settings,
   onReset,
   onPrint,
-}: BarcodePreviewCardProps) {
+}: {
+  products: BarcodeProductItem[];
+  quantities: Record<string, number>;
+  settings: BarcodeLabelSettings;
+  onReset(): void;
+  onPrint(): void;
+}) {
+  const labels: PrintableLabel[] = products.flatMap((product) =>
+    Array.from(
+      { length: Math.max(1, Math.min(100, quantities[product.id] ?? 1)) },
+      (_, copyIndex) => ({ key: `${product.id}-${copyIndex}`, product }),
+    ),
+  );
+
   return (
-    <div className="space-y-6">
-      {/* Printable Sheet Preview */}
-      <div className="barcode-print-root p-6 bg-white border border-[var(--brand-stroke)] rounded-2xl shadow-xs space-y-4">
-        <h2 className="text-sm font-bold text-[var(--brand-black-font)]">
-          Barcode Preview
-        </h2>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {products.slice(0, 6).map((item) => (
-            <div
-              key={item.id}
-              className="border border-dashed border-slate-300 rounded-xl p-4 flex flex-col items-center justify-center text-center space-y-1.5 bg-slate-50/50"
-            >
-              <span className="text-xs font-bold text-[var(--brand-black-font)] truncate max-w-full">
-                {item.name}
-              </span>
-              <span className="text-[10px] text-slate-400 font-mono">
-                {item.sku}
-              </span>
-
-              {/* Barcode SVG */}
-              <svg
-                className="w-32 h-8 my-1"
-                viewBox="0 0 112 28"
-                fill="currentColor"
-              >
-                <rect x="0" y="0" width="2" height="28" fill="#151C27" />
-                <rect x="4" y="0" width="1" height="28" fill="#151C27" />
-                <rect x="7" y="0" width="3" height="28" fill="#151C27" />
-                <rect x="12" y="0" width="1" height="28" fill="#151C27" />
-                <rect x="15" y="0" width="2" height="28" fill="#151C27" />
-                <rect x="19" y="0" width="4" height="28" fill="#151C27" />
-                <rect x="25" y="0" width="1" height="28" fill="#151C27" />
-                <rect x="28" y="0" width="2" height="28" fill="#151C27" />
-                <rect x="32" y="0" width="3" height="28" fill="#151C27" />
-                <rect x="37" y="0" width="1" height="28" fill="#151C27" />
-                <rect x="40" y="0" width="2" height="28" fill="#151C27" />
-                <rect x="44" y="0" width="1" height="28" fill="#151C27" />
-                <rect x="47" y="0" width="3" height="28" fill="#151C27" />
-                <rect x="52" y="0" width="2" height="28" fill="#151C27" />
-                <rect x="56" y="0" width="1" height="28" fill="#151C27" />
-                <rect x="59" y="0" width="4" height="28" fill="#151C27" />
-                <rect x="65" y="0" width="2" height="28" fill="#151C27" />
-                <rect x="69" y="0" width="1" height="28" fill="#151C27" />
-                <rect x="72" y="0" width="3" height="28" fill="#151C27" />
-                <rect x="77" y="0" width="2" height="28" fill="#151C27" />
-                <rect x="81" y="0" width="1" height="28" fill="#151C27" />
-                <rect x="84" y="0" width="2" height="28" fill="#151C27" />
-                <rect x="88" y="0" width="3" height="28" fill="#151C27" />
-                <rect x="93" y="0" width="1" height="28" fill="#151C27" />
-                <rect x="96" y="0" width="2" height="28" fill="#151C27" />
-                <rect x="100" y="0" width="4" height="28" fill="#151C27" />
-                <rect x="106" y="0" width="1" height="28" fill="#151C27" />
-                <rect x="109" y="0" width="2" height="28" fill="#151C27" />
-              </svg>
-
-              <span className="text-[10px] font-mono text-slate-600 font-bold">
-                {item.barcodeCode}
-              </span>
-            </div>
-          ))}
+    <section className="space-y-4">
+      <div className="barcode-print-root rounded-2xl border border-[var(--brand-stroke)] bg-white p-6 shadow-xs">
+        <div className="barcode-preview-heading mb-5 flex items-start justify-between gap-4">
+          <div>
+            <h2 className="text-sm font-bold text-[var(--brand-black-font)]">
+              Label preview
+            </h2>
+            <p className="mt-1 text-xs text-slate-500">
+              {labels.length} label{labels.length === 1 ? "" : "s"} ready to print
+            </p>
+          </div>
+          <span className="rounded-lg bg-teal-50 px-2.5 py-1 text-[11px] font-semibold text-[#0E9384]">
+            {settings.paperSize} wide
+          </span>
         </div>
+
+        {labels.length > 0 ? (
+          <div className="barcode-print-grid flex flex-wrap items-start gap-3">
+            {labels.map(({ key, product }) => (
+              <article
+                key={key}
+                className="barcode-label flex shrink-0 flex-col items-center justify-center overflow-hidden rounded-lg border border-dashed border-slate-300 bg-white px-2 py-2 text-center"
+                style={{ width: settings.paperSize, minHeight: "28mm" }}
+              >
+                {settings.showName && (
+                  <p className="w-full truncate text-[9px] font-bold text-slate-900">
+                    {product.name}
+                  </p>
+                )}
+                {settings.showSku && (
+                  <p className="w-full truncate font-mono text-[7px] text-slate-500">
+                    {product.sku}
+                  </p>
+                )}
+                {product.barcodeCode && (
+                  <Code128Barcode
+                    value={product.barcodeCode}
+                    height={40}
+                    className="my-1 w-full"
+                  />
+                )}
+                <div className="flex w-full items-end justify-between gap-1">
+                  {settings.showValue && (
+                    <p className="min-w-0 truncate font-mono text-[7px] font-semibold text-slate-700">
+                      {product.barcodeCode}
+                    </p>
+                  )}
+                  {settings.showPrice && (
+                    <p className="ml-auto shrink-0 text-[8px] font-bold text-slate-900">
+                      LKR {product.price.toLocaleString()}
+                    </p>
+                  )}
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="grid min-h-36 place-items-center rounded-xl border border-dashed border-slate-300 bg-slate-50/60 p-6 text-center">
+            <div>
+              <p className="text-sm font-semibold text-slate-700">
+                No products selected
+              </p>
+              <p className="mt-1 text-xs text-slate-500">
+                Select products with a barcode to build the print sheet.
+              </p>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Action Footer */}
-      <div className="barcode-print-actions flex items-center justify-end gap-3 pt-2">
+      <div className="barcode-print-actions flex items-center justify-end gap-3">
         <button
           type="button"
           onClick={onReset}
-          className="h-10 px-5 rounded-xl bg-[#004532] hover:bg-[#003828] text-white text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer"
+          disabled={labels.length === 0}
+          className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-[#004532] px-5 text-xs font-semibold text-white shadow-xs transition-colors hover:bg-[#003828] disabled:cursor-not-allowed disabled:opacity-50"
         >
           <RefreshCw className="h-3.5 w-3.5" />
-          <span>Reset</span>
+          Clear queue
         </button>
-
         <button
           type="button"
           onClick={onPrint}
-          className="h-10 px-6 rounded-xl bg-[var(--brand-green)] hover:bg-[#0B6E63] text-white text-xs font-bold flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer"
+          disabled={labels.length === 0}
+          className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-[var(--brand-green)] px-6 text-xs font-bold text-white shadow-xs transition-colors hover:bg-[#0B6E63] disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Printer className="h-3.5 w-3.5" />
-          <span>Print Barcode</span>
+          Print labels
         </button>
       </div>
-    </div>
+    </section>
   );
 }

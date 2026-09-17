@@ -271,6 +271,22 @@
     margin: 0 !important;
   }
 
+  .barcode-print-grid {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: flex-start !important;
+    gap: 2mm !important;
+  }
+
+  .barcode-label {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  .barcode-preview-heading {
+    display: none !important;
+  }
+
   .qr-label-print-controls,
   .barcode-print-actions {
     display: none !important;
