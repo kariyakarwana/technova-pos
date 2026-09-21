@@ -14,7 +14,7 @@ export function CategorySidebar({
   onSelect,
 }: CategorySidebarProps) {
   return (
-    <aside className="w-24 shrink-0 bg-[#F9F9FF] border-r border-[#E6EAED] overflow-y-auto flex flex-col items-center py-4 px-2 gap-2.5">
+    <aside className="h-full min-h-0 w-24 shrink-0 bg-[#F9F9FF] border-r border-[#E6EAED] overflow-y-auto overscroll-contain flex flex-col items-center py-4 px-2 gap-2.5">
       <p className="text-xs font-bold text-[#212B36] tracking-tight mb-1 text-center">
         Categories
       </p>

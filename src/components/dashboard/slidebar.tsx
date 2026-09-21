@@ -49,14 +49,22 @@ const navItems = [
   { name: "Settings", icon: Settings, href: "/settings", permission: "settings:view" },
 ] as const;
 
-export default function Sidebar({ permissions = [], roles = [] }: { permissions?: string[]; roles?: string[] }) {
+export default function Sidebar({
+  permissions = [],
+  roles = [],
+  collapsed = false,
+}: {
+  permissions?: string[];
+  roles?: string[];
+  collapsed?: boolean;
+}) {
   const pathname = usePathname();
   const isSuperAdmin = roles.includes("SUPER_ADMIN");
 
   return (
     <nav
       aria-label="Dashboard navigation"
-      className="flex w-full flex-col gap-2 px-4 py-3"
+      className={`flex w-full flex-col gap-2 py-3 transition-[padding] duration-200 ${collapsed ? "px-2" : "px-4"}`}
     >
       {navItems.filter((item) => !("permission" in item) || isSuperAdmin || permissions.includes(item.permission)).map((item) => {
         const Icon = item.icon;
@@ -70,7 +78,13 @@ export default function Sidebar({ permissions = [], roles = [] }: { permissions?
             key={item.href}
             href={item.href}
             aria-current={isActive ? "page" : undefined}
-            className={`grid h-11 w-full grid-cols-[1.25rem_minmax(0,1fr)_1.25rem] items-center gap-3 rounded-2xl border-[1.5px] px-4 font-medium transition-all duration-200 ${
+            aria-label={item.name}
+            title={collapsed ? item.name : undefined}
+            className={`grid h-11 items-center rounded-2xl border-[1.5px] font-medium transition-all duration-200 ${
+              collapsed
+                ? "mx-auto w-12 grid-cols-1 place-items-center px-0"
+                : "w-full grid-cols-[1.25rem_minmax(0,1fr)_1.25rem] gap-3 px-4"
+            } ${
               isActive
                 ? "border-[#004532] bg-[#004532] font-semibold shadow-md shadow-[#004532]/25"
                 : "border-[#0E9384] bg-white hover:bg-[#EEFFFD]"
@@ -85,13 +99,13 @@ export default function Sidebar({ permissions = [], roles = [] }: { permissions?
               />
             </span>
             <span
-              className={`min-w-0 whitespace-nowrap text-center text-sm leading-none ${
+              className={`${collapsed ? "sr-only" : "min-w-0 whitespace-nowrap text-center text-sm leading-none"} ${
                 isActive ? "font-semibold text-white" : "text-[#0E9384]"
               }`}
             >
               {item.name}
             </span>
-            <span aria-hidden="true" className="h-5 w-5" />
+            {!collapsed && <span aria-hidden="true" className="h-5 w-5" />}
           </Link>
         );
       })}

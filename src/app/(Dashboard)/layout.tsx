@@ -1,6 +1,5 @@
 import React from "react";
-import Sidebar from "@/components/dashboard/slidebar";
-import Navbar from "@/components/dashboard/navbar";
+import DashboardShell from "@/components/dashboard/DashboardShell";
 import { getCurrentUser } from "@/lib/auth/session";
 import { OfflineProvider } from "@/components/dashboard/pos/OfflineContext";
 import OfflineBannerController from "@/components/dashboard/pos/OfflineBannerController";
@@ -43,29 +42,16 @@ export default async function DashboardLayout({
   return (
     <BranchProvider branches={branches}>
       <OfflineProvider>
-        <div className="flex h-screen w-screen overflow-hidden bg-[#F9F9FF] font-sans text-[#151C27]">
-          {/* Offline banner sits above the sticky Navbar when isOffline === true */}
-          <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-            <OfflineBannerController />
-            <Navbar
-              userEmail={user?.email}
-              organizationName={organization?.name}
-              logoUrl={`/api/backend/organization/logo/content?v=${encodeURIComponent(organization?.branding?.updatedAt ?? "current")}`}
-            />
-            <div className="flex min-h-0 flex-1">
-              <aside className="hidden w-72 shrink-0 overflow-y-auto overscroll-contain border-r border-[rgba(190,201,194,0.4)] bg-white py-3 md:block">
-                <Sidebar
-                  permissions={user?.permissions ?? []}
-                  roles={user?.roles ?? []}
-                />
-              </aside>
-
-              <main className="min-w-0 flex-1 overflow-y-auto overscroll-contain bg-gray-50/30">
-                {children}
-              </main>
-            </div>
-          </div>
-        </div>
+        <DashboardShell
+          permissions={user?.permissions ?? []}
+          roles={user?.roles ?? []}
+          userEmail={user?.email}
+          organizationName={organization?.name}
+          logoUrl={`/api/backend/organization/logo/content?v=${encodeURIComponent(organization?.branding?.updatedAt ?? "current")}`}
+          offlineBanner={<OfflineBannerController />}
+        >
+          {children}
+        </DashboardShell>
       </OfflineProvider>
     </BranchProvider>
   );
