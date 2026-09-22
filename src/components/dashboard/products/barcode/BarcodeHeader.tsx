@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
+import { BackButton } from "@/components/ui/back-button";
 
 export default function BarcodeHeader() {
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
+    <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
       <div>
         <h1 className="text-xl font-bold text-[var(--brand-black-font)] tracking-tight">
           Barcode Operations
@@ -19,10 +20,10 @@ export default function BarcodeHeader() {
           </Link>
           <ChevronRight className="h-3 w-3 text-slate-300" />
           <Link
-            href="/products/product-list"
+            href="/products"
             className="hover:text-[var(--brand-green)] transition-colors"
           >
-            Product
+            Products
           </Link>
           <ChevronRight className="h-3 w-3 text-slate-300" />
           <span className="text-[var(--brand-black-font)] font-semibold">
@@ -30,6 +31,12 @@ export default function BarcodeHeader() {
           </span>
         </div>
       </div>
-    </div>
+
+      <BackButton
+        href="/products"
+        label="Back to Products"
+        className="self-start sm:self-auto"
+      />
+    </header>
   );
 }
