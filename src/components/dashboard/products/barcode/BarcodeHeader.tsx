@@ -9,7 +9,7 @@ export default function BarcodeHeader() {
     <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
       <div>
         <h1 className="text-xl font-bold text-[var(--brand-black-font)] tracking-tight">
-          Print Barcode
+          Barcode Operations
         </h1>
         <div className="flex items-center gap-1.5 mt-0.5 text-xs text-[var(--brand-muted-font)] font-medium">
           <Link
@@ -27,7 +27,7 @@ export default function BarcodeHeader() {
           </Link>
           <ChevronRight className="h-3 w-3 text-slate-300" />
           <span className="text-[var(--brand-black-font)] font-semibold">
-            Print Barcode
+            Barcode Operations
           </span>
         </div>
       </div>

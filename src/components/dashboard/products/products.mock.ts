@@ -22,17 +22,6 @@ export interface CategoryItem {
   avatarImage: string;
 }
 
-export interface BarcodeProductItem {
-  id: string;
-  sku: string;
-  name: string;
-  brandName: string;
-  description: string;
-  barcodeCode: string;
-  productImage: string;
-  qty: number;
-}
-
 export const MOCK_PRODUCTS: ProductItem[] = [
   {
     id: "1",
@@ -165,7 +154,6 @@ export const MOCK_PRODUCTS: ProductItem[] = [
     avatarImage: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=64&auto=format&fit=crop&q=80",
   },
 ];
-
 export const MOCK_CATEGORIES: CategoryItem[] = [
   {
     id: "1",
@@ -211,38 +199,5 @@ export const MOCK_CATEGORIES: CategoryItem[] = [
     status: "Active",
     createdBy: "Gary Hennessy",
     avatarImage: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=64&auto=format&fit=crop&q=80",
-  },
-];
-
-export const MOCK_BARCODE_PRODUCTS: BarcodeProductItem[] = [
-  {
-    id: "1",
-    sku: "PT001",
-    name: "Lenovo IdeaPad 3",
-    brandName: "Lenovo",
-    description: "Core i5, 8GB RAM, 512GB SSD",
-    barcodeCode: "123456789012",
-    productImage: "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=100&auto=format&fit=crop&q=80",
-    qty: 1,
-  },
-  {
-    id: "2",
-    sku: "PT002",
-    name: "Beats Pro",
-    brandName: "Beats",
-    description: "Wireless Over-Ear Headphones",
-    barcodeCode: "123456789013",
-    productImage: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=100&auto=format&fit=crop&q=80",
-    qty: 1,
-  },
-  {
-    id: "3",
-    sku: "PT003",
-    name: "Nike Jordan",
-    brandName: "Nike",
-    description: "Air Jordan Retro High OG",
-    barcodeCode: "123456789014",
-    productImage: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=100&auto=format&fit=crop&q=80",
-    qty: 1,
   },
 ];

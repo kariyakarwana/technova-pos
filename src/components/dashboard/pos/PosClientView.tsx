@@ -329,7 +329,7 @@ function LivePos() {
         ? "No active products exist for this organization. Add products in Product Management."
         : "No products match the current category or search.");
   return (
-    <div className="flex flex-col h-[calc(100vh-64px)] overflow-hidden bg-[#F9F9FF]">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden bg-[#F9F9FF]">
       <PosHeader
         searchQuery={search}
         onSearchChange={setSearch}
@@ -361,7 +361,7 @@ function LivePos() {
           </button>
         </div>
       )}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex min-h-0 flex-1 overflow-hidden">
         <CategorySidebar
           categories={categories}
           selected={category}

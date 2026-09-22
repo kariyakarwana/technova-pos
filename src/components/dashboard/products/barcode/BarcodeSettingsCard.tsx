@@ -1,84 +1,88 @@
 "use client";
 
-import { ChevronDown } from "lucide-react";
-
-interface BarcodeSettingsCardProps {
-  warehouse: string;
-  onWarehouseChange: (val: string) => void;
-  store: string;
-  onStoreChange: (val: string) => void;
-  paperSize: string;
-  onPaperSizeChange: (val: string) => void;
-}
+import { Search } from "lucide-react";
+import type { BarcodeLabelSettings } from "./BarcodeTypes";
 
 export default function BarcodeSettingsCard({
-  warehouse,
-  onWarehouseChange,
-  store,
-  onStoreChange,
-  paperSize,
-  onPaperSizeChange,
-}: BarcodeSettingsCardProps) {
+  branchName,
+  search,
+  onSearchChange,
+  settings,
+  onSettingsChange,
+}: {
+  branchName: string;
+  search: string;
+  onSearchChange(value: string): void;
+  settings: BarcodeLabelSettings;
+  onSettingsChange(value: BarcodeLabelSettings): void;
+}) {
+  const toggle = (key: Exclude<keyof BarcodeLabelSettings, "paperSize">) =>
+    onSettingsChange({ ...settings, [key]: !settings[key] });
+
   return (
-    <div className="p-6 bg-white border border-[var(--brand-stroke)] rounded-2xl shadow-xs space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Warehouse */}
-        <div>
-          <label className="block text-xs font-semibold text-[var(--brand-black-font)] mb-1.5">
-            Warehouse <span className="text-[var(--brand-red)] ml-0.5">*</span>
-          </label>
-          <div className="relative">
-            <select
-              value={warehouse}
-              onChange={(e) => onWarehouseChange(e.target.value)}
-              className="w-full h-10 rounded-xl border border-[var(--brand-stroke)] px-3 pr-8 text-xs text-[var(--brand-black-font)] bg-white focus:outline-none focus:border-[var(--brand-green)] appearance-none cursor-pointer"
-            >
-              <option value="Select Warehouse">Select Warehouse</option>
-              <option value="Main Warehouse">Main Warehouse</option>
-              <option value="Secondary Warehouse">Secondary Warehouse</option>
-            </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
-          </div>
-        </div>
-
-        {/* Store */}
-        <div>
-          <label className="block text-xs font-semibold text-[var(--brand-black-font)] mb-1.5">
-            Store <span className="text-[var(--brand-red)] ml-0.5">*</span>
-          </label>
-          <div className="relative">
-            <select
-              value={store}
-              onChange={(e) => onStoreChange(e.target.value)}
-              className="w-full h-10 rounded-xl border border-[var(--brand-stroke)] px-3 pr-8 text-xs text-[var(--brand-black-font)] bg-white focus:outline-none focus:border-[var(--brand-green)] appearance-none cursor-pointer"
-            >
-              <option value="Select Store">Select Store</option>
-              <option value="Store A">Store A</option>
-              <option value="Store B">Store B</option>
-            </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
-          </div>
-        </div>
-      </div>
-
-      {/* Paper Size */}
-      <div>
-        <label className="block text-xs font-semibold text-[var(--brand-black-font)] mb-1.5">
-          Paper Size <span className="text-[var(--brand-red)] ml-0.5">*</span>
+    <section className="space-y-4 rounded-2xl border border-[var(--brand-stroke)] bg-white p-5 shadow-xs">
+      <div className="grid gap-4 lg:grid-cols-[1fr_220px_220px]">
+        <label className="text-xs font-semibold text-slate-700">
+          Find a product
+          <span className="relative mt-1.5 block">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <input
+              value={search}
+              onChange={(event) => onSearchChange(event.target.value)}
+              placeholder="Name, SKU, or barcode"
+              className="h-10 w-full rounded-xl border border-[var(--brand-stroke)] pl-9 pr-3 text-sm outline-none focus:border-[var(--brand-green)]"
+            />
+          </span>
         </label>
-        <div className="relative">
+        <label className="text-xs font-semibold text-slate-700">
+          Current branch
+          <input
+            value={branchName || "No active branch"}
+            readOnly
+            className="mt-1.5 h-10 w-full rounded-xl border border-[var(--brand-stroke)] bg-slate-50 px-3 text-sm text-slate-600"
+          />
+        </label>
+        <label className="text-xs font-semibold text-slate-700">
+          Label width
           <select
-            value={paperSize}
-            onChange={(e) => onPaperSizeChange(e.target.value)}
-            className="w-full h-10 rounded-xl border border-[var(--brand-stroke)] px-3 pr-8 text-xs text-[var(--brand-black-font)] bg-white focus:outline-none focus:border-[var(--brand-green)] appearance-none cursor-pointer"
+            value={settings.paperSize}
+            onChange={(event) =>
+              onSettingsChange({
+                ...settings,
+                paperSize: event.target.value as BarcodeLabelSettings["paperSize"],
+              })
+            }
+            className="mt-1.5 h-10 w-full rounded-xl border border-[var(--brand-stroke)] bg-white px-3 text-sm outline-none focus:border-[var(--brand-green)]"
           >
-            <option value="36mm (1.4 Inch)">36mm (1.4 Inch)</option>
-            <option value="24mm (0.94 Inch)">24mm (0.94 Inch)</option>
-            <option value="18mm (0.7 Inch)">18mm (0.7 Inch)</option>
+            <option value="36mm">36 mm</option>
+            <option value="50mm">50 mm</option>
+            <option value="70mm">70 mm</option>
           </select>
-          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
-        </div>
+        </label>
       </div>
-    </div>
+      <div className="flex flex-wrap gap-4 border-t border-slate-100 pt-4">
+        {(
+          [
+            ["showName", "Product name"],
+            ["showSku", "SKU"],
+            ["showPrice", "Selling price"],
+            ["showValue", "Barcode text"],
+          ] as const
+        ).map(([key, label]) => (
+          <label
+            key={key}
+            className="flex items-center gap-2 text-xs font-medium text-slate-600"
+          >
+            <input
+              type="checkbox"
+              checked={settings[key]}
+              onChange={() => toggle(key)}
+              className="h-4 w-4 accent-[var(--brand-green)]"
+            />
+            {label}
+          </label>
+        ))}
+      </div>
+    </section>
   );
 }

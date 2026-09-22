@@ -35,7 +35,7 @@ export function ProductCatalogGrid({
   );
 
   return (
-    <div className="flex-1 overflow-y-auto p-3 bg-[#F9F9FF]">
+    <div className="min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-contain p-3 bg-[#F9F9FF]">
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 2xl:grid-cols-5 gap-2.5">
         {products.map((product) => {
           const isSelected =

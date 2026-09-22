@@ -8,6 +8,8 @@ import {
   ChevronDown,
   LogOut,
   Maximize,
+  Menu,
+  PanelLeftClose,
   Settings,
   User,
 } from "lucide-react";
@@ -18,12 +20,16 @@ interface NavbarProps {
   userEmail?: string | null;
   organizationName?: string | null;
   logoUrl?: string | null;
+  sidebarCollapsed?: boolean;
+  onSidebarToggle?: () => void;
 }
 
 export default function Navbar({
   userEmail,
   organizationName,
   logoUrl,
+  sidebarCollapsed = false,
+  onSidebarToggle,
 }: NavbarProps) {
   const { branches, branchId, setBranchId } = useBranch();
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -60,19 +66,32 @@ export default function Navbar({
 
   return (
     <nav className="z-40 flex h-16 w-full shrink-0 items-center justify-between border-b border-[#E6EAED] bg-white px-6">
-      {/* The logo is streamed through an authenticated route, so the browser must load it directly. */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        key={resolvedLogo}
-        src={resolvedLogo}
-        alt={`${organizationName ?? "TechNova"} logo`}
-        width="140"
-        height="45"
-        onError={() => {
-          if (resolvedLogo !== "/technova-logo.webp") setLogoFailed(true);
-        }}
-        className="h-9 w-auto object-contain"
-      />
+      <div className="flex min-w-0 items-center gap-3">
+        {onSidebarToggle && (
+          <button
+            type="button"
+            onClick={onSidebarToggle}
+            className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[#0E9384] text-[#0E9384] transition-colors hover:bg-[#EEFFFD] md:flex"
+            aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            {sidebarCollapsed ? <Menu className="h-5 w-5" /> : <PanelLeftClose className="h-5 w-5" />}
+          </button>
+        )}
+        {/* The logo is streamed through an authenticated route, so the browser must load it directly. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          key={resolvedLogo}
+          src={resolvedLogo}
+          alt={`${organizationName ?? "TechNova"} logo`}
+          width="140"
+          height="45"
+          onError={() => {
+            if (resolvedLogo !== "/technova-logo.webp") setLogoFailed(true);
+          }}
+          className="h-9 w-auto object-contain"
+        />
+      </div>
 
       <div className="flex items-center gap-2.5">
         <div className="flex items-center gap-1.5 rounded-lg border border-[#0E9384] bg-white px-2.5 py-1">

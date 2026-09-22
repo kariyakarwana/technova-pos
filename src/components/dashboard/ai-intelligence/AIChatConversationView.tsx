@@ -15,14 +15,27 @@ export default function AIChatConversationView({
   isProcessing,
   onActionClick,
 }: AIChatConversationViewProps) {
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    const frame = window.requestAnimationFrame(() => {
+      const scrollArea = scrollAreaRef.current;
+      if (!scrollArea) return;
+
+      scrollArea.scrollTo({
+        top: scrollArea.scrollHeight,
+        behavior: "smooth",
+      });
+    });
+
+    return () => window.cancelAnimationFrame(frame);
   }, [messages, isProcessing]);
 
   return (
-    <div className="flex-1 overflow-y-auto space-y-4 py-4 px-2 max-h-[60vh]">
+    <div
+      ref={scrollAreaRef}
+      className="max-h-[60vh] min-h-0 w-full flex-1 space-y-4 overflow-y-auto overscroll-contain px-2 py-4"
+    >
       {messages.map((msg) => {
         const isAssistant = msg.sender === "assistant";
 
@@ -118,8 +131,6 @@ export default function AIChatConversationView({
           </div>
         </div>
       )}
-
-      <div ref={bottomRef} />
     </div>
   );
 }
