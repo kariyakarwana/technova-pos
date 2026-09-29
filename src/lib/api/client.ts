@@ -1,3 +1,10 @@
+import type {
+  AssistantChatRequest,
+  AssistantChatResponse,
+  RecommendationRequest,
+  RecommendationResponse,
+} from "@/components/dashboard/ai-intelligence/ai-intelligence.types";
+
 export class ApiError extends Error {
   constructor(
     message: string,
@@ -82,3 +89,22 @@ export function apiUpload<T>(path: string, file: File): Promise<T> {
   body.append("file", file);
   return apiClient<T>(path, { method: "POST", body });
 }
+
+export function apiGetRecommendations(
+  body: RecommendationRequest,
+): Promise<RecommendationResponse> {
+  return apiPost<RecommendationResponse>(
+    "/ai-intelligence/recommendations/recommend",
+    body,
+  );
+}
+
+export function apiSendAssistantChat(
+  body: AssistantChatRequest,
+): Promise<AssistantChatResponse> {
+  return apiPost<AssistantChatResponse>(
+    "/ai-intelligence/business-assistant/chat",
+    body,
+  );
+}
+
