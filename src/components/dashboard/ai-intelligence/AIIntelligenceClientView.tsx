@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   AlertTriangle,
@@ -31,15 +32,14 @@ import {
   YAxis,
 } from "recharts";
 import { apiGet, apiPost } from "@/lib/api/client";
-import RevenueForecastChartCard from "./RevenueForecastChartCard";
-import RecommendationPanel from "./RecommendationPanel";
-import BusinessAssistantPanel from "./BusinessAssistantPanel";
 import type {
   AIOverview,
   DemandForecastHorizon,
   DemandForecastPayload,
   DemandForecastResponse,
   LoyaltyResult,
+  LoyaltyRuleRecommendations,
+  LoyaltyRulesResult,
   ProductPrediction,
   SalesForecastHorizon,
 } from "./ai-intelligence.types";
@@ -53,6 +53,24 @@ type Tab =
   | "loyalty"
   | "recommendations"
   | "assistant";
+
+const LazyPanel = () => (
+  <div className="flex min-h-72 items-center justify-center rounded-2xl border border-slate-200 bg-white text-sm text-slate-500">
+    Loading AI feature…
+  </div>
+);
+
+const RevenueForecastChartCard = dynamic(
+  () => import("./RevenueForecastChartCard"),
+  { loading: LazyPanel },
+);
+const RecommendationPanel = dynamic(() => import("./RecommendationPanel"), {
+  loading: LazyPanel,
+});
+const BusinessAssistantPanel = dynamic(
+  () => import("./BusinessAssistantPanel"),
+  { loading: LazyPanel },
+);
 const currency = new Intl.NumberFormat("en-LK", {
   style: "currency",
   currency: "LKR",
@@ -129,6 +147,10 @@ export default function AIIntelligenceClientView() {
   const [selectedProductId, setSelectedProductId] = useState("");
   const [selectedCustomerId, setSelectedCustomerId] = useState("");
   const [loyalty, setLoyalty] = useState<LoyaltyResult | null>(null);
+  const [loyaltyRules, setLoyaltyRules] =
+    useState<LoyaltyRulesResult | null>(null);
+  const [loyaltyRuleSuggestions, setLoyaltyRuleSuggestions] =
+    useState<LoyaltyRuleRecommendations | null>(null);
   const [loading, setLoading] = useState(true);
   const [loyaltyLoading, setLoyaltyLoading] = useState(false);
   const [error, setError] = useState("");
@@ -305,11 +327,16 @@ export default function AIIntelligenceClientView() {
     setLoyaltyLoading(true);
     setError("");
     try {
-      setLoyalty(
-        await apiGet<LoyaltyResult>(
+      const [customerLoyalty, rules, suggestions] = await Promise.all([
+        apiGet<LoyaltyResult>(
           `/ai-intelligence/loyalty/${selectedCustomerId}?topK=5`,
         ),
-      );
+        apiGet<LoyaltyRulesResult>("/loyalty/rules"),
+        apiGet<LoyaltyRuleRecommendations>("/loyalty/rule-recommendations"),
+      ]);
+      setLoyalty(customerLoyalty);
+      setLoyaltyRules(rules);
+      setLoyaltyRuleSuggestions(suggestions);
     } catch (cause) {
       setError(
         cause instanceof Error
@@ -693,7 +720,12 @@ export default function AIIntelligenceClientView() {
               </button>
             </div>
             {loyalty ? (
-              <LoyaltyPanel value={loyalty} />
+              <LoyaltyPanel
+                value={loyalty}
+                rules={loyaltyRules}
+                suggestions={loyaltyRuleSuggestions}
+                onRefresh={() => void loadLoyalty()}
+              />
             ) : (
               <EmptyState text="Choose a customer and generate AI loyalty recommendations." />
             )}
@@ -1211,9 +1243,79 @@ function PricingTable({ products }: { products: ProductPrediction[] }) {
   );
 }
 
-function LoyaltyPanel({ value }: { value: LoyaltyResult }) {
+function LoyaltyPanel({
+  value,
+  rules,
+  suggestions,
+  onRefresh,
+}: {
+  value: LoyaltyResult;
+  rules: LoyaltyRulesResult | null;
+  suggestions: LoyaltyRuleRecommendations | null;
+  onRefresh: () => void;
+}) {
+  const activeRule = rules?.activeRule ?? value.active_rule;
+  const [ruleName, setRuleName] = useState(activeRule?.name ?? "Standard loyalty rule");
+  const [spendAmount, setSpendAmount] = useState(
+    Number(activeRule?.spendAmount ?? 1000),
+  );
+  const [pointsAwarded, setPointsAwarded] = useState(
+    Number(activeRule?.pointsAwarded ?? 50),
+  );
+  const [adjustment, setAdjustment] = useState(0);
+  const [actionMessage, setActionMessage] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  async function saveRule() {
+    setSaving(true);
+    setActionMessage("");
+    try {
+      await apiPost("/loyalty/rules", {
+        name: ruleName,
+        spendAmount,
+        pointsAwarded,
+        redemptionValuePerPoint: 1,
+      });
+      setActionMessage("Loyalty rule activated.");
+      onRefresh();
+    } catch (cause) {
+      setActionMessage(
+        cause instanceof Error ? cause.message : "Unable to save loyalty rule.",
+      );
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function adjustPoints(points: number, reason: string) {
+    if (!points) return;
+    setSaving(true);
+    setActionMessage("");
+    try {
+      await apiPost(`/loyalty/customers/${value.customer.id}/adjustments`, {
+        points,
+        reason,
+      });
+      setAdjustment(0);
+      setActionMessage("Customer loyalty balance updated.");
+      onRefresh();
+    } catch (cause) {
+      setActionMessage(
+        cause instanceof Error
+          ? cause.message
+          : "Unable to adjust loyalty points.",
+      );
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  const topCustomerSuggestion = suggestions?.suggestions.find(
+    (item) => item.id === "top-customer-yearly-bonus",
+  );
   return (
-    <div className="grid gap-5 xl:grid-cols-[0.65fr_1.35fr]">
+    <div className="space-y-5">
+      <div className="grid gap-5 xl:grid-cols-[0.65fr_1.35fr]">
       <section className="rounded-2xl border border-[var(--brand-stroke)] bg-white p-5 shadow-xs">
         <div className="flex items-center gap-3">
           <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-violet-50 text-violet-600">
@@ -1231,7 +1333,9 @@ function LoyaltyPanel({ value }: { value: LoyaltyResult }) {
         <div className="mt-5 grid grid-cols-2 gap-3">
           {[
             ["Segment", value.profile.segment.replaceAll("_", " ")],
-            ["Loyalty score", number.format(value.profile.loyalty_score)],
+            ["Loyalty score", `${number.format(value.profile.loyalty_score)}/100`],
+            ["Spendable points", number.format(value.profile.loyalty_points)],
+            ["Redemption value", currency.format(value.profile.redemption_value)],
             ["Orders", number.format(value.profile.order_count)],
             ["Last purchase", `${value.profile.recency_days} days`],
           ].map(([label, display]) => (
@@ -1245,11 +1349,14 @@ function LoyaltyPanel({ value }: { value: LoyaltyResult }) {
             </div>
           ))}
         </div>
-        <p className="mt-4 flex items-start gap-2 rounded-xl bg-amber-50 p-3 text-[11px] leading-5 text-amber-700">
-          <Clock3 className="mt-0.5 h-4 w-4 shrink-0" />
-          New POS customer IDs use the model’s popularity fallback until the
-          model is retrained with local customer history.
-        </p>
+        <div className="mt-4 rounded-xl bg-emerald-50 p-3 text-[11px] leading-5 text-emerald-800">
+          <b>{activeRule?.name ?? "Standard loyalty rule"}</b>
+          <p>
+            Earn {Number(activeRule?.pointsAwarded ?? 50).toLocaleString()} points
+            for every LKR {Number(activeRule?.spendAmount ?? 1000).toLocaleString()}.
+            Each point redeems for LKR {Number(activeRule?.redemptionValuePerPoint ?? 1).toLocaleString()}.
+          </p>
+        </div>
       </section>
       <section className="overflow-hidden rounded-2xl border border-[var(--brand-stroke)] bg-white shadow-xs">
         <div className="p-5">
@@ -1280,6 +1387,91 @@ function LoyaltyPanel({ value }: { value: LoyaltyResult }) {
               </span>
             </div>
           ))}
+        </div>
+      </section>
+      </div>
+
+      <div className="grid gap-5 xl:grid-cols-2">
+        <section className="rounded-2xl border border-[var(--brand-stroke)] bg-white p-5 shadow-xs">
+          <h2 className="font-bold text-slate-900">Loyalty earning rule</h2>
+          <p className="mt-1 text-xs text-slate-500">
+            Saving a rule activates it and deactivates the previous earning rule.
+          </p>
+          <div className="mt-4 grid gap-3 sm:grid-cols-3">
+            <label className="grid gap-1 text-xs font-semibold text-slate-600 sm:col-span-3">
+              Rule name
+              <input value={ruleName} onChange={(event) => setRuleName(event.target.value)} className="h-10 rounded-xl border px-3 text-sm" />
+            </label>
+            <label className="grid gap-1 text-xs font-semibold text-slate-600">
+              Spend amount (LKR)
+              <input type="number" min="1" value={spendAmount} onChange={(event) => setSpendAmount(Number(event.target.value))} className="h-10 rounded-xl border px-3 text-sm" />
+            </label>
+            <label className="grid gap-1 text-xs font-semibold text-slate-600">
+              Points awarded
+              <input type="number" min="1" value={pointsAwarded} onChange={(event) => setPointsAwarded(Number(event.target.value))} className="h-10 rounded-xl border px-3 text-sm" />
+            </label>
+            <button type="button" disabled={saving || !ruleName.trim() || spendAmount <= 0 || pointsAwarded <= 0} onClick={() => void saveRule()} className="h-10 self-end rounded-xl bg-[#025148] px-4 text-xs font-bold text-white disabled:opacity-50">
+              {saving ? "Saving…" : "Activate rule"}
+            </button>
+          </div>
+          <div className="mt-5 border-t pt-4">
+            <h3 className="text-sm font-bold">Manual point adjustment</h3>
+            <div className="mt-2 flex gap-2">
+              <input type="number" value={adjustment} onChange={(event) => setAdjustment(Number(event.target.value))} placeholder="Positive or negative points" className="h-10 min-w-0 flex-1 rounded-xl border px-3 text-sm" />
+              <button type="button" disabled={saving || adjustment === 0} onClick={() => void adjustPoints(adjustment, "Administrator loyalty adjustment")} className="h-10 rounded-xl border border-[#025148] px-4 text-xs font-bold text-[#025148] disabled:opacity-50">
+                Apply
+              </button>
+            </div>
+          </div>
+          {actionMessage && <p className="mt-3 rounded-xl bg-slate-50 p-3 text-xs text-slate-700">{actionMessage}</p>}
+        </section>
+
+        <section className="rounded-2xl border border-[var(--brand-stroke)] bg-white p-5 shadow-xs">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-violet-600" />
+            <h2 className="font-bold text-slate-900">AI loyalty rule recommendations</h2>
+          </div>
+          <p className="mt-1 text-xs text-slate-500">Suggestions use real POS sales and always require administrator approval.</p>
+          <div className="mt-4 space-y-3">
+            {suggestions?.suggestions.map((suggestion) => (
+              <div key={suggestion.id} className="rounded-xl border border-slate-200 p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-900">{suggestion.title}</h3>
+                    <p className="mt-1 text-xs leading-5 text-slate-600">{suggestion.description}</p>
+                  </div>
+                  {suggestion.recommended && <span className="rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-bold text-emerald-700">Recommended</span>}
+                </div>
+                {suggestion.id === "balanced-spend-rate" && (
+                  <button type="button" className="mt-3 text-xs font-bold text-[#025148]" onClick={() => {
+                    setRuleName(suggestion.title);
+                    setSpendAmount(suggestion.spendAmount ?? 1000);
+                    setPointsAwarded(suggestion.pointsAwarded ?? 50);
+                  }}>Use this rule</button>
+                )}
+                {suggestion.id === "top-customer-yearly-bonus" && suggestion.customer?.id === value.customer.id && suggestion.bonusPoints && (
+                  <button type="button" disabled={saving} className="mt-3 text-xs font-bold text-violet-700 disabled:opacity-50" onClick={() => void adjustPoints(suggestion.bonusPoints!, "Top customer of the year bonus")}>Award {suggestion.bonusPoints.toLocaleString()} points</button>
+                )}
+              </div>
+            )) ?? <p className="text-xs text-slate-500">No suggestions available.</p>}
+          </div>
+          {topCustomerSuggestion?.customer && topCustomerSuggestion.customer.id !== value.customer.id && (
+            <p className="mt-3 rounded-xl bg-amber-50 p-3 text-xs text-amber-800">
+              Select {topCustomerSuggestion.customer.firstName} {topCustomerSuggestion.customer.lastName ?? ""} to review and approve the annual bonus.
+            </p>
+          )}
+        </section>
+      </div>
+
+      <section className="rounded-2xl border border-[var(--brand-stroke)] bg-white p-5 shadow-xs">
+        <h2 className="font-bold text-slate-900">Recent loyalty activity</h2>
+        <div className="mt-3 divide-y divide-slate-100">
+          {value.transactions.length ? value.transactions.map((transaction) => (
+            <div key={transaction.id} className="flex items-center justify-between gap-3 py-3 text-xs">
+              <div><p className="font-semibold text-slate-800">{transaction.reason.replaceAll("_", " ")}</p><p className="text-slate-400">{new Date(transaction.createdAt).toLocaleString()}</p></div>
+              <b className={transaction.points >= 0 ? "text-emerald-700" : "text-rose-700"}>{transaction.points >= 0 ? "+" : ""}{transaction.points.toLocaleString()} points</b>
+            </div>
+          )) : <p className="py-4 text-xs text-slate-500">No loyalty transactions yet.</p>}
         </div>
       </section>
     </div>

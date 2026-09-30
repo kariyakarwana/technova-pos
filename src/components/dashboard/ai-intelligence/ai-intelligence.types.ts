@@ -100,11 +100,26 @@ export interface LoyaltyResult {
   profile: {
     segment: string;
     loyalty_score: number;
+    loyalty_points: number;
+    redemption_value: number;
     recency_days: number;
     order_count: number;
     total_spend: number;
     units_purchased: number;
   };
+  active_rule: {
+    id?: string;
+    name: string;
+    spendAmount: number | string;
+    pointsAwarded: number;
+    redemptionValuePerPoint: number | string;
+  };
+  transactions: Array<{
+    id: string;
+    points: number;
+    reason: string;
+    createdAt: string;
+  }>;
   recommendations: Array<{
     product_id: string;
     description: string;
@@ -364,4 +379,37 @@ export interface AssistantUiMessage {
   isError?: boolean;
 }
 
+export interface LoyaltyRulesResult {
+  activeRule: LoyaltyResult["active_rule"] | null;
+  rules: Array<
+    LoyaltyResult["active_rule"] & {
+      id: string;
+      status: "ACTIVE" | "INACTIVE" | "ARCHIVED";
+      updatedAt: string;
+    }
+  >;
+  defaultRule: LoyaltyResult["active_rule"] | null;
+}
 
+export interface LoyaltyRuleRecommendations {
+  generatedAt: string;
+  currentRule: LoyaltyResult["active_rule"] | null;
+  note: string;
+  suggestions: Array<{
+    id: string;
+    title: string;
+    description: string;
+    recommended: boolean;
+    spendAmount?: number;
+    pointsAwarded?: number;
+    redemptionValuePerPoint?: number;
+    bonusPoints?: number;
+    customer?: {
+      id: string;
+      customerNumber: string;
+      firstName: string;
+      lastName?: string | null;
+    } | null;
+    evidence?: { annualSpend: number; orders: number } | null;
+  }>;
+}

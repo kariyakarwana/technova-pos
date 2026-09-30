@@ -3,7 +3,10 @@ import { redirect } from "next/navigation";
 import { hasPermission, hasRole } from "./authorization";
 import type { Permission, SystemRole } from "./permissions";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1";
+const API_URL =
+  process.env.INTERNAL_API_URL ??
+  process.env.NEXT_PUBLIC_API_URL ??
+  "http://localhost:4000/api/v1";
 export type CurrentUser = { id: string; email: string; name: string | null; roles: string[]; permissions: string[]; mustChangePassword?: boolean };
 
 export async function getCurrentUser(): Promise<CurrentUser | null> {

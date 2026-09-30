@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 const API_URL =
+  process.env.INTERNAL_API_URL ??
   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1";
 const ACCESS_COOKIE = "technova_access";
 const REFRESH_COOKIE = "technova_refresh";

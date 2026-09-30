@@ -1,6 +1,6 @@
 import React from "react";
 import DashboardShell from "@/components/dashboard/DashboardShell";
-import { getCurrentUser } from "@/lib/auth/session";
+import { requireAuthenticatedUser } from "@/lib/auth/session";
 import { OfflineProvider } from "@/components/dashboard/pos/OfflineContext";
 import OfflineBannerController from "@/components/dashboard/pos/OfflineBannerController";
 import {
@@ -15,11 +15,10 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const user = await getCurrentUser();
+  const user = await requireAuthenticatedUser("/dashboard");
   if (user?.roles.includes("SUPPLIER")) redirect("/supplier-dashboard");
   if (user?.mustChangePassword) redirect("/change-temporary-password");
-  const branches = user
-    ? await serverApi<{
+  const branches = await serverApi<{
         data: Array<{ id: string; code: string; name: string; status: string }>;
       }>("/branches?pageSize=100")
         .then((result): BranchOption[] =>
@@ -30,22 +29,19 @@ export default async function DashboardLayout({
             isActive: branch.status === "ACTIVE",
           })),
         )
-        .catch(() => [])
-    : [];
-  const organization = user
-    ? await serverApi<{
+        .catch(() => []);
+  const organization = await serverApi<{
         name: string;
         branding: { logoUrl: string | null; updatedAt: string } | null;
-      }>("/organization").catch(() => null)
-    : null;
+      }>("/organization").catch(() => null);
 
   return (
     <BranchProvider branches={branches}>
       <OfflineProvider>
         <DashboardShell
-          permissions={user?.permissions ?? []}
-          roles={user?.roles ?? []}
-          userEmail={user?.email}
+          permissions={user.permissions}
+          roles={user.roles}
+          userEmail={user.email}
           organizationName={organization?.name}
           logoUrl={`/api/backend/organization/logo/content?v=${encodeURIComponent(organization?.branding?.updatedAt ?? "current")}`}
           offlineBanner={<OfflineBannerController />}
