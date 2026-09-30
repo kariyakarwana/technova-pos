@@ -42,6 +42,13 @@ type Quote = {
   taxTotal: number;
   total: number;
 };
+type LoyaltyRule = {
+  id: string;
+  name: string;
+  spendAmount: number | string;
+  pointsAwarded: number;
+  redemptionValuePerPoint: number | string;
+};
 const emptyQuote: Quote = {
   subtotal: 0,
   discountTotal: 0,
@@ -59,6 +66,8 @@ function LivePos() {
     [search, setSearch] = useState(""),
     [barcode, setBarcode] = useState(""),
     [customerId, setCustomerId] = useState(""),
+    [loyaltyRule, setLoyaltyRule] = useState<LoyaltyRule | null>(null),
+    [loyaltyPointsToRedeem, setLoyaltyPointsToRedeem] = useState(0),
     [quote, setQuote] = useState<Quote>(emptyQuote),
     [paid, setPaid] = useState(0),
     [paymentMethod, setPaymentMethod] = useState("CASH"),
@@ -88,6 +97,7 @@ function LivePos() {
       const context = await apiGet<{
         products: ApiProduct[];
         customers: Customer[];
+        loyaltyRule: LoyaltyRule;
       }>(`/sales/pos-context?branchId=${encodeURIComponent(branchId)}`);
       const rows = Array.isArray(context.products) ? context.products : [];
       setProducts(
@@ -120,6 +130,7 @@ function LivePos() {
         }),
       );
       setCustomers(Array.isArray(context.customers) ? context.customers : []);
+      setLoyaltyRule(context.loyaltyRule ?? null);
     } catch (error) {
       setProducts([]);
       setCustomers([]);
@@ -250,9 +261,18 @@ function LivePos() {
   async function checkout() {
     if (!branchId || !cart.length) return;
     if (paid < 0) return setMessage("Paid amount cannot be negative.");
-    if (!credit && paid < quote.total)
+    const redemptionValue = Math.min(
+      quote.total,
+      loyaltyPointsToRedeem * Number(loyaltyRule?.redemptionValuePerPoint ?? 1),
+    );
+    const amountDueAfterLoyalty = Math.max(0, quote.total - redemptionValue);
+    if (paymentMethod === "LOYALTY_POINTS" && amountDueAfterLoyalty > 0.001)
+      return setMessage(
+        "The selected customer's loyalty points cannot cover the full order total.",
+      );
+    if (!credit && paid < amountDueAfterLoyalty)
       return setMessage("Use customer credit for a partial payment.");
-    if (paid > quote.total)
+    if (paid > amountDueAfterLoyalty)
       return setMessage("Paid amount cannot exceed the order total.");
     if (cart.some((item) => item.trackSerials && !item.serialNumber?.trim()))
       return setMessage(
@@ -261,6 +281,13 @@ function LivePos() {
     if (paymentMethod === "STORE_CREDIT" && !customerId)
       return setMessage("Select a registered customer to use store credit.");
     const selectedCustomer = customers.find((item) => item.id === customerId);
+    if (loyaltyPointsToRedeem > 0 && !selectedCustomer)
+      return setMessage("Select a registered customer to redeem loyalty points.");
+    if (
+      loyaltyPointsToRedeem >
+      Number(selectedCustomer?.loyaltyAccount?.points ?? 0)
+    )
+      return setMessage("The customer does not have enough loyalty points.");
     if (
       paymentMethod === "STORE_CREDIT" &&
       Number(selectedCustomer?.storeCreditAccount?.balance ?? 0) < paid
@@ -270,7 +297,7 @@ function LivePos() {
       return setMessage(
         "Select a customer and due date for a credit purchase.",
       );
-    const creditAmount = quote.total - paid;
+    const creditAmount = amountDueAfterLoyalty - paid;
     const availableCredit =
       Number(selectedCustomer?.creditLimit ?? 0) -
       Number(selectedCustomer?.currentBalance ?? 0);
@@ -284,7 +311,11 @@ function LivePos() {
       branchId,
       customerId: customerId || undefined,
       items,
-      payments: paid > 0 ? [{ method: paymentMethod, amount: paid }] : [],
+      payments:
+        paymentMethod !== "LOYALTY_POINTS" && paid > 0
+          ? [{ method: paymentMethod, amount: paid }]
+          : [],
+      loyaltyPointsToRedeem,
       credit: credit
         ? {
             dueDate: new Date(dueDate).toISOString(),
@@ -305,6 +336,8 @@ function LivePos() {
       localStorage.setItem("technova_pos_queue", JSON.stringify(queue));
       setCart([]);
       setQuote(emptyQuote);
+      setLoyaltyPointsToRedeem(0);
+      setPaymentMethod("CASH");
       return setMessage("Sale stored locally for synchronization.");
     }
     try {
@@ -316,6 +349,8 @@ function LivePos() {
       setReceipt(result);
       setCart([]);
       setQuote(emptyQuote);
+      setLoyaltyPointsToRedeem(0);
+      setPaymentMethod("CASH");
       setMessage("Sale completed successfully.");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Checkout failed.");
@@ -381,12 +416,23 @@ function LivePos() {
           customerId={customerId}
           quote={quote}
           paid={paid}
+          loyaltyPointsToRedeem={loyaltyPointsToRedeem}
+          redemptionValuePerPoint={Number(
+            loyaltyRule?.redemptionValuePerPoint ?? 1,
+          )}
           paymentMethod={paymentMethod}
           credit={credit}
           dueDate={dueDate}
           message={message}
           receipt={receipt}
-          onCustomerChange={setCustomerId}
+          onCustomerChange={(id) => {
+            setCustomerId(id);
+            setLoyaltyPointsToRedeem(0);
+            if (paymentMethod === "LOYALTY_POINTS") {
+              setPaymentMethod("CASH");
+              setPaid(quote.total);
+            }
+          }}
           onUpdateQty={(id, delta) =>
             setCart((current) =>
               current.map((item) =>
@@ -414,7 +460,70 @@ function LivePos() {
             )
           }
           onPaidChange={setPaid}
-          onPaymentMethodChange={setPaymentMethod}
+          onLoyaltyPointsChange={(points) => {
+            const customer = customers.find((item) => item.id === customerId);
+            const maximumByBalance = Number(
+              customer?.loyaltyAccount?.points ?? 0,
+            );
+            const valuePerPoint = Number(
+              loyaltyRule?.redemptionValuePerPoint ?? 1,
+            );
+            const maximumByTotal = Math.floor(quote.total / valuePerPoint);
+            const safePoints = Math.max(
+              0,
+              Math.min(Math.floor(points), maximumByBalance, maximumByTotal),
+            );
+            setLoyaltyPointsToRedeem(safePoints);
+            if (
+              paymentMethod === "LOYALTY_POINTS" &&
+              safePoints * valuePerPoint + 0.001 < quote.total
+            )
+              setPaymentMethod("CASH");
+            if (!credit)
+              setPaid(Math.max(0, quote.total - safePoints * valuePerPoint));
+          }}
+          onPaymentMethodChange={(method) => {
+            setMessage(null);
+            if (method === "LOYALTY_POINTS") {
+              const customer = customers.find(
+                (item) => item.id === customerId,
+              );
+              if (!customer) {
+                setMessage(
+                  "Select a registered customer to pay with loyalty points.",
+                );
+                return;
+              }
+              const valuePerPoint = Number(
+                loyaltyRule?.redemptionValuePerPoint ?? 1,
+              );
+              const requiredPoints = Math.ceil(quote.total / valuePerPoint);
+              const availablePoints = Number(
+                customer.loyaltyAccount?.points ?? 0,
+              );
+              if (availablePoints < requiredPoints) {
+                setMessage(
+                  `This customer needs ${requiredPoints.toLocaleString()} points for full payment but has ${availablePoints.toLocaleString()}. Apply partial points above and select another payment method for the balance.`,
+                );
+                return;
+              }
+              setCredit(false);
+              setDueDate("");
+              setLoyaltyPointsToRedeem(requiredPoints);
+              setPaid(0);
+              setPaymentMethod(method);
+              return;
+            }
+            setPaymentMethod(method);
+            setPaid(
+              Math.max(
+                0,
+                quote.total -
+                  loyaltyPointsToRedeem *
+                    Number(loyaltyRule?.redemptionValuePerPoint ?? 1),
+              ),
+            );
+          }}
           onCreditChange={(enabled) => {
             setCredit(enabled);
             setPaid(enabled ? 0 : quote.total);

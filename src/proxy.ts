@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1";
+const API_URL =
+  process.env.INTERNAL_API_URL ??
+  process.env.NEXT_PUBLIC_API_URL ??
+  "http://localhost:4000/api/v1";
 
 function isUsable(token: string | undefined): boolean {
   if (!token) return false;
@@ -50,6 +53,7 @@ export const config = {
     "/audit-log/:path*",
     "/reports/:path*",
     "/offline-sync/:path*",
+    "/ai-intelligence/:path*",
     "/pos/:path*",
     "/sales/:path*",
     "/products/:path*",
@@ -58,6 +62,7 @@ export const config = {
     "/suppliers/:path*",
     "/customers/:path*",
     "/discounts/:path*",
+    "/promotions/:path*",
     "/returns-refunds/:path*",
     "/employees/:path*",
     "/branches/:path*",

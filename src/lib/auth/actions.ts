@@ -6,7 +6,9 @@ import { z } from "zod";
 import { forgotPasswordSchema, loginSchema, passwordResetOtpSchema, resendVerificationSchema, resetPasswordSchema, verifyEmailSchema } from "./validation";
 import type { AuthActionState, ForgotPasswordActionData, VerifyPasswordResetOtpActionData } from "./form-state";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1";
+const PUBLIC_API_URL =
+  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1";
+const API_URL = process.env.INTERNAL_API_URL ?? PUBLIC_API_URL;
 const ACCESS_COOKIE = "technova_access";
 const REFRESH_COOKIE = "technova_refresh";
 
@@ -104,4 +106,6 @@ export async function verifyEmailAction(_state: AuthActionState, formData: FormD
   return response.ok ? { status: "success", message: "Your email has been verified. You can now sign in." } : { status: "error", message: await message(response, "This verification link is invalid or expired.") };
 }
 
-export async function googleSignInAction(): Promise<void> { redirect(`${API_URL}/auth/google`); }
+export async function googleSignInAction(): Promise<void> { redirect(`${PUBLIC_API_URL}/auth/google`); }
+
+export async function microsoftSignInAction(): Promise<void> { redirect(`${PUBLIC_API_URL}/auth/microsoft`); }

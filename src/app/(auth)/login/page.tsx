@@ -19,6 +19,7 @@ import {
 import {
   LoginForm,
 } from "@/components/auth/login-form";
+import { MicrosoftButton } from "@/components/auth/microsoft-button";
 
 export const metadata: Metadata = {
   title: "Sign in | TechNova POS",
@@ -46,7 +47,10 @@ export default async function LoginPage() {
         <div className="h-px flex-1 bg-slate-200" />
       </div>
 
-      <GoogleButton />
+      <div className="space-y-3">
+        <GoogleButton />
+        <MicrosoftButton />
+      </div>
 
       <p className="mt-5 text-center text-xs leading-5 text-slate-400">
         Access is limited to authorised TechNova employees and supplier contacts.

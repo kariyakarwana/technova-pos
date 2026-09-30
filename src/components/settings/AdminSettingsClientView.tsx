@@ -15,6 +15,7 @@ import type {
   ApiRole,
   OrganizationSettings,
 } from "./settings.types";
+import { canEditRolePermissions } from "@/lib/auth/permissions";
 
 type Props = {
   initialOrganization: OrganizationSettings;
@@ -61,7 +62,7 @@ export default function AdminSettingsClientView({
     : [];
 
   function handleTogglePermission(permissionId: string) {
-    if (!currentRole || currentRole.isSystem) return;
+    if (!currentRole || !canEditRolePermissions(currentRole.name)) return;
     setPermissionState((state) => ({
       ...state,
       [currentRole.id]: selectedPermissionIds.includes(permissionId)
@@ -81,7 +82,7 @@ export default function AdminSettingsClientView({
   }
 
   async function handleSaveRules() {
-    if (!currentRole) return;
+    if (!currentRole || !canEditRolePermissions(currentRole.name)) return;
     setIsSavingRules(true);
     setNotice(null);
     try {

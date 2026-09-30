@@ -5,6 +5,7 @@ import {
   Award,
   CreditCard,
   FileText,
+  Gift,
   Info,
   Minus,
   Plus,
@@ -36,6 +37,7 @@ const methods = [
   { value: "CARD", label: "Card", icon: CreditCard },
   { value: "BANK_TRANSFER", label: "Transfer", icon: FileText },
   { value: "STORE_CREDIT", label: "Credit", icon: Award },
+  { value: "LOYALTY_POINTS", label: "Loyalty", icon: Gift },
 ];
 
 interface Props {
@@ -45,6 +47,8 @@ interface Props {
   customerId: string;
   quote: Quote;
   paid: number;
+  loyaltyPointsToRedeem: number;
+  redemptionValuePerPoint: number;
   paymentMethod: string;
   credit: boolean;
   dueDate: string;
@@ -56,6 +60,7 @@ interface Props {
   onClearCart: () => void;
   onUpdateSerial: (id: string, serial: string) => void;
   onPaidChange: (amount: number) => void;
+  onLoyaltyPointsChange: (points: number) => void;
   onPaymentMethodChange: (method: string) => void;
   onCreditChange: (enabled: boolean) => void;
   onDueDateChange: (date: string) => void;
@@ -64,10 +69,23 @@ interface Props {
 
 export function PosOrderPanel(props: Props) {
   const customer = props.customers.find((item) => item.id === props.customerId);
+  const loyaltyValue = Math.min(
+    props.quote.total,
+    props.loyaltyPointsToRedeem * props.redemptionValuePerPoint,
+  );
+  const amountDue = Math.max(0, props.quote.total - loyaltyValue);
+  const availableLoyaltyPoints = Number(
+    customer?.loyaltyAccount?.points ?? 0,
+  );
+  const loyaltyCanPayTotal =
+    Boolean(customer) &&
+    props.quote.total > 0 &&
+    availableLoyaltyPoints * props.redemptionValuePerPoint >=
+      props.quote.total;
   return (
     <aside
       aria-label="Order and checkout summary"
-      className="h-full min-h-0 w-[410px] xl:w-[440px] shrink-0 bg-white border-l border-[#E6EAED] flex flex-col overflow-hidden text-[#212B36] select-none"
+      className="h-full min-h-0 w-[410px] xl:w-[440px] shrink-0 bg-white border-l border-[#E6EAED] flex flex-col overflow-y-auto overscroll-contain [scrollbar-gutter:stable] text-[#212B36] select-none"
     >
       <div className="px-4 pt-3 pb-1 shrink-0">
         {props.isOffline && (
@@ -132,6 +150,19 @@ export function PosOrderPanel(props: Props) {
                 {Number(customer.loyaltyAccount?.points ?? 0).toLocaleString()}
               </b>
             </span>
+            <label className="col-span-2 mt-1 block border-t border-teal-100 pt-2 font-semibold text-[#025148]">
+              Redeem loyalty points (1 point = LKR {props.redemptionValuePerPoint.toLocaleString()})
+              <input
+                type="number"
+                min="0"
+                max={Number(customer.loyaltyAccount?.points ?? 0)}
+                value={props.loyaltyPointsToRedeem}
+                onChange={(event) =>
+                  props.onLoyaltyPointsChange(Number(event.target.value))
+                }
+                className="mt-1.5 h-10 w-full rounded-xl border border-teal-200 bg-white px-3 text-sm outline-none focus:border-[#0E9384]"
+              />
+            </label>
           </div>
         )}
       </div>
@@ -148,7 +179,7 @@ export function PosOrderPanel(props: Props) {
         <span className="text-center">Subtotal</span>
         <span />
       </div>
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain divide-y divide-slate-100 px-4">
+      <div className="min-h-[120px] shrink-0 divide-y divide-slate-100 px-4">
         {props.cartItems.length === 0 ? (
           <div className="flex h-full min-h-[90px] flex-col items-center justify-center py-4 text-center text-slate-300">
             <p className="text-sm font-semibold">Cart is empty</p>
@@ -227,9 +258,15 @@ export function PosOrderPanel(props: Props) {
           <span>Tax</span>
           <b>LKR {props.quote.taxTotal.toLocaleString()}</b>
         </div>
+        {loyaltyValue > 0 && (
+          <div className="flex justify-between text-violet-700">
+            <span>Loyalty redemption</span>
+            <b>- LKR {loyaltyValue.toLocaleString()}</b>
+          </div>
+        )}
         <div className="flex justify-between items-center pt-2 border-t border-slate-200">
-          <span className="text-base font-bold">Grand Total</span>
-          <b className="text-base text-[#025148]">LKR {props.quote.total.toLocaleString()}</b>
+          <span className="text-base font-bold">Amount Due</span>
+          <b className="text-base text-[#025148]">LKR {amountDue.toLocaleString()}</b>
         </div>
       </div>
       <div className="px-4 py-2 grid grid-cols-3 gap-2 shrink-0 text-white text-xs font-semibold">
@@ -279,35 +316,58 @@ export function PosOrderPanel(props: Props) {
       </div>
       <div className="px-4 py-2 shrink-0">
         <p className="text-xs font-bold mb-2">Select Payment</p>
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-3 gap-2">
           {methods.map(({ value, label, icon: Icon }) => (
             <button
               key={value}
               type="button"
               onClick={() => props.onPaymentMethodChange(value)}
-              className={`flex h-14 flex-col items-center justify-center rounded-xl border text-[11px] font-semibold transition-colors ${props.paymentMethod === value ? "border-2 border-[#0E9384] bg-[#EEFFFD] text-[#0E9384]" : "border-[#D9E0E5] hover:border-[#0E9384]"}`}
+              disabled={value === "LOYALTY_POINTS" && !loyaltyCanPayTotal}
+              title={
+                value === "LOYALTY_POINTS" && !customer
+                  ? "Select a registered customer to pay with loyalty points"
+                  : value === "LOYALTY_POINTS" && !loyaltyCanPayTotal
+                    ? "The available points cannot cover the full total. Redeem partial points above and pay the balance with another method."
+                    : undefined
+              }
+              className={`flex h-14 flex-col items-center justify-center rounded-xl border text-[11px] font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${props.paymentMethod === value ? "border-2 border-[#0E9384] bg-[#EEFFFD] text-[#0E9384]" : "border-[#D9E0E5] hover:border-[#0E9384]"}`}
             >
               <Icon className="h-5 w-5 mb-1" />
               {label}
             </button>
           ))}
         </div>
-        <label className="mt-2 block text-[11px] font-semibold text-slate-600">
-          {props.credit ? "Down payment (0 for full credit)" : "Amount paid"}
-          <input type="number" min="0" max={props.quote.total} value={props.paid} onChange={(event) => props.onPaidChange(Number(event.target.value))} aria-label={props.credit ? "Down payment" : "Amount paid"} className="mt-1.5 h-10 w-full rounded-xl border px-3 text-sm outline-none focus:border-[#0E9384]" />
-        </label>
-        <label className="mt-2 flex min-h-8 items-center gap-2 text-xs">
-          <input
-            type="checkbox"
-            checked={props.credit}
-            onChange={(event) => props.onCreditChange(event.target.checked)}
-            className="h-4 w-4 accent-[#0E9384]"
-          />
-          Customer credit purchase
-        </label>
-        {props.credit && <div className="mt-2 space-y-1.5 rounded-xl bg-amber-50 p-3 text-[11px] text-amber-900">
-          <div className="flex justify-between"><span>Credit amount</span><b>LKR {Math.max(0, props.quote.total - props.paid).toLocaleString()}</b></div>
-          {customer && <><div className="flex justify-between"><span>Available credit</span><b>LKR {Math.max(0, Number(customer.creditLimit) - Number(customer.currentBalance)).toLocaleString()}</b></div><div className="flex justify-between"><span>Balance after sale</span><b>LKR {(Number(customer.currentBalance) + Math.max(0, props.quote.total - props.paid)).toLocaleString()}</b></div></>}
+        {props.paymentMethod === "LOYALTY_POINTS" ? (
+          <div className="mt-2 rounded-xl border border-violet-200 bg-violet-50 p-3 text-xs text-violet-900">
+            <div className="flex justify-between">
+              <span>Points used</span>
+              <b>{props.loyaltyPointsToRedeem.toLocaleString()}</b>
+            </div>
+            <div className="mt-1 flex justify-between">
+              <span>Paid using points</span>
+              <b>LKR {loyaltyValue.toLocaleString()}</b>
+            </div>
+          </div>
+        ) : (
+          <label className="mt-2 block text-[11px] font-semibold text-slate-600">
+            {props.credit ? "Down payment (0 for full credit)" : "Amount paid"}
+            <input type="number" min="0" max={amountDue} value={props.paid} onChange={(event) => props.onPaidChange(Number(event.target.value))} aria-label={props.credit ? "Down payment" : "Amount paid"} className="mt-1.5 h-10 w-full rounded-xl border px-3 text-sm outline-none focus:border-[#0E9384]" />
+          </label>
+        )}
+        {props.paymentMethod !== "LOYALTY_POINTS" && (
+          <label className="mt-2 flex min-h-8 items-center gap-2 text-xs">
+            <input
+              type="checkbox"
+              checked={props.credit}
+              onChange={(event) => props.onCreditChange(event.target.checked)}
+              className="h-4 w-4 accent-[#0E9384]"
+            />
+            Customer credit purchase
+          </label>
+        )}
+          {props.credit && <div className="mt-2 space-y-1.5 rounded-xl bg-amber-50 p-3 text-[11px] text-amber-900">
+          <div className="flex justify-between"><span>Credit amount</span><b>LKR {Math.max(0, amountDue - props.paid).toLocaleString()}</b></div>
+          {customer && <><div className="flex justify-between"><span>Available credit</span><b>LKR {Math.max(0, Number(customer.creditLimit) - Number(customer.currentBalance)).toLocaleString()}</b></div><div className="flex justify-between"><span>Balance after sale</span><b>LKR {(Number(customer.currentBalance) + Math.max(0, amountDue - props.paid)).toLocaleString()}</b></div></>}
           <label className="block font-semibold">Final due date<input type="date" value={props.dueDate} onChange={(event) => props.onDueDateChange(event.target.value)} className="mt-1.5 h-10 w-full rounded-xl border bg-white px-3 text-xs" /></label>
         </div>}
       </div>
@@ -333,7 +393,9 @@ export function PosOrderPanel(props: Props) {
         >
           {props.isOffline
             ? `Save Offline · LKR ${props.quote.total.toLocaleString()}`
-            : `Pay · LKR ${props.quote.total.toLocaleString()}`}
+            : props.paymentMethod === "LOYALTY_POINTS"
+              ? `Pay with ${props.loyaltyPointsToRedeem.toLocaleString()} points`
+              : `Pay · LKR ${amountDue.toLocaleString()}`}
         </button>
       </div>
     </aside>

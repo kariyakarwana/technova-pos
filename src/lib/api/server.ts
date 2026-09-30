@@ -2,7 +2,10 @@ import "server-only";
 
 import { cookies } from "next/headers";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1";
+const API_URL =
+  process.env.INTERNAL_API_URL ??
+  process.env.NEXT_PUBLIC_API_URL ??
+  "http://localhost:4000/api/v1";
 
 export async function serverApi<T>(path: string): Promise<T> {
   const token = (await cookies()).get("technova_access")?.value;

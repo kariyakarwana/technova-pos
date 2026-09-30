@@ -77,6 +77,16 @@ export interface AIOverview {
     lastName?: string | null;
   }>;
   products: ProductPrediction[];
+  stockIntelligence?: {
+    available: boolean;
+    source: string;
+    message: string;
+  };
+  dynamicPricing?: {
+    available: boolean;
+    source: string;
+    message: string;
+  };
 }
 
 export interface LoyaltyResult {
@@ -90,15 +100,316 @@ export interface LoyaltyResult {
   profile: {
     segment: string;
     loyalty_score: number;
+    loyalty_points: number;
+    redemption_value: number;
     recency_days: number;
     order_count: number;
     total_spend: number;
     units_purchased: number;
   };
+  active_rule: {
+    id?: string;
+    name: string;
+    spendAmount: number | string;
+    pointsAwarded: number;
+    redemptionValuePerPoint: number | string;
+  };
+  transactions: Array<{
+    id: string;
+    points: number;
+    reason: string;
+    createdAt: string;
+  }>;
   recommendations: Array<{
     product_id: string;
     description: string;
     score: number;
     reason: string;
+  }>;
+}
+
+export interface SalesForecastPrediction {
+  date: string;
+  predicted_revenue: number;
+}
+
+export interface SalesForecastResponse {
+  organization_id: string;
+  branch_id: string;
+  forecast_horizon: number;
+  predictions: SalesForecastPrediction[];
+  branch?: {
+    id: string;
+    code: string;
+    name: string;
+  };
+  generatedAt: string;
+  historyDays: number;
+}
+
+export type SalesForecastHorizon = 1 | 7 | 14 | 30;
+
+export type DemandForecastHorizon = 7 | 14 | 30;
+
+export interface DailyForecastContextPayload {
+  date?: string;
+  forecast_date?: string;
+  forecastDate?: string;
+  is_open?: number;
+  isOpen?: number;
+  is_promo?: number;
+  isPromo?: number;
+  unit_price?: number;
+  unitPrice?: number;
+  state_holiday?: string;
+  stateHoliday?: string;
+  school_holiday?: number;
+  schoolHoliday?: number;
+}
+
+export interface DemandForecastPayload {
+  product_id?: string;
+  productId?: string;
+  store_id?: string;
+  storeId?: string;
+  branchId?: string;
+  category?: string;
+  base_unit_price?: number;
+  baseUnitPrice?: number;
+  unit_price?: number;
+  unitPrice?: number;
+  store_type?: "a" | "b" | "c" | "d" | (string & {});
+  storeType?: "a" | "b" | "c" | "d" | (string & {});
+  assortment?: "a" | "b" | "c" | (string & {});
+  promo2?: number;
+  horizon?: DemandForecastHorizon | number;
+  forecastHorizon?: DemandForecastHorizon | number;
+  forecast_date?: string;
+  forecastDate?: string;
+  daily_contexts?: DailyForecastContextPayload[];
+  dailyContexts?: DailyForecastContextPayload[];
+}
+
+export interface DemandForecastPrediction {
+  product_id: string;
+  store_id: string;
+  forecast_date: string;
+  predicted_units: number;
+  horizon: number;
+  day_of_week?: number;
+  is_open?: number;
+  is_promo?: number;
+  unit_price?: number;
+}
+
+export interface DemandForecastModelMetadata {
+  model_type: string;
+  version: string;
+  target: string;
+  feature_columns?: string[];
+  feature_count?: number;
+  [key: string]: unknown;
+}
+
+export interface DemandForecastResponse {
+  product_id: string;
+  store_id: string;
+  forecast_date: string;
+  predicted_units: number;
+  horizon: number;
+  predictions: DemandForecastPrediction[];
+  total_predicted_units?: number;
+  model_metadata: DemandForecastModelMetadata;
+  branch?: {
+    id: string;
+    code: string;
+    name: string;
+  };
+  product?: {
+    id: string;
+    sku: string;
+    name: string;
+  };
+  generatedAt?: string;
+  [key: string]: unknown;
+}
+
+export type RecommendationContext =
+  | "CUSTOMER"
+  | "PRODUCT"
+  | "BRANCH"
+  | "TRENDING"
+  | "COLD_START"
+  | "CART_READY";
+
+export type RecommendationReasonCode =
+  | "FREQUENTLY_BOUGHT_TOGETHER"
+  | "BRANCH_POPULAR"
+  | "CUSTOMER_HISTORY_AFFINITY"
+  | "SIMILAR_PRODUCT"
+  | "TRENDING_ACCELERATION"
+  | "COMPATIBLE_ACCESSORY"
+  | "POPULAR_FALLBACK"
+  | (string & {});
+
+export interface RecommendationRequest {
+  context: RecommendationContext;
+  customer_id?: string;
+  product_id?: string;
+  product_ids?: string[];
+  branch_id?: string;
+  top_n?: number;
+  include_substitutes?: boolean;
+}
+
+export interface RecommendedProduct {
+  product_id: string;
+  name: string;
+  category: string;
+  brand: string;
+  price: number;
+  score: number;
+  reason_code: string;
+  reason: string;
+  stock_quantity: number;
+  is_available: boolean;
+}
+
+export interface RecommendationModelMetadata {
+  model_name: string;
+  version: string;
+  algorithms_used: string[];
+  context: string;
+  total_candidates_scored: number;
+  training_date_range?: {
+    train_start: string;
+    train_end: string;
+  };
+}
+
+export interface RecommendationResponse {
+  context: string;
+  organization_id: string;
+  branch_id?: string;
+  recommendations: RecommendedProduct[];
+  generated_at: string;
+  model_metadata: RecommendationModelMetadata;
+}
+
+// ==========================================
+// BUSINESS ASSISTANT TYPES (PHASE 6)
+// ==========================================
+
+export interface AssistantKpiCard {
+  label: string;
+  value: string;
+  change?: string;
+  trend?: "up" | "down" | "neutral";
+  unit?: string;
+}
+
+export interface AssistantTableData {
+  title: string;
+  columns: string[];
+  rows: (string | number)[][];
+}
+
+export interface AssistantChartSeries {
+  name: string;
+  data: Array<{ label: string; value: number }>;
+}
+
+export interface AssistantChartData {
+  type: "line" | "bar" | "pie";
+  title: string;
+  x_label?: string;
+  y_label?: string;
+  series: AssistantChartSeries[];
+}
+
+export interface AssistantSourceReference {
+  tool: string;
+  entity: string;
+  recordCount: number;
+  timeRange?: string;
+  branchId?: string;
+}
+
+export interface AssistantStructuredOutput {
+  answer: string;
+  language: "en" | "si" | "mixed";
+  kpi_cards?: AssistantKpiCard[];
+  table?: AssistantTableData;
+  chart?: AssistantChartData;
+  sources: AssistantSourceReference[];
+  follow_up_suggestions?: string[];
+  confidence: "high" | "medium" | "low";
+  disclaimer?: string;
+}
+
+export interface AssistantMessagePayload extends AssistantStructuredOutput {
+  id: string;
+  role: "assistant";
+  createdAt: string;
+}
+
+export interface AssistantChatRequest {
+  message: string;
+  conversationId?: string;
+  branchId?: string;
+}
+
+export interface AssistantChatResponse {
+  conversationId: string;
+  message: AssistantMessagePayload;
+  metadata?: {
+    model: string;
+    tokensUsed?: number;
+    degraded?: boolean;
+    processingTimeMs?: number;
+  };
+}
+
+export interface AssistantUiMessage {
+  id: string;
+  sender: "user" | "assistant";
+  text: string;
+  timestamp: string;
+  structuredOutput?: AssistantStructuredOutput;
+  isError?: boolean;
+}
+
+export interface LoyaltyRulesResult {
+  activeRule: LoyaltyResult["active_rule"] | null;
+  rules: Array<
+    LoyaltyResult["active_rule"] & {
+      id: string;
+      status: "ACTIVE" | "INACTIVE" | "ARCHIVED";
+      updatedAt: string;
+    }
+  >;
+  defaultRule: LoyaltyResult["active_rule"] | null;
+}
+
+export interface LoyaltyRuleRecommendations {
+  generatedAt: string;
+  currentRule: LoyaltyResult["active_rule"] | null;
+  note: string;
+  suggestions: Array<{
+    id: string;
+    title: string;
+    description: string;
+    recommended: boolean;
+    spendAmount?: number;
+    pointsAwarded?: number;
+    redemptionValuePerPoint?: number;
+    bonusPoints?: number;
+    customer?: {
+      id: string;
+      customerNumber: string;
+      firstName: string;
+      lastName?: string | null;
+    } | null;
+    evidence?: { annualSpend: number; orders: number } | null;
   }>;
 }
