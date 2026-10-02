@@ -10,6 +10,9 @@
 
 # GitHub / CI-CD
 /.github/ @kariyakarwana
+/Dockerfile @kariyakarwana
+/.dockerignore @kariyakarwana
+/next.config.ts @kariyakarwana
 
 # Authentication and security
 /src/modules/auth/ @kariyakarwana
