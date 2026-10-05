@@ -57,7 +57,7 @@ export default function HeroSection() {
                 <div className="mt-8 flex flex-wrap items-center gap-4">
 
 
-                  <Link href="/register">
+                  <Link href="/login">
                     <button
                       className="inline-flex items-center justify-center gap-2 rounded-xl bg-teal-600 px-6 py-3.5 text-white font-semibold shadow-md transition-all hover:bg-teal-700 cursor-pointer"
                       style={{ fontFamily: "var(--font-noto-sans), sans-serif" }}
@@ -231,7 +231,7 @@ export default function HeroSection() {
                 Deploy the TechNova POS suite today and transform your daily sales, inventory, and customer data into actionable, growth-driven retail strategies.
               </p>
 
-              <Link href="/register">
+              <Link href="/login">
                 <Button className="bg-white text-[#025148] hover:bg-slate-100 font-semibold px-8 py-6 rounded-xl shadow-lg flex items-center gap-2 text-base cursor-pointer">
                   Initialize Setup 🚀
                 </Button>

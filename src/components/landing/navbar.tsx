@@ -71,14 +71,14 @@ export default function Navbar() {
                     </Link>
                     </Button>
 
-                    <Button
+                    {/* <Button
                     asChild
                     className="bg-teal-600 px-7 py-5 text-sm font-semibold text-white shadow-md hover:bg-teal-700 lg:text-base"
                     >
                     <Link href="/register">
                         Get Started
                     </Link>
-                    </Button>
+                    </Button> */}
                 </div>
 
 

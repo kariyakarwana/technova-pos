@@ -44,11 +44,11 @@ export default function DashboardShell({
   }, []);
 
   useEffect(() => {
-    if (!isViewportLocked) return;
-
     const previousHtmlOverflow = document.documentElement.style.overflow;
     const previousBodyOverflow = document.body.style.overflow;
 
+    // The sidebar and main pane scroll independently; the document must not
+    // introduce a third scrollbar around the viewport-sized dashboard shell.
     document.documentElement.style.overflow = "hidden";
     document.body.style.overflow = "hidden";
 
@@ -56,7 +56,7 @@ export default function DashboardShell({
       document.documentElement.style.overflow = previousHtmlOverflow;
       document.body.style.overflow = previousBodyOverflow;
     };
-  }, [isViewportLocked]);
+  }, []);
 
   function toggleSidebar() {
     setCollapsed((current) => {
