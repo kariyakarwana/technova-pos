@@ -2,7 +2,7 @@
 
 import { Film, ImagePlus, Trash2, Upload } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type StoredVideo = { id: string; url: string; originalName?: string | null };
 
@@ -36,7 +36,7 @@ function PreviewVideo({ file }: { file: File }) {
       src={url}
       controls
       preload="metadata"
-      className="aspect-video w-full rounded-xl bg-slate-950 object-contain"
+      className="aspect-video w-full max-w-xl rounded-xl bg-slate-950 object-contain"
     />
   ) : null;
 }
@@ -62,6 +62,9 @@ export default function ProductMediaUploadFields({
   currentImageCount: number;
   onMessage: (message: string | null) => void;
 }) {
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
+
   function chooseImages(files: FileList | null) {
     const selected = Array.from(files ?? []);
     if (!selected.length) return;
@@ -119,20 +122,26 @@ export default function ProductMediaUploadFields({
                 JPEG, PNG, WebP or GIF · 8 MB each · 8 total
               </p>
             </div>
-            <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-[#0E9384] px-3 py-2 text-xs font-semibold text-[#0E9384]">
+            <button
+              type="button"
+              onClick={() => imageInputRef.current?.click()}
+              className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-[#0E9384] px-3 py-2 text-xs font-semibold text-[#0E9384]"
+            >
               <Upload className="h-4 w-4" />
               Choose
-              <input
-                type="file"
-                accept="image/jpeg,image/png,image/webp,image/gif"
-                multiple
-                className="sr-only"
-                onChange={(event) => {
-                  chooseImages(event.target.files);
-                  event.target.value = "";
-                }}
-              />
-            </label>
+            </button>
+            <input
+              ref={imageInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              multiple
+              className="hidden"
+              tabIndex={-1}
+              onChange={(event) => {
+                chooseImages(event.target.files);
+                event.target.value = "";
+              }}
+            />
           </div>
           <div className="mt-4 grid grid-cols-2 gap-3">
             {imageFiles.map((file, index) => (
@@ -164,7 +173,7 @@ export default function ProductMediaUploadFields({
           </div>
           {imageFiles.length === 0 && (
             <div className="mt-4 rounded-xl border border-dashed p-6 text-center text-xs text-slate-400">
-              Choose images to upload when the product is saved.
+              No image files selected. Images added by URL above are saved separately.
             </div>
           )}
         </div>
@@ -180,19 +189,25 @@ export default function ProductMediaUploadFields({
                 MP4 or WebM · 50 MB maximum
               </p>
             </div>
-            <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-[#0E9384] px-3 py-2 text-xs font-semibold text-[#0E9384]">
+            <button
+              type="button"
+              onClick={() => videoInputRef.current?.click()}
+              className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-[#0E9384] px-3 py-2 text-xs font-semibold text-[#0E9384]"
+            >
               <Upload className="h-4 w-4" />
               {shownVideo || videoFile ? "Replace" : "Choose"}
-              <input
-                type="file"
-                accept="video/mp4,video/webm"
-                className="sr-only"
-                onChange={(event) => {
-                  chooseVideo(event.target.files?.[0]);
-                  event.target.value = "";
-                }}
-              />
-            </label>
+            </button>
+            <input
+              ref={videoInputRef}
+              type="file"
+              accept="video/mp4,video/webm"
+              className="hidden"
+              tabIndex={-1}
+              onChange={(event) => {
+                chooseVideo(event.target.files?.[0]);
+                event.target.value = "";
+              }}
+            />
           </div>
           <div className="mt-4">
             {videoFile ? (
@@ -202,10 +217,10 @@ export default function ProductMediaUploadFields({
                 src={shownVideo.url}
                 controls
                 preload="metadata"
-                className="aspect-video w-full rounded-xl bg-slate-950 object-contain"
+                className="aspect-video w-full max-w-xl rounded-xl bg-slate-950 object-contain"
               />
             ) : (
-              <div className="flex aspect-video items-center justify-center rounded-xl border border-dashed text-xs text-slate-400">
+              <div className="flex min-h-28 items-center justify-center rounded-xl border border-dashed text-xs text-slate-400">
                 <Film className="mr-2 h-5 w-5" />
                 No video selected.
               </div>
