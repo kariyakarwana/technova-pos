@@ -34,10 +34,6 @@ export default function DashboardShell({
   const [collapsed, setCollapsed] = useState(false);
   const isPosWorkspace = pathname === "/pos" || pathname.startsWith("/pos/");
   const canAccessCurrentPage = hasPageAccess(pathname, permissions, roles);
-  const isViewportLocked =
-    isPosWorkspace ||
-    pathname === "/ai-intelligence" ||
-    pathname.startsWith("/ai-intelligence/");
 
   useEffect(() => {
     setCollapsed(window.localStorage.getItem(STORAGE_KEY) === "true");
@@ -68,11 +64,9 @@ export default function DashboardShell({
 
   return (
     <div
-      className={`flex overflow-hidden bg-[#F9F9FF] font-sans text-[#151C27] ${
-        isViewportLocked ? "fixed inset-0" : "h-dvh w-full"
-      }`}
+      className="fixed inset-0 flex overflow-hidden bg-[#F9F9FF] font-sans text-[#151C27] print:relative print:inset-auto print:overflow-visible"
     >
-      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden print:overflow-visible">
         {offlineBanner}
         <Navbar
           userEmail={userEmail}
@@ -88,7 +82,7 @@ export default function DashboardShell({
             <Sidebar permissions={permissions} roles={roles} collapsed={collapsed} />
           </aside>
           <main
-            className={`min-h-0 min-w-0 flex-1 bg-gray-50/30 ${
+            className={`min-h-0 min-w-0 flex-1 bg-gray-50/30 print:overflow-visible ${
               isPosWorkspace
                 ? "overflow-hidden"
                 : "overflow-y-auto overscroll-contain"

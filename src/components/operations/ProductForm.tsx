@@ -106,8 +106,9 @@ export default function ProductForm({
     event.preventDefault();
     setSaving(true);
     setMessage(null);
+    const { sku, ...editableFields } = form;
     const payload = {
-      ...form,
+      ...editableFields,
       barcode: form.barcode || undefined,
       description: form.description || undefined,
       categoryId: form.categoryId || undefined,
@@ -121,7 +122,7 @@ export default function ProductForm({
       else {
         const created = await apiPost<{ id: string }>(
           "/catalog/products",
-          payload,
+          { ...payload, sku },
         );
         productId = created.id;
         setSavedProductId(productId);
