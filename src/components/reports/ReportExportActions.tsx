@@ -1,6 +1,7 @@
 "use client";
 
 import { FileSpreadsheet, FileText, Printer } from "lucide-react";
+import { BackButton } from "@/components/ui/back-button";
 
 type Row = Record<string, unknown>;
 const label = (key: string) => key.replaceAll(/([A-Z])/g, " $1").replaceAll("_", " ").trim();
@@ -8,7 +9,7 @@ const value = (input: unknown) => input && typeof input === "object" ? JSON.stri
 const escapeHtml = (input: unknown) => value(input).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
 const fileName = (title: string) => title.toLowerCase().replaceAll(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
-export default function ReportExportActions({ title, rows, serverCsvUrl }: { title: string; rows: Row[]; serverCsvUrl?: string }) {
+export default function ReportExportActions({ title, rows, serverCsvUrl, backToReports = false }: { title: string; rows: Row[]; serverCsvUrl?: string; backToReports?: boolean }) {
   const columns = rows[0] ? Object.keys(rows[0]) : [];
   function exportCsv() {
     const csv = [columns.map(label), ...rows.map((row) => columns.map((column) => value(row[column])))]
@@ -29,5 +30,5 @@ export default function ReportExportActions({ title, rows, serverCsvUrl }: { tit
   }
   const pdfClass = "inline-flex h-8 items-center gap-1 rounded-lg border border-red-200 bg-red-50 px-2.5 text-[10px] font-semibold text-red-600 hover:bg-red-100 disabled:opacity-40";
   const csvClass = "inline-flex h-8 items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 text-[10px] font-semibold text-emerald-700 hover:bg-emerald-100 disabled:opacity-40";
-  return <div className="flex flex-wrap items-center gap-2"><button type="button" onClick={printPdf} disabled={!rows.length} title="Open PDF / print view" className={pdfClass}><FileText className="h-4 w-4"/>PDF</button>{serverCsvUrl ? <a href={serverCsvUrl} title="Export complete filtered CSV" className={csvClass}><FileSpreadsheet className="h-4 w-4"/>CSV</a> : <button type="button" onClick={exportCsv} disabled={!rows.length} title="Export CSV" className={csvClass}><FileSpreadsheet className="h-4 w-4"/>CSV</button>}<button type="button" onClick={printPdf} disabled={!rows.length} title="Print report" className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 disabled:opacity-40"><Printer className="h-4 w-4"/></button></div>;
+  return <div className="flex flex-wrap items-center gap-2"><button type="button" onClick={printPdf} disabled={!rows.length} title="Open PDF / print view" className={pdfClass}><FileText className="h-4 w-4"/>PDF</button>{serverCsvUrl ? <a href={serverCsvUrl} title="Export complete filtered CSV" className={csvClass}><FileSpreadsheet className="h-4 w-4"/>CSV</a> : <button type="button" onClick={exportCsv} disabled={!rows.length} title="Export CSV" className={csvClass}><FileSpreadsheet className="h-4 w-4"/>CSV</button>}<button type="button" onClick={printPdf} disabled={!rows.length} title="Print report" className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 disabled:opacity-40"><Printer className="h-4 w-4"/></button>{backToReports && <BackButton href="/reports" label="Back to Reports" size="sm" />}</div>;
 }
