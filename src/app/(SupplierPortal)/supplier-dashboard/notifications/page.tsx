@@ -5,7 +5,7 @@ export default async function SupplierNotificationsPage() {
   let initial: SupplierNotification[] = [];
   let loadError: string | undefined;
   try {
-    const result = await serverApi<{ data: SupplierNotification[] }>("/notifications/in-app?page=1&pageSize=100");
+    const result = await serverApi<{ data: SupplierNotification[] }>("/notifications/in-app?page=1&pageSize=100&unread=true");
     initial = result.data;
   } catch (error) {
     loadError = error instanceof Error ? error.message : "Unable to load notifications.";
