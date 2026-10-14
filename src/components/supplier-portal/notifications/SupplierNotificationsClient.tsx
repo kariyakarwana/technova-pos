@@ -35,20 +35,11 @@ export default function SupplierNotificationsClient({
     );
   async function read(id: string) {
     await apiPatch(`/notifications/in-app/${id}/read`, {});
-    setItems((current) =>
-      current.map((item) =>
-        item.id === id ? { ...item, readAt: new Date().toISOString() } : item,
-      ),
-    );
+    setItems((current) => current.filter((item) => item.id !== id));
   }
   async function readAll() {
     await apiPatch("/notifications/in-app/read-all", {});
-    setItems((current) =>
-      current.map((item) => ({
-        ...item,
-        readAt: item.readAt ?? new Date().toISOString(),
-      })),
-    );
+    setItems([]);
   }
   return (
     <main className="space-y-6 p-6 lg:p-8">

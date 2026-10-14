@@ -73,7 +73,12 @@ export default function PurchaseOrderDetail({
   const [receiptNumber, setReceiptNumber] = useState(
     `GRN-${initial.orderNumber}-${initial.receipts.length + 1}`,
   );
-  const [supplierInvoiceNumber, setSupplierInvoiceNumber] = useState("");
+  const [supplierInvoiceId, setSupplierInvoiceId] = useState(
+    initial.supplierInvoices[0]?.id ?? "",
+  );
+  const [supplierInvoiceNumber, setSupplierInvoiceNumber] = useState(
+    initial.supplierInvoices[0]?.invoiceNumber ?? "",
+  );
   const [receiptNotes, setReceiptNotes] = useState("");
   const [serials, setSerials] = useState<Record<string, string>>(
     Object.fromEntries(initial.items.map((item) => [item.id, ""])),
@@ -133,6 +138,7 @@ export default function PurchaseOrderDetail({
         `/purchasing/orders/${order.id}/receipts`,
         {
           receiptNumber: receiptNumber.trim(),
+          supplierInvoiceId: supplierInvoiceId || undefined,
           supplierInvoiceNumber: supplierInvoiceNumber.trim() || undefined,
           notes: receiptNotes.trim() || undefined,
           items,
@@ -430,8 +436,8 @@ export default function PurchaseOrderDetail({
                   rel="noreferrer"
                   className="mb-2 flex justify-between rounded-xl bg-slate-50 p-3 text-sm text-[#0E9384]"
                 >
-                  <b>{invoice.invoiceNumber}</b>
-                  <span>{invoice.fileName}</span>
+                  <span><b>{invoice.invoiceNumber}</b> · {invoice.fileName}</span>
+                  <span className="font-semibold">View image/PDF</span>
                 </a>
               ))
             )}
@@ -463,11 +469,47 @@ export default function PurchaseOrderDetail({
                 onChange={(event) =>
                   setSupplierInvoiceNumber(event.target.value)
                 }
+                readOnly={Boolean(supplierInvoiceId)}
                 placeholder="Invoice or delivery note"
                 className={input}
               />
             </label>
           </div>
+          {order.supplierInvoices.length > 0 && (
+            <div className="rounded-xl border border-teal-100 bg-teal-50/50 p-4">
+              <label className="block text-xs font-semibold">
+                Supplier-uploaded invoice
+                <select
+                  value={supplierInvoiceId}
+                  onChange={(event) => {
+                    const invoice = order.supplierInvoices.find(
+                      (item) => item.id === event.target.value,
+                    );
+                    setSupplierInvoiceId(invoice?.id ?? "");
+                    setSupplierInvoiceNumber(invoice?.invoiceNumber ?? "");
+                  }}
+                  className={input}
+                >
+                  {order.supplierInvoices.map((invoice) => (
+                    <option key={invoice.id} value={invoice.id}>
+                      {invoice.invoiceNumber} · {invoice.fileName}
+                    </option>
+                  ))}
+                  <option value="">No uploaded invoice — enter number manually</option>
+                </select>
+              </label>
+              {supplierInvoiceId && (
+                <a
+                  href={`/api/backend/supplier-portal/invoices/${supplierInvoiceId}/file`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-3 inline-block text-sm font-semibold text-[#0E9384] underline"
+                >
+                  View selected invoice image/PDF before receiving stock
+                </a>
+              )}
+            </div>
+          )}
           <label className="block text-xs font-semibold">
             Receipt notes
             <textarea

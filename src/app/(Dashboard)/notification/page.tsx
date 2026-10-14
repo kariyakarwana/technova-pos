@@ -2,6 +2,6 @@ import SupplierNotificationsClient, { type SupplierNotification } from "@/compon
 import { serverApi } from "@/lib/api/server";
 
 export default async function UserNotificationsPage() {
-  const result = await serverApi<{ data: SupplierNotification[] }>("/notifications/in-app?page=1&pageSize=100");
+  const result = await serverApi<{ data: SupplierNotification[] }>("/notifications/in-app?page=1&pageSize=100&unread=true");
   return <SupplierNotificationsClient initial={result.data} />;
 }
