@@ -56,6 +56,17 @@ export default function Navbar({
 
   function handleSignOut() {
     startTransition(async () => {
+      try {
+        if ("caches" in window) {
+          const names = await caches.keys();
+          await Promise.all(names.filter((name) => name.startsWith("technova-pos-offline-")).map((name) => caches.delete(name)));
+        }
+        for (const key of Object.keys(localStorage)) {
+          if (key.startsWith("technova_pos_catalog_")) localStorage.removeItem(key);
+        }
+      } catch {
+        // Cache cleanup must not prevent sign-out.
+      }
       await logoutAction();
     });
   }

@@ -8,6 +8,8 @@ import { ShieldAlert } from "lucide-react";
 import { hasPageAccess } from "@/lib/auth/permissions";
 import Navbar from "./navbar";
 import Sidebar from "./slidebar";
+import OfflineBootstrap from "./OfflineBootstrap";
+import { useOfflineMode } from "./pos/OfflineContext";
 
 interface DashboardShellProps {
   children: ReactNode;
@@ -31,6 +33,7 @@ export default function DashboardShell({
   offlineBanner,
 }: DashboardShellProps) {
   const pathname = usePathname();
+  const { isOffline } = useOfflineMode();
   const [collapsed, setCollapsed] = useState(false);
   const isPosWorkspace = pathname === "/pos" || pathname.startsWith("/pos/");
   const canAccessCurrentPage = hasPageAccess(pathname, permissions, roles);
@@ -38,6 +41,23 @@ export default function DashboardShell({
   useEffect(() => {
     setCollapsed(window.localStorage.getItem(STORAGE_KEY) === "true");
   }, []);
+
+  useEffect(() => {
+    if (!isOffline) return;
+    // Next client navigation needs a server RSC response. Use the cached
+    // document instead when moving between the two offline workspaces.
+    const navigateOffline = (event: MouseEvent) => {
+      const anchor = (event.target as Element).closest("a[href]");
+      if (!anchor) return;
+      const url = new URL((anchor as HTMLAnchorElement).href);
+      if (url.origin !== location.origin || !["/pos", "/offline-sync"].includes(url.pathname)) return;
+      event.preventDefault();
+      event.stopPropagation();
+      location.assign(url.href);
+    };
+    document.addEventListener("click", navigateOffline, true);
+    return () => document.removeEventListener("click", navigateOffline, true);
+  }, [isOffline]);
 
   useEffect(() => {
     const previousHtmlOverflow = document.documentElement.style.overflow;
@@ -66,6 +86,7 @@ export default function DashboardShell({
     <div
       className="fixed inset-0 flex overflow-hidden bg-[#F9F9FF] font-sans text-[#151C27] print:relative print:inset-auto print:overflow-visible"
     >
+      <OfflineBootstrap />
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden print:overflow-visible">
         {offlineBanner}
         <Navbar
