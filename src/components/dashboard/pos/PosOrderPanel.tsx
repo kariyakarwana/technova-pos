@@ -91,7 +91,7 @@ export function PosOrderPanel(props: Props) {
         {props.isOffline && (
           <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[#FDEDEC] border border-[#F7C2BE] text-[#D32F2F] text-xs font-medium">
             <Info className="h-4 w-4" />
-            Sale will be stored and synchronized later.
+            Cash sale will be stored on this device and synchronized after reconnecting.
           </div>
         )}
       </div>
@@ -133,7 +133,12 @@ export function PosOrderPanel(props: Props) {
             <UserPlus className="h-5 w-5" />
           </Link>
         </div>
-        {customer && (
+        {customer && props.isOffline && (
+          <p className="rounded-xl bg-amber-50 p-3 text-xs text-amber-900">
+            Saved customer: {customer.customerNumber} · {customer.firstName} {customer.lastName}. Credit and loyalty balances are not available offline.
+          </p>
+        )}
+        {customer && !props.isOffline && (
           <div className="grid grid-cols-2 gap-2 rounded-xl bg-teal-50 p-3 text-xs">
             <span>
               Store credit
@@ -322,7 +327,7 @@ export function PosOrderPanel(props: Props) {
               key={value}
               type="button"
               onClick={() => props.onPaymentMethodChange(value)}
-              disabled={value === "LOYALTY_POINTS" && !loyaltyCanPayTotal}
+              disabled={(props.isOffline && value !== "CASH") || (value === "LOYALTY_POINTS" && !loyaltyCanPayTotal)}
               title={
                 value === "LOYALTY_POINTS" && !customer
                   ? "Select a registered customer to pay with loyalty points"
@@ -354,7 +359,7 @@ export function PosOrderPanel(props: Props) {
             <input type="number" min="0" max={amountDue} value={props.paid} onChange={(event) => props.onPaidChange(Number(event.target.value))} aria-label={props.credit ? "Down payment" : "Amount paid"} className="mt-1.5 h-10 w-full rounded-xl border px-3 text-sm outline-none focus:border-[#0E9384]" />
           </label>
         )}
-        {props.paymentMethod !== "LOYALTY_POINTS" && (
+        {props.paymentMethod !== "LOYALTY_POINTS" && !props.isOffline && (
           <label className="mt-2 flex min-h-8 items-center gap-2 text-xs">
             <input
               type="checkbox"
