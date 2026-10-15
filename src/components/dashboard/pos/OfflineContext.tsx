@@ -24,6 +24,19 @@ const OfflineContext = createContext<OfflineContextValue>({
   retryConnection: async () => true,
 });
 
+async function canReachBackend(): Promise<boolean> {
+  if (typeof window !== "undefined" && !navigator.onLine) return false;
+  try {
+    const response = await fetch("/api/backend/health", {
+      cache: "no-store",
+      signal: AbortSignal.timeout(6000),
+    });
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
 export function OfflineProvider({ children }: { children: React.ReactNode }) {
   const [isOffline, setIsOffline] = useState<boolean>(() => {
     if (typeof window !== "undefined") {
@@ -35,7 +48,7 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     function handleOnline() {
-      setIsOffline(false);
+      void canReachBackend().then((reachable) => setIsOffline(!reachable));
     }
 
     function handleOffline() {
@@ -45,6 +58,7 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
     if (typeof window !== "undefined") {
       window.addEventListener("online", handleOnline);
       window.addEventListener("offline", handleOffline);
+      if (navigator.onLine) handleOnline();
 
       return () => {
         window.removeEventListener("online", handleOnline);
@@ -60,25 +74,9 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
   const retryConnection = useCallback(async (): Promise<boolean> => {
     setIsChecking(true);
     try {
-      if (typeof window !== "undefined" && !navigator.onLine) {
-        setIsOffline(true);
-        return false;
-      }
-
-      // Check network connectivity with a lightweight ping/head request
-      try {
-        await fetch("/favicon.ico", {
-          method: "HEAD",
-          cache: "no-store",
-        });
-        setIsOffline(false);
-        return true;
-      } catch {
-        // If navigator.onLine is true but fetch fails, verify with navigator
-        const online = typeof window !== "undefined" ? navigator.onLine : true;
-        setIsOffline(!online);
-        return online;
-      }
+      const reachable = await canReachBackend();
+      setIsOffline(!reachable);
+      return reachable;
     } finally {
       setIsChecking(false);
     }

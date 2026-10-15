@@ -37,7 +37,7 @@ export default function PosOfflineBanner({
         <span className="h-1.5 w-1.5 rounded-full bg-[#BA1A1A] shrink-0" aria-hidden="true" />
 
         <span className="text-xs font-medium text-[#7A271A]">
-          Queueing: 12 transactions stored locally
+          POS sales will be queued on this device until the connection returns.
         </span>
       </div>
 

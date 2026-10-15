@@ -3,7 +3,7 @@
 import { LayoutGrid, Package } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useBranch } from "@/components/dashboard/BranchContext";
-import { apiGet, apiPost } from "@/lib/api/client";
+import { ApiError, apiGet, apiPost } from "@/lib/api/client";
 import { CategorySidebar } from "./CategorySidebar";
 import { useOfflineMode } from "./OfflineContext";
 import { ProductCatalogGrid } from "./ProductCatalogGrid";
@@ -55,10 +55,22 @@ const emptyQuote: Quote = {
   taxTotal: 0,
   total: 0,
 };
+const catalogCacheKey = (branchId: string) => `technova_pos_catalog_${branchId}`;
+
+function cachedCatalog(branchId: string): Product[] | null {
+  try {
+    const raw = localStorage.getItem(catalogCacheKey(branchId));
+    if (!raw) return null;
+    const value = JSON.parse(raw) as { products?: Product[] };
+    return Array.isArray(value.products) ? value.products : null;
+  } catch {
+    return null;
+  }
+}
 
 function LivePos() {
   const { branchId, branch } = useBranch();
-  const { isOffline } = useOfflineMode();
+  const { isOffline, setOffline } = useOfflineMode();
   const [products, setProducts] = useState<Product[]>([]),
     [customers, setCustomers] = useState<Customer[]>([]),
     [cart, setCart] = useState<CartItem[]>([]),
@@ -92,6 +104,15 @@ function LivePos() {
       );
       return;
     }
+    if (isOffline) {
+      const cached = cachedCatalog(branchId);
+      setProducts(cached ?? []);
+      setCustomers([]);
+      setLoyaltyRule(null);
+      setCatalogError(cached ? "Using the last saved product catalog. Stock and prices may have changed." : "No offline product catalog is saved for this branch. Reconnect and open POS once.");
+      setLoadingProducts(false);
+      return;
+    }
     setLoadingProducts(true);
     try {
       const context = await apiGet<{
@@ -100,8 +121,7 @@ function LivePos() {
         loyaltyRule: LoyaltyRule;
       }>(`/sales/pos-context?branchId=${encodeURIComponent(branchId)}`);
       const rows = Array.isArray(context.products) ? context.products : [];
-      setProducts(
-        rows.map((item) => {
+      const catalog = rows.map((item) => {
           const levels = Array.isArray(item.stockLevels)
             ? item.stockLevels
             : [];
@@ -127,20 +147,28 @@ function LivePos() {
               ? `/api/backend/catalog/products/${encodeURIComponent(item.id)}/videos/${encodeURIComponent(videos[0].id)}/content`
               : undefined,
           };
-        }),
-      );
+        });
+      setProducts(catalog);
+      try {
+        localStorage.setItem(catalogCacheKey(branchId), JSON.stringify({ products: catalog, savedAt: Date.now() }));
+      } catch {
+        // Storage can be unavailable or full; online POS remains usable.
+      }
       setCustomers(Array.isArray(context.customers) ? context.customers : []);
       setLoyaltyRule(context.loyaltyRule ?? null);
     } catch (error) {
-      setProducts([]);
+      // Authentication/permission failures must never fall back to local data.
+      const canUseOfflineCatalog = !(error instanceof ApiError) || error.status >= 500;
+      const cached = canUseOfflineCatalog ? cachedCatalog(branchId) : null;
+      setProducts(cached ?? []);
       setCustomers([]);
-      setCatalogError(
-        error instanceof Error ? error.message : "Unable to load POS products.",
-      );
+      setLoyaltyRule(null);
+      if (canUseOfflineCatalog) setOffline(true);
+      setCatalogError(cached ? "Unable to reach the server. Using the last saved product catalog; stock and prices may have changed." : error instanceof Error ? error.message : "Unable to load POS products.");
     } finally {
       setLoadingProducts(false);
     }
-  }, [branchId]);
+  }, [branchId, isOffline, setOffline]);
   useEffect(() => {
     void load();
   }, [load]);
@@ -260,6 +288,9 @@ function LivePos() {
   }, [cart, isOffline, items]);
   async function checkout() {
     if (!branchId || !cart.length) return;
+    if (isOffline && (paymentMethod !== "CASH" || credit || customerId || loyaltyPointsToRedeem > 0)) {
+      return setMessage("Offline checkout is limited to walk-in cash sales. Reconnect for customer, credit, loyalty, or other payment methods.");
+    }
     if (paid < 0) return setMessage("Paid amount cannot be negative.");
     const redemptionValue = Math.min(
       quote.total,
@@ -338,7 +369,7 @@ function LivePos() {
       setQuote(emptyQuote);
       setLoyaltyPointsToRedeem(0);
       setPaymentMethod("CASH");
-      return setMessage("Sale stored locally for synchronization.");
+      return setMessage("Sale queued on this device. Stock and final totals will be confirmed when it synchronizes.");
     }
     try {
       const result = await apiPost<{
