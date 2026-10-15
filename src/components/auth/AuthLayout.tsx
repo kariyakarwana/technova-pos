@@ -10,28 +10,28 @@ interface AuthLayoutProps {
  */
 export function AuthLayout({ children }: AuthLayoutProps) {
   return (
-    <div className="min-h-screen lg:h-screen w-full bg-slate-100 flex items-center justify-center p-3 sm:p-4 lg:p-6 overflow-hidden">
-      <div className="max-w-5xl w-full max-h-[92vh] overflow-hidden rounded-3xl shadow-xl border border-slate-100 bg-white grid grid-cols-1 lg:grid-cols-2">
+    <div className="min-h-dvh w-full bg-slate-100 flex items-center justify-center p-3 sm:p-4 lg:h-dvh lg:p-6 lg:overflow-hidden">
+      <div className="max-w-5xl w-full overflow-hidden rounded-3xl shadow-xl border border-slate-100 bg-white grid grid-cols-1 lg:h-fit lg:max-h-[96dvh] lg:grid-cols-2">
 
         {/* ── Left column: logo + form + footer ── */}
-        <section className="flex flex-col p-6 sm:p-8 lg:px-10 lg:py-6">
-          <div className="flex justify-center pt-2 pb-2">
+        <section className="flex flex-col p-4 sm:p-6 lg:min-h-0 lg:px-10 lg:py-3">
+          <div className="mb-8 flex shrink-0 justify-center pt-1 pb-1 lg:mb-3">
             <Image
               src="/technova-logo.webp"
               alt="TechNova"
-              width={160}
-              height={51}
+              width={192}
+              height={61}
               priority
-              className="h-auto w-40 object-contain"
+              className="h-auto w-48 object-contain lg:w-40"
               style={{ height: "auto" }}
             />
           </div>
 
-          <div className="flex flex-1 items-center justify-center py-6">
-            <div className="w-full max-w-sm">{children}</div>
+          <div className="shrink-0">
+            <div className="w-full max-w-sm lg:mx-auto">{children}</div>
           </div>
 
-          <div className="pb-2 text-center">
+          <div className="shrink-0 pb-1 pt-1 text-center">
             <p className="text-xs text-slate-400">
               {new Date().getFullYear()} © TechNova. All Right Reserved
             </p>

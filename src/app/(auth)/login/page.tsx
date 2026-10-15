@@ -37,7 +37,7 @@ export default async function LoginPage() {
     <AuthLayout>
       <LoginForm />
 
-      <div className="my-5 flex items-center gap-3">
+      <div className="my-5 flex items-center gap-3 lg:my-3">
         <div className="h-px flex-1 bg-slate-200" />
 
         <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
@@ -47,12 +47,12 @@ export default async function LoginPage() {
         <div className="h-px flex-1 bg-slate-200" />
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-3 lg:space-y-2">
         <GoogleButton />
         <MicrosoftButton />
       </div>
 
-      <p className="mt-5 text-center text-xs leading-5 text-slate-400">
+      <p className="mt-5 py-3 text-center text-xs leading-5 text-slate-400 lg:mt-3 lg:leading-4">
         Access is limited to authorised TechNova employees and supplier contacts.
       </p>
     </AuthLayout>
