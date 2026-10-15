@@ -61,16 +61,16 @@ export function LoginForm() {
 
   return (
     <div>
-      <header className="mb-6">
+      <header className="mb-6 lg:mb-3">
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#0e9f90]">
           Welcome back
         </p>
 
-        <h1 className="mt-2 text-2xl font-bold tracking-tight text-slate-900 sm:text-[1.7rem]">
+        <h1 className="mt-2 text-2xl font-bold tracking-tight text-slate-900 sm:text-[1.7rem] lg:mt-1 lg:text-2xl">
           Sign in to your account
         </h1>
 
-        <p className="mt-2 text-sm leading-6 text-slate-500">
+        <p className="mt-2 text-sm leading-6 text-slate-500 lg:mt-1 lg:leading-5">
           Enter your credentials to
           access TechNova POS.
         </p>
@@ -89,7 +89,7 @@ export function LoginForm() {
 
       <form
         action={formAction}
-        className="space-y-4"
+        className="space-y-4 lg:space-y-2.5"
         noValidate
       >
         <div className="space-y-1.5">
@@ -133,7 +133,7 @@ export function LoginForm() {
                   ? "login-email-error"
                   : undefined
               }
-              className="h-11 rounded-lg border-slate-200 bg-white pl-10 pr-3.5 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:border-[#0e9f90] focus-visible:ring-[#0e9f90]/20"
+              className="h-11 rounded-lg border-slate-200 bg-white pl-10 pr-3.5 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:border-[#0e9f90] focus-visible:ring-[#0e9f90]/20 lg:h-10"
             />
           </div>
 
@@ -191,7 +191,7 @@ export function LoginForm() {
                   ? "login-password-error"
                   : undefined
               }
-              className="h-11 rounded-lg border-slate-200 bg-white pl-10 pr-11 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:border-[#0e9f90] focus-visible:ring-[#0e9f90]/20"
+              className="h-11 rounded-lg border-slate-200 bg-white pl-10 pr-11 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:border-[#0e9f90] focus-visible:ring-[#0e9f90]/20 lg:h-10"
             />
 
             <button
@@ -210,7 +210,7 @@ export function LoginForm() {
               aria-pressed={
                 showPassword
               }
-              className="absolute right-0 top-0 flex h-11 w-11 items-center justify-center rounded-r-lg text-slate-400 transition-colors hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#0e9f90] disabled:cursor-not-allowed disabled:opacity-50"
+              className="absolute right-0 top-0 flex h-11 w-11 items-center justify-center rounded-r-lg text-slate-400 transition-colors hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#0e9f90] disabled:cursor-not-allowed disabled:opacity-50 lg:h-10"
             >
               {showPassword ? (
                 <EyeOff
@@ -256,7 +256,7 @@ export function LoginForm() {
 
           <Link
             href="/forgot-password"
-            className="rounded-sm text-sm font-semibold text-[#0e9f90] transition-colors hover:text-[#0c877a] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0e9f90]/40"
+              className="rounded-sm text-sm font-semibold text-[#0e9f90] transition-colors hover:text-[#0c877a] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0e9f90]/40"
           >
             Forgot password?
           </Link>
@@ -265,7 +265,7 @@ export function LoginForm() {
         <AuthButton
           isLoading={isPending}
           loadingText="Signing in..."
-          className="mt-1"
+          className="mt-1 lg:h-10"
         >
           Sign in
         </AuthButton>
