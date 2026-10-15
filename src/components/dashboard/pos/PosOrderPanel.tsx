@@ -85,7 +85,7 @@ export function PosOrderPanel(props: Props) {
   return (
     <aside
       aria-label="Order and checkout summary"
-      className="h-full min-h-0 w-[410px] xl:w-[440px] shrink-0 bg-white border-l border-[#E6EAED] flex flex-col overflow-y-auto overscroll-contain [scrollbar-gutter:stable] text-[#212B36] select-none"
+      className="h-full min-h-0 w-[410px] xl:w-[440px] shrink-0 bg-white border-l border-[#E6EAED] flex flex-col overflow-x-hidden overflow-y-auto overscroll-contain [scrollbar-gutter:stable] text-[#212B36] select-none"
     >
       <div className="px-4 pt-3 pb-1 shrink-0">
         {props.isOffline && (
@@ -112,11 +112,11 @@ export function PosOrderPanel(props: Props) {
         </button>
       </div>
       <div className="px-4 py-2 space-y-2 shrink-0">
-        <div className="flex gap-2">
+        <div className="flex min-w-0 gap-2">
           <select
             value={props.customerId}
             onChange={(event) => props.onCustomerChange(event.target.value)}
-            className="flex-1 h-11 px-3 text-sm bg-white border border-[#D9E0E5] rounded-xl outline-none focus:border-[#0E9384]"
+            className="h-11 min-w-0 flex-1 rounded-xl border border-[#D9E0E5] bg-white px-3 text-sm outline-none focus:border-[#0E9384]"
           >
             <option value="">Walk-in Customer</option>
             {props.customers.map((item) => (
@@ -128,7 +128,7 @@ export function PosOrderPanel(props: Props) {
           <Link
             href="/customers"
             title="Add customer"
-            className="h-11 w-11 rounded-xl bg-[#0E9384] text-white flex items-center justify-center transition-colors hover:bg-[#0B6E63]"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#0E9384] text-white transition-colors hover:bg-[#0B6E63]"
           >
             <UserPlus className="h-5 w-5" />
           </Link>
@@ -177,7 +177,7 @@ export function PosOrderPanel(props: Props) {
           Items - {props.cartItems.length}
         </span>
       </div>
-      <div className="grid grid-cols-[1.2fr_64px_92px_70px_28px] px-4 py-2 text-[10px] font-semibold text-slate-400 border-b border-slate-100 shrink-0">
+      <div className="grid grid-cols-[minmax(0,1fr)_64px_92px_70px_28px] px-4 py-2 text-[10px] font-semibold text-slate-400 border-b border-slate-100 shrink-0">
         <span>Product</span>
         <span className="text-center">Price</span>
         <span className="text-center">QTY</span>
@@ -194,7 +194,7 @@ export function PosOrderPanel(props: Props) {
           props.cartItems.map((item) => (
             <div
               key={item.id}
-              className="grid grid-cols-[1.2fr_64px_92px_70px_28px] items-center py-2.5 text-xs"
+              className="grid grid-cols-[minmax(0,1fr)_64px_92px_70px_28px] items-center py-2.5 text-xs"
             >
               <div className="pr-1 min-w-0">
                 <p className="font-semibold truncate leading-tight">
