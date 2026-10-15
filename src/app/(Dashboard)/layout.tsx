@@ -37,7 +37,7 @@ export default async function DashboardLayout({
 
   return (
     <BranchProvider branches={branches}>
-      <OfflineProvider>
+      <OfflineProvider userId={user.id}>
         <DashboardShell
           permissions={user.permissions}
           roles={user.roles}

@@ -9,6 +9,7 @@ import { useOfflineMode } from "./OfflineContext";
 import { ProductCatalogGrid } from "./ProductCatalogGrid";
 import { PosHeader } from "./PosHeader";
 import { PosOrderPanel } from "./PosOrderPanel";
+import { enqueueOfflineSale } from "./offlineSales";
 import type { CartItem, Product } from "./pos.mock";
 
 type ApiProduct = {
@@ -56,6 +57,26 @@ const emptyQuote: Quote = {
   total: 0,
 };
 const catalogCacheKey = (branchId: string) => `technova_pos_catalog_${branchId}`;
+const customerCacheKey = (userId: string, branchId: string) => `technova_pos_customers_${userId}_${branchId}`;
+
+function cachedCustomers(userId: string, branchId: string): Customer[] {
+  try {
+    const raw = localStorage.getItem(customerCacheKey(userId, branchId));
+    if (!raw) return [];
+    const value = JSON.parse(raw) as { customers?: Array<Pick<Customer, "id" | "customerNumber" | "firstName" | "lastName">> };
+    return Array.isArray(value.customers)
+      ? value.customers.map((customer) => ({
+          ...customer,
+          creditLimit: 0,
+          currentBalance: 0,
+          storeCreditAccount: null,
+          loyaltyAccount: null,
+        }))
+      : [];
+  } catch {
+    return [];
+  }
+}
 
 function cachedCatalog(branchId: string): Product[] | null {
   try {
@@ -70,7 +91,7 @@ function cachedCatalog(branchId: string): Product[] | null {
 
 function LivePos() {
   const { branchId, branch } = useBranch();
-  const { isOffline, setOffline } = useOfflineMode();
+  const { isOffline, setOffline, userId } = useOfflineMode();
   const [products, setProducts] = useState<Product[]>([]),
     [customers, setCustomers] = useState<Customer[]>([]),
     [cart, setCart] = useState<CartItem[]>([]),
@@ -107,7 +128,9 @@ function LivePos() {
     if (isOffline) {
       const cached = cachedCatalog(branchId);
       setProducts(cached ?? []);
-      setCustomers([]);
+      const savedCustomers = cachedCustomers(userId, branchId);
+      setCustomers(savedCustomers);
+      setCustomerError(savedCustomers.length ? "Using saved customer names. Credit and loyalty are unavailable offline; inactive customers may be rejected at sync." : "No customer list is saved on this device. Reconnect and open POS once to prepare it.");
       setLoyaltyRule(null);
       setCatalogError(cached ? "Using the last saved product catalog. Stock and prices may have changed." : "No offline product catalog is saved for this branch. Reconnect and open POS once.");
       setLoadingProducts(false);
@@ -155,23 +178,40 @@ function LivePos() {
         // Storage can be unavailable or full; online POS remains usable.
       }
       setCustomers(Array.isArray(context.customers) ? context.customers : []);
+      try {
+        localStorage.setItem(customerCacheKey(userId, branchId), JSON.stringify({
+          savedAt: Date.now(),
+          customers: (Array.isArray(context.customers) ? context.customers : []).map(({ id, customerNumber, firstName, lastName }) => ({ id, customerNumber, firstName, lastName })),
+        }));
+      } catch {
+        // A full or unavailable device store must not prevent online sales.
+      }
       setLoyaltyRule(context.loyaltyRule ?? null);
     } catch (error) {
       // Authentication/permission failures must never fall back to local data.
       const canUseOfflineCatalog = !(error instanceof ApiError) || error.status >= 500;
       const cached = canUseOfflineCatalog ? cachedCatalog(branchId) : null;
       setProducts(cached ?? []);
-      setCustomers([]);
+      const savedCustomers = canUseOfflineCatalog ? cachedCustomers(userId, branchId) : [];
+      setCustomers(savedCustomers);
+      if (savedCustomers.length) setCustomerError("Using saved customer names. Credit and loyalty are unavailable offline; inactive customers may be rejected at sync.");
       setLoyaltyRule(null);
       if (canUseOfflineCatalog) setOffline(true);
       setCatalogError(cached ? "Unable to reach the server. Using the last saved product catalog; stock and prices may have changed." : error instanceof Error ? error.message : "Unable to load POS products.");
     } finally {
       setLoadingProducts(false);
     }
-  }, [branchId, isOffline, setOffline]);
+  }, [branchId, isOffline, setOffline, userId]);
   useEffect(() => {
     void load();
   }, [load]);
+  useEffect(() => {
+    if (!isOffline) return;
+    setPaymentMethod("CASH");
+    setCredit(false);
+    setDueDate("");
+    setLoyaltyPointsToRedeem(0);
+  }, [isOffline]);
   const categories = useMemo(
     () => [
       { id: "All", label: "All", icon: LayoutGrid },
@@ -288,8 +328,8 @@ function LivePos() {
   }, [cart, isOffline, items]);
   async function checkout() {
     if (!branchId || !cart.length) return;
-    if (isOffline && (paymentMethod !== "CASH" || credit || customerId || loyaltyPointsToRedeem > 0)) {
-      return setMessage("Offline checkout is limited to walk-in cash sales. Reconnect for customer, credit, loyalty, or other payment methods.");
+    if (isOffline && (paymentMethod !== "CASH" || credit || loyaltyPointsToRedeem > 0)) {
+      return setMessage("Offline checkout supports cash sales for walk-in or saved registered customers. Reconnect for credit, loyalty, or other payment methods.");
     }
     if (paid < 0) return setMessage("Paid amount cannot be negative.");
     const redemptionValue = Math.min(
@@ -312,6 +352,8 @@ function LivePos() {
     if (paymentMethod === "STORE_CREDIT" && !customerId)
       return setMessage("Select a registered customer to use store credit.");
     const selectedCustomer = customers.find((item) => item.id === customerId);
+    if (isOffline && customerId && !selectedCustomer)
+      return setMessage("The selected customer is not in the saved offline list. Reconnect and refresh POS.");
     if (loyaltyPointsToRedeem > 0 && !selectedCustomer)
       return setMessage("Select a registered customer to redeem loyalty points.");
     if (
@@ -355,21 +397,20 @@ function LivePos() {
         : undefined,
     };
     if (isOffline) {
-      const queue = JSON.parse(
-        localStorage.getItem("technova_pos_queue") ?? "[]",
-      ) as unknown[];
-      queue.push({
-        clientOperationId: crypto.randomUUID(),
-        operationType: "SALE_CREATE",
-        clientTimestamp: new Date().toISOString(),
-        payload,
-      });
-      localStorage.setItem("technova_pos_queue", JSON.stringify(queue));
+      try {
+        enqueueOfflineSale(userId, payload, {
+          customer: selectedCustomer ? `${selectedCustomer.customerNumber} · ${selectedCustomer.firstName} ${selectedCustomer.lastName ?? ""}`.trim() : "Walk-in Customer",
+          total: quote.total,
+          items: cart.length,
+        });
+      } catch (error) {
+        return setMessage(error instanceof Error ? error.message : "Could not save the sale on this device. Do not hand over the order yet.");
+      }
       setCart([]);
       setQuote(emptyQuote);
       setLoyaltyPointsToRedeem(0);
       setPaymentMethod("CASH");
-      return setMessage("Sale queued on this device. Stock and final totals will be confirmed when it synchronizes.");
+      return setMessage("Sale saved on this device. It will sync automatically after reconnecting; check Offline Sync for its final status.");
     }
     try {
       const result = await apiPost<{
