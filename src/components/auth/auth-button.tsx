@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -24,7 +24,7 @@ export function AuthButton({
       type="submit"
       disabled={disabled ?? isLoading}
       className={cn(
-        "h-11 w-full rounded-lg bg-[#0e9f90] text-sm font-medium tracking-wide text-white lg:h-10",
+        "h-9 w-full rounded-lg bg-[#0e9f90] text-xs font-medium tracking-wide text-white lg:h-9",
         "shadow-sm transition-colors",
         "hover:bg-[#0c877a] active:bg-[#0a7368]",
         "disabled:opacity-60",
