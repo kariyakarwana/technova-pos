@@ -188,7 +188,7 @@ export function LoginForm() {
         <AuthButton
           isLoading={isPending}
           loadingText="Signing in..."
-          className="mt-1 h-9 lg:h-9 w-full text-xs font-semibold"
+          className="mt-1 font-semibold"
         >
           Sign in
         </AuthButton>

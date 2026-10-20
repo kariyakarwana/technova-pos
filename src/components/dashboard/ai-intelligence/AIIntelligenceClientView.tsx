@@ -13,7 +13,6 @@ import {
   CheckCircle2,
   ChevronRight,
   CircleDollarSign,
-  Clock3,
   LoaderCircle,
   PackagePlus,
   RefreshCw,
