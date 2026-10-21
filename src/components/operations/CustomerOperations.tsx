@@ -183,10 +183,10 @@ export default function CustomerOperations() {
                   </td>
                   <td className="px-4 py-3">
                     <p>
-                      {Number(customer.currentBalance).toLocaleString()} due
+                      {Number(customer.currentBalance ?? 0).toLocaleString("en-LK", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} due
                     </p>
                     <p className="text-xs text-slate-500">
-                      Limit {Number(customer.creditLimit).toLocaleString()}
+                      Limit {Number(customer.creditLimit ?? 0).toLocaleString("en-LK", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </p>
                   </td>
                   <td className="px-4 py-3">
