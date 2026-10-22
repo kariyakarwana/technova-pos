@@ -43,7 +43,9 @@ export default async function DashboardLayout({
           roles={user.roles}
           userEmail={user.email}
           organizationName={organization?.name}
-          logoUrl={`/api/backend/organization/logo/content?v=${encodeURIComponent(organization?.branding?.updatedAt ?? "current")}`}
+          logoUrl={organization?.branding?.logoUrl
+            ? `/api/backend/organization/logo/content?v=${encodeURIComponent(organization.branding.updatedAt)}`
+            : null}
           offlineBanner={<OfflineBannerController />}
         >
           {children}
