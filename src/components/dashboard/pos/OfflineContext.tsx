@@ -98,8 +98,9 @@ export function OfflineProvider({ children, userId }: { children: React.ReactNod
     if (typeof window !== "undefined") {
       window.addEventListener("online", handleOnline);
       window.addEventListener("offline", handleOffline);
-      if (navigator.onLine) handleOnline();
-      const timer = window.setInterval(handleOnline, 15000);
+      if (navigator.onLine && !isOffline) handleOnline();
+      // Detect a new outage promptly, then avoid spamming failed health checks.
+      const timer = window.setInterval(handleOnline, isOffline ? 60000 : 15000);
 
       return () => {
         window.clearInterval(timer);
@@ -107,7 +108,7 @@ export function OfflineProvider({ children, userId }: { children: React.ReactNod
         window.removeEventListener("offline", handleOffline);
       };
     }
-  }, []);
+  }, [isOffline]);
 
   const toggleOffline = useCallback(() => {
     setIsOffline((prev) => !prev);
