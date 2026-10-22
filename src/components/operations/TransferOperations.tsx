@@ -129,13 +129,16 @@ export default function TransferOperations() {
               const product = products.find((item) => item.id === line.productId);
               const available = product ? availableStock(product) : 0;
               const exceedsStock = Boolean(product && line.quantity > available);
-              return <div key={index} className="grid grid-cols-[minmax(0,1fr)_120px_36px] gap-2 rounded-xl border p-3">
-                <Select value={line.productId || "none"} onValueChange={(val) => setLines((current) => current.map((item, position) => position === index ? { ...item, productId: val === "none" ? "" : val } : item))}>
-                  <SelectTrigger className="h-10 data-[size=default]:h-10 rounded-lg border bg-white px-3 text-sm"><SelectValue placeholder="Select product" /></SelectTrigger>
-                  <SelectContent className="z-50 max-h-72"><SelectItem value="none">Select product</SelectItem>{products.map((item) => <SelectItem key={item.id} value={item.id}>{item.sku} · {item.name}</SelectItem>)}</SelectContent>
-                </Select>
+              return <div key={index} className="grid grid-cols-[minmax(0,1fr)_120px_36px] items-end gap-2 rounded-xl border p-3">
+                <div className="min-w-0">
+                  <span className="block text-xs font-semibold leading-5 text-slate-700">Product</span>
+                  <Select value={line.productId || "none"} onValueChange={(val) => setLines((current) => current.map((item, position) => position === index ? { ...item, productId: val === "none" ? "" : val } : item))}>
+                    <SelectTrigger aria-label="Product" className="mt-1 h-10 data-[size=default]:h-10 w-full min-w-0 rounded-lg border bg-white px-3 text-sm"><SelectValue placeholder="Select product" /></SelectTrigger>
+                    <SelectContent className="z-50 max-h-72"><SelectItem value="none">Select product</SelectItem>{products.map((item) => <SelectItem key={item.id} value={item.id}>{item.sku} · {item.name}</SelectItem>)}</SelectContent>
+                  </Select>
+                </div>
                 <label className="block text-xs font-semibold leading-5 text-slate-700">Quantity
-                  <input required type="number" min="0.001" max={product ? available : undefined} step="0.001" value={line.quantity} onChange={(event) => setLines((current) => current.map((item, position) => position === index ? { ...item, quantity: Number(event.target.value) } : item))} aria-invalid={exceedsStock} className="mt-1 h-10 w-full rounded-lg border px-2 text-sm" />
+                  <input required type="number" min="1" max={product ? Math.floor(available) : undefined} step="1" value={line.quantity} onChange={(event) => setLines((current) => current.map((item, position) => position === index ? { ...item, quantity: Number(event.target.value) } : item))} aria-invalid={exceedsStock || !Number.isInteger(line.quantity)} className="mt-1 h-10 w-full rounded-lg border px-2 text-sm" />
                 </label>
                 <button type="button" aria-label="Remove item" disabled={lines.length === 1} onClick={() => setLines((current) => current.filter((_, position) => position !== index))} className="self-end py-3 text-rose-600 disabled:opacity-30"><Trash2 className="h-4 w-4" /></button>
                 {product && <p className={`col-span-3 text-xs ${exceedsStock ? "text-rose-700" : "text-slate-500"}`}>{exceedsStock ? "Quantity cannot exceed available stock at source. " : ""}Available at source: {available}{product.trackSerials ? " · serial numbers will be selected during dispatch" : ""}</p>}

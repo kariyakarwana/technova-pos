@@ -29,6 +29,9 @@ export function validateTransferLines(
     if (!Number.isFinite(line.quantity) || line.quantity <= 0) {
       return "Enter a quantity greater than zero for every item.";
     }
+    if (!Number.isInteger(line.quantity)) {
+      return "Transfer quantities must be whole numbers.";
+    }
     const product = products.find((item) => item.id === line.productId);
     if (!product) return "The selected product is no longer available.";
     if (line.quantity > availableStock(product)) {

@@ -31,6 +31,12 @@ describe("stock transfer validation", () => {
     ).toBeNull();
   });
 
+  it("rejects fractional transfer quantities", () => {
+    expect(
+      validateTransferLines([{ productId: "product-1", quantity: 1.5 }], [product]),
+    ).toMatch(/whole numbers/);
+  });
+
   it("rejects empty selections and duplicate products", () => {
     expect(validateTransferLines([{ productId: "", quantity: 1 }], [product])).toMatch(/Select/);
     expect(
