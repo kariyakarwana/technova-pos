@@ -5,13 +5,19 @@ import Image from "next/image";
 import {
   ArrowUpDown,
   Calendar,
-  ChevronDown,
   ChevronLeft,
   ChevronRight,
   FileSpreadsheet,
   FileText,
   Printer,
 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { salesReportMockData } from "./sales.mock";
 
 type SortField = "sku" | "name" | "brand" | "category" | "soldQty" | "soldAmount" | "instockQty";
@@ -91,18 +97,35 @@ export default function SalesClientView() {
           <label className="text-xs font-medium text-[#1D2939]">
             Branch
           </label>
-          <div className="relative">
-            <select
-              value={selectedBranch}
-              onChange={(e) => setSelectedBranch(e.target.value)}
-              className="w-full h-10 pl-3 pr-8 text-xs bg-white border border-[#E4E7EC] rounded-lg text-[#1D2939] appearance-none focus:outline-none focus:border-[#0E9384] cursor-pointer shadow-xs"
+          <Select value={selectedBranch} onValueChange={setSelectedBranch}>
+            <SelectTrigger className="w-full h-10 data-[size=default]:h-10 rounded-lg border border-[#E4E7EC] bg-white px-3 text-xs text-[#1D2939] shadow-xs focus-visible:border-[#0E9384] focus-visible:ring-0 cursor-pointer">
+              <SelectValue placeholder="Branch" />
+            </SelectTrigger>
+            <SelectContent
+              position="popper"
+              sideOffset={4}
+              className="w-[var(--radix-select-trigger-width)] min-w-[var(--radix-select-trigger-width)] rounded-xl border border-slate-200 bg-white p-1 shadow-lg ring-0"
             >
-              <option>Branch 1</option>
-              <option>Branch 2</option>
-              <option>Branch 3</option>
-            </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
-          </div>
+              <SelectItem
+                value="Branch 1"
+                className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+              >
+                Branch 1
+              </SelectItem>
+              <SelectItem
+                value="Branch 2"
+                className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+              >
+                Branch 2
+              </SelectItem>
+              <SelectItem
+                value="Branch 3"
+                className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+              >
+                Branch 3
+              </SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Products */}
@@ -110,22 +133,62 @@ export default function SalesClientView() {
           <label className="text-xs font-medium text-[#1D2939]">
             Products
           </label>
-          <div className="relative">
-            <select
-              value={selectedProductCategory}
-              onChange={(e) => setSelectedProductCategory(e.target.value)}
-              className="w-full h-10 pl-3 pr-8 text-xs bg-white border border-[#E4E7EC] rounded-lg text-[#1D2939] appearance-none focus:outline-none focus:border-[#0E9384] cursor-pointer shadow-xs"
+          <Select
+            value={selectedProductCategory}
+            onValueChange={setSelectedProductCategory}
+          >
+            <SelectTrigger className="w-full h-10 data-[size=default]:h-10 rounded-lg border border-[#E4E7EC] bg-white px-3 text-xs text-[#1D2939] shadow-xs focus-visible:border-[#0E9384] focus-visible:ring-0 cursor-pointer">
+              <SelectValue placeholder="Products" />
+            </SelectTrigger>
+            <SelectContent
+              position="popper"
+              sideOffset={4}
+              className="w-[var(--radix-select-trigger-width)] min-w-[var(--radix-select-trigger-width)] rounded-xl border border-slate-200 bg-white p-1 shadow-lg ring-0"
             >
-              <option value="All">All</option>
-              <option value="Computers">Computers</option>
-              <option value="Electronics">Electronics</option>
-              <option value="Shoe">Shoe</option>
-              <option value="Furniture">Furniture</option>
-              <option value="Bags">Bags</option>
-              <option value="Phone">Phone</option>
-            </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
-          </div>
+              <SelectItem
+                value="All"
+                className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+              >
+                All
+              </SelectItem>
+              <SelectItem
+                value="Computers"
+                className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+              >
+                Computers
+              </SelectItem>
+              <SelectItem
+                value="Electronics"
+                className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+              >
+                Electronics
+              </SelectItem>
+              <SelectItem
+                value="Shoe"
+                className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+              >
+                Shoe
+              </SelectItem>
+              <SelectItem
+                value="Furniture"
+                className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+              >
+                Furniture
+              </SelectItem>
+              <SelectItem
+                value="Bags"
+                className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+              >
+                Bags
+              </SelectItem>
+              <SelectItem
+                value="Phone"
+                className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+              >
+                Phone
+              </SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Generate Report Button */}
@@ -296,18 +359,38 @@ export default function SalesClientView() {
           {/* Left: Row Per Page */}
           <div className="flex items-center gap-2">
             <span>Row Per Page</span>
-            <div className="relative">
-              <select
-                value={rowsPerPage}
-                onChange={(e) => setRowsPerPage(Number(e.target.value))}
-                className="h-7 pl-2 pr-6 border border-[#E4E7EC] rounded-md bg-white text-xs text-[#1D2939] appearance-none focus:outline-none focus:border-[#0E9384] cursor-pointer"
+            <Select
+              value={String(rowsPerPage)}
+              onValueChange={(v) => setRowsPerPage(Number(v))}
+            >
+              <SelectTrigger className="h-7 data-[size=default]:h-7 w-16 rounded-md border border-[#E4E7EC] bg-white px-2 text-xs text-[#1D2939] shadow-xs focus-visible:border-[#0E9384] focus-visible:ring-0 cursor-pointer">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent
+                position="popper"
+                sideOffset={4}
+                className="w-16 min-w-[4rem] rounded-lg border border-slate-200 bg-white p-1 shadow-lg ring-0"
               >
-                <option value={10}>10</option>
-                <option value={20}>20</option>
-                <option value={50}>50</option>
-              </select>
-              <ChevronDown className="absolute right-1.5 top-1/2 -translate-y-1/2 h-3 w-3 text-slate-400 pointer-events-none" />
-            </div>
+                <SelectItem
+                  value="10"
+                  className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+                >
+                  10
+                </SelectItem>
+                <SelectItem
+                  value="20"
+                  className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+                >
+                  20
+                </SelectItem>
+                <SelectItem
+                  value="50"
+                  className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+                >
+                  50
+                </SelectItem>
+              </SelectContent>
+            </Select>
             <span>Entries</span>
           </div>
 

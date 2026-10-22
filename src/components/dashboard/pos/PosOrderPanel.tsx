@@ -14,6 +14,13 @@ import {
   Wallet,
 } from "lucide-react";
 import type { CartItem } from "./pos.mock";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type Customer = {
   id: string;
@@ -113,18 +120,37 @@ export function PosOrderPanel(props: Props) {
       </div>
       <div className="px-4 py-2 space-y-2 shrink-0">
         <div className="flex min-w-0 gap-2">
-          <select
-            value={props.customerId}
-            onChange={(event) => props.onCustomerChange(event.target.value)}
-            className="h-11 min-w-0 flex-1 rounded-xl border border-[#D9E0E5] bg-white px-3 text-sm outline-none focus:border-[#0E9384]"
+          <Select
+            value={props.customerId || "walk-in"}
+            onValueChange={(val) =>
+              props.onCustomerChange(val === "walk-in" ? "" : val)
+            }
           >
-            <option value="">Walk-in Customer</option>
-            {props.customers.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.customerNumber} · {item.firstName} {item.lastName}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger className="h-11 data-[size=default]:h-11 min-w-0 flex-1 rounded-xl border border-[#D9E0E5] bg-white px-3 text-sm text-[#212B36] shadow-none focus-visible:border-[#0E9384] focus-visible:ring-0 cursor-pointer">
+              <SelectValue placeholder="Walk-in Customer" />
+            </SelectTrigger>
+            <SelectContent
+              position="popper"
+              sideOffset={4}
+              className="w-[var(--radix-select-trigger-width)] min-w-[var(--radix-select-trigger-width)] max-h-72 rounded-xl border border-slate-200 bg-white p-1 shadow-lg ring-0"
+            >
+              <SelectItem
+                value="walk-in"
+                className="cursor-pointer text-sm text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+              >
+                Walk-in Customer
+              </SelectItem>
+              {props.customers.map((item) => (
+                <SelectItem
+                  key={item.id}
+                  value={item.id}
+                  className="cursor-pointer text-sm text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+                >
+                  {item.customerNumber} · {item.firstName} {item.lastName ?? ""}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <Link
             href="/customers"
             title="Add customer"

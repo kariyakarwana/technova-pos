@@ -2,6 +2,13 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { Plus, Search } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { apiGet, apiPatch, apiPost } from "@/lib/api/client";
 import PaginationControls, { type PageMeta } from "./PaginationControls";
 type Customer = {
@@ -150,7 +157,38 @@ export default function CustomerOperations() {
             className="h-10 w-full rounded-xl border pl-10 pr-3 text-sm"
           />
           </div>
-          <select value={status} onChange={(event) => setStatus(event.target.value)} className="h-10 rounded-xl border px-3 text-sm"><option value="">All statuses</option><option value="ACTIVE">Active</option><option value="INACTIVE">Inactive</option></select>
+          <Select
+            value={status || "all"}
+            onValueChange={(v) => setStatus(v === "all" ? "" : v)}
+          >
+            <SelectTrigger className="h-10 data-[size=default]:h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-normal text-slate-700 shadow-none focus-visible:border-[#0E9384] focus-visible:ring-0 cursor-pointer">
+              <SelectValue placeholder="All statuses" />
+            </SelectTrigger>
+            <SelectContent
+              position="popper"
+              sideOffset={4}
+              className="w-[var(--radix-select-trigger-width)] min-w-[var(--radix-select-trigger-width)] rounded-xl border border-slate-200 bg-white p-1 shadow-lg ring-0"
+            >
+              <SelectItem
+                value="all"
+                className="cursor-pointer text-sm text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+              >
+                All statuses
+              </SelectItem>
+              <SelectItem
+                value="ACTIVE"
+                className="cursor-pointer text-sm text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+              >
+                Active
+              </SelectItem>
+              <SelectItem
+                value="INACTIVE"
+                className="cursor-pointer text-sm text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+              >
+                Inactive
+              </SelectItem>
+            </SelectContent>
+          </Select>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">

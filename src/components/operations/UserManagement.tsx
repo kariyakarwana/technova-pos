@@ -2,6 +2,13 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Mail, MessageCircle, Search, UserPlus } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { apiDelete, apiGet, apiPatch, apiPost } from "@/lib/api/client";
 import PaginationControls, { type PageMeta } from "./PaginationControls";
 
@@ -118,9 +125,111 @@ export default function UserManagement() {
           <div className="mb-3 flex items-center justify-between"><h2 className="font-bold">Staff accounts ({meta.total})</h2><button type="button" onClick={() => { setSearch(""); setBranchFilter(""); setRoleFilter(""); setStatusFilter(""); }} className="text-sm font-semibold text-[#0E9384]">Clear filters</button></div>
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <label className="relative"><Search className="absolute left-3 top-3 h-4 w-4 text-slate-400"/><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search name, email or phone" className="h-10 w-full rounded-xl border pl-9 pr-3 text-sm"/></label>
-            <select aria-label="Filter by branch" value={branchFilter} onChange={(event) => setBranchFilter(event.target.value)} className="h-10 rounded-xl border px-3 text-sm"><option value="">All branches</option>{branches.map((branch) => <option key={branch.id} value={branch.id}>{branch.name}</option>)}</select>
-            <select aria-label="Filter by role" value={roleFilter} onChange={(event) => setRoleFilter(event.target.value)} className="h-10 rounded-xl border px-3 text-sm"><option value="">All roles</option>{roles.map((role) => <option key={role.id} value={role.id}>{role.name.replaceAll("_", " ")}</option>)}</select>
-            <select aria-label="Filter by state" value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} className="h-10 rounded-xl border px-3 text-sm"><option value="">All states</option><option value="ACTIVE">Active</option><option value="INACTIVE">Inactive</option><option value="SUSPENDED">Suspended</option></select>
+            <Select
+              value={branchFilter || "all"}
+              onValueChange={(v) => setBranchFilter(v === "all" ? "" : v)}
+            >
+              <SelectTrigger
+                aria-label="Filter by branch"
+                className="h-10 data-[size=default]:h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-normal text-slate-700 shadow-none focus-visible:border-[#0E9384] focus-visible:ring-0 cursor-pointer"
+              >
+                <SelectValue placeholder="All branches" />
+              </SelectTrigger>
+              <SelectContent
+                position="popper"
+                sideOffset={4}
+                className="w-[var(--radix-select-trigger-width)] min-w-[var(--radix-select-trigger-width)] max-h-72 rounded-xl border border-slate-200 bg-white p-1 shadow-lg ring-0"
+              >
+                <SelectItem
+                  value="all"
+                  className="cursor-pointer text-sm text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+                >
+                  All branches
+                </SelectItem>
+                {branches.map((branch) => (
+                  <SelectItem
+                    key={branch.id}
+                    value={branch.id}
+                    className="cursor-pointer text-sm text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+                  >
+                    {branch.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select
+              value={roleFilter || "all"}
+              onValueChange={(v) => setRoleFilter(v === "all" ? "" : v)}
+            >
+              <SelectTrigger
+                aria-label="Filter by role"
+                className="h-10 data-[size=default]:h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-normal text-slate-700 shadow-none focus-visible:border-[#0E9384] focus-visible:ring-0 cursor-pointer"
+              >
+                <SelectValue placeholder="All roles" />
+              </SelectTrigger>
+              <SelectContent
+                position="popper"
+                sideOffset={4}
+                className="w-[var(--radix-select-trigger-width)] min-w-[var(--radix-select-trigger-width)] max-h-72 rounded-xl border border-slate-200 bg-white p-1 shadow-lg ring-0"
+              >
+                <SelectItem
+                  value="all"
+                  className="cursor-pointer text-sm text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+                >
+                  All roles
+                </SelectItem>
+                {roles.map((role) => (
+                  <SelectItem
+                    key={role.id}
+                    value={role.id}
+                    className="cursor-pointer text-sm text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+                  >
+                    {role.name.replaceAll("_", " ")}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select
+              value={statusFilter || "all"}
+              onValueChange={(v) => setStatusFilter(v === "all" ? "" : v)}
+            >
+              <SelectTrigger
+                aria-label="Filter by state"
+                className="h-10 data-[size=default]:h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-normal text-slate-700 shadow-none focus-visible:border-[#0E9384] focus-visible:ring-0 cursor-pointer"
+              >
+                <SelectValue placeholder="All states" />
+              </SelectTrigger>
+              <SelectContent
+                position="popper"
+                sideOffset={4}
+                className="w-[var(--radix-select-trigger-width)] min-w-[var(--radix-select-trigger-width)] max-h-72 rounded-xl border border-slate-200 bg-white p-1 shadow-lg ring-0"
+              >
+                <SelectItem
+                  value="all"
+                  className="cursor-pointer text-sm text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+                >
+                  All states
+                </SelectItem>
+                <SelectItem
+                  value="ACTIVE"
+                  className="cursor-pointer text-sm text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+                >
+                  Active
+                </SelectItem>
+                <SelectItem
+                  value="INACTIVE"
+                  className="cursor-pointer text-sm text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+                >
+                  Inactive
+                </SelectItem>
+                <SelectItem
+                  value="SUSPENDED"
+                  className="cursor-pointer text-sm text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+                >
+                  Suspended
+                </SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
         <div className="overflow-x-auto"><table className="w-full text-left text-sm"><thead className="bg-slate-50 text-xs uppercase text-slate-500"><tr><th className="p-4">Employee</th><th className="p-4">Roles</th><th className="p-4">Branches</th><th className="p-4">Status</th><th className="p-4">Last login</th><th className="p-4">Actions</th></tr></thead><tbody>{users.map((user) => <tr key={user.id} className="border-t hover:bg-teal-50/30"><td className="p-4"><p className="font-semibold">{user.name || "Unnamed employee"}</p><p className="text-xs text-slate-500">{user.email}</p><p className="text-xs text-slate-500">{user.phone || "No phone number"}</p></td><td className="p-4">{user.roles.map(({ role }) => role.name.replaceAll("_", " ")).join(", ") || "—"}</td><td className="p-4">{user.branchAssignments.map(({ branch, isDefault }) => `${branch.code}${isDefault ? " ★" : ""}`).join(", ") || "—"}</td><td className="p-4"><span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${user.status === "ACTIVE" ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-600"}`}>{user.status}</span></td><td className="p-4 text-xs">{user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleString() : "Never"}</td><td className="p-4"><div className="flex flex-wrap gap-2"><button onClick={() => edit(user)} className="font-semibold text-[#0E9384]">Manage</button><button onClick={() => void changeState(user)} className={`font-semibold ${user.status === "ACTIVE" ? "text-amber-600" : "text-emerald-600"}`}>{user.status === "ACTIVE" ? "Deactivate" : "Activate"}</button><button onClick={() => void remove(user)} className="font-semibold text-rose-600">Delete</button></div></td></tr>)}</tbody></table>{!users.length && <p className="p-8 text-center text-sm text-slate-500">No employees match these filters.</p>}</div>

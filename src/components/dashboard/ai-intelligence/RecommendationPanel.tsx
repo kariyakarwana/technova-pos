@@ -15,6 +15,13 @@ import {
   Sparkles,
   Users,
 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { apiGetRecommendations } from "@/lib/api/client";
 import type {
   AIOverview,
@@ -340,19 +347,43 @@ export default function RecommendationPanel({
                     className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-xs font-medium text-slate-800 outline-none focus:border-[#025148]"
                   />
                   {overview?.products && overview.products.length > 0 && (
-                    <select
-                      value={productId}
-                      onChange={(e) => setProductId(e.target.value)}
-                      className="h-10 rounded-xl border border-slate-200 bg-white px-2 text-xs text-slate-700 outline-none focus:border-[#025148]"
-                      title="Select Product from Catalog"
+                    <Select
+                      value={
+                        overview.products.some((p) => (p.sku || p.id) === productId)
+                          ? productId
+                          : "none"
+                      }
+                      onValueChange={(v) => setProductId(v === "none" ? "" : v)}
                     >
-                      <option value="">Select a product...</option>
-                      {overview.products.map((p) => (
-                        <option key={p.id} value={p.sku || p.id}>
-                          {p.sku} — {p.name}
-                        </option>
-                      ))}
-                    </select>
+                      <SelectTrigger
+                        className="h-10 data-[size=default]:h-10 w-60 sm:w-72 shrink-0 min-w-0 rounded-xl border border-slate-200 bg-white px-3 text-xs font-normal text-slate-800 shadow-none focus-visible:border-[#025148] focus-visible:ring-0 cursor-pointer"
+                        title="Select Product from Catalog"
+                      >
+                        <SelectValue placeholder="Select a product..." className="truncate min-w-0" />
+                      </SelectTrigger>
+                      <SelectContent
+                        className="w-[var(--radix-select-trigger-width)] min-w-[var(--radix-select-trigger-width)] max-h-72 rounded-xl border border-slate-200 bg-white p-1 shadow-lg ring-0"
+                      >
+                        <SelectItem
+                          value="none"
+                          className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+                        >
+                          Select a product...
+                        </SelectItem>
+                        {overview.products.map((p) => {
+                          const val = p.sku || p.id;
+                          return (
+                            <SelectItem
+                              key={p.id}
+                              value={val}
+                              className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+                            >
+                              {p.sku} — {p.name}
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
                   )}
                 </div>
               </label>
@@ -423,31 +454,62 @@ export default function RecommendationPanel({
             {/* Branch Selector (applicable to all contexts) */}
             <label className="grid gap-1 text-[11px] font-semibold text-slate-600 min-w-40">
               Branch Scope
-              <select
-                value={branchId}
-                onChange={(e) => setBranchId(e.target.value)}
-                className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-xs text-slate-800 outline-none focus:border-[#025148]"
+              <Select
+                value={branchId || "all"}
+                onValueChange={(v) => setBranchId(v === "all" ? "" : v)}
               >
-                <option value="">All Branches</option>
-                {overview?.branches?.map((b) => (
-                  <option key={b.id} value={b.id}>
-                    {b.name} ({b.code})
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger className="h-10 data-[size=default]:h-10 w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3 text-xs font-normal text-slate-800 shadow-none focus-visible:border-[#025148] focus-visible:ring-0 cursor-pointer">
+                  <SelectValue placeholder="All Branches" className="truncate min-w-0" />
+                </SelectTrigger>
+                <SelectContent
+                  className="w-[var(--radix-select-trigger-width)] min-w-[var(--radix-select-trigger-width)] max-h-72 rounded-xl border border-slate-200 bg-white p-1 shadow-lg ring-0"
+                >
+                  <SelectItem
+                    value="all"
+                    className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+                  >
+                    All Branches
+                  </SelectItem>
+                  {overview?.branches?.map((b) => (
+                    <SelectItem
+                      key={b.id}
+                      value={b.id}
+                      className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+                    >
+                      {b.name} ({b.code})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </label>
 
             {/* Top N Selector */}
             <label className="grid gap-1 text-[11px] font-semibold text-slate-600 w-24">
               Return Count
-              <select
-                value={topN}
-                onChange={(e) => setTopN(Number(e.target.value))}
-                className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-xs text-slate-800 outline-none focus:border-[#025148]"
+              <Select
+                value={String(topN)}
+                onValueChange={(v) => setTopN(Number(v))}
               >
-                <option value={5}>Top 5</option>
-                <option value={10}>Top 10</option>
-              </select>
+                <SelectTrigger className="h-10 data-[size=default]:h-10 w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3 text-xs font-normal text-slate-800 shadow-none focus-visible:border-[#025148] focus-visible:ring-0 cursor-pointer">
+                  <SelectValue placeholder="Return Count" />
+                </SelectTrigger>
+                <SelectContent
+                  className="w-[var(--radix-select-trigger-width)] min-w-[var(--radix-select-trigger-width)] rounded-xl border border-slate-200 bg-white p-1 shadow-lg ring-0"
+                >
+                  <SelectItem
+                    value="5"
+                    className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+                  >
+                    Top 5
+                  </SelectItem>
+                  <SelectItem
+                    value="10"
+                    className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+                  >
+                    Top 10
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </label>
 
             {/* Include Substitutes Toggle */}
