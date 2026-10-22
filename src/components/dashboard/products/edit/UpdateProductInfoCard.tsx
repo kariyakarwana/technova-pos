@@ -12,6 +12,13 @@ import {
   Italic,
   List,
 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface UpdateProductInfoCardProps {
   productName: string;
@@ -73,32 +80,30 @@ export default function UpdateProductInfoCard({
               <label className="block text-xs font-semibold text-[var(--brand-black-font)] mb-1.5">
                 Store <span className="text-[var(--brand-red)] ml-0.5">*</span>
               </label>
-              <div className="relative">
-                <select
-                  defaultValue="Store A"
-                  className="w-full h-10 rounded-xl border border-[var(--brand-stroke)] px-3 pr-8 text-xs text-[var(--brand-black-font)] bg-white focus:outline-none focus:border-[var(--brand-green)] appearance-none cursor-pointer"
-                >
-                  <option value="Store A">Store A</option>
-                  <option value="Store B">Store B</option>
-                </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
-              </div>
+              <Select defaultValue="Store A">
+                <SelectTrigger className="w-full h-10 data-[size=default]:h-10 rounded-xl border border-[var(--brand-stroke)] px-3 text-xs text-[var(--brand-black-font)] bg-white focus:border-[var(--brand-green)] cursor-pointer">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="max-h-72">
+                  <SelectItem value="Store A" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">Store A</SelectItem>
+                  <SelectItem value="Store B" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">Store B</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-[var(--brand-black-font)] mb-1.5">
                 Warehouse <span className="text-[var(--brand-red)] ml-0.5">*</span>
               </label>
-              <div className="relative">
-                <select
-                  defaultValue="Main Warehouse"
-                  className="w-full h-10 rounded-xl border border-[var(--brand-stroke)] px-3 pr-8 text-xs text-[var(--brand-black-font)] bg-white focus:outline-none focus:border-[var(--brand-green)] appearance-none cursor-pointer"
-                >
-                  <option value="Main Warehouse">Main Warehouse</option>
-                  <option value="Secondary Warehouse">Secondary Warehouse</option>
-                </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
-              </div>
+              <Select defaultValue="Main Warehouse">
+                <SelectTrigger className="w-full h-10 data-[size=default]:h-10 rounded-xl border border-[var(--brand-stroke)] px-3 text-xs text-[var(--brand-black-font)] bg-white focus:border-[var(--brand-green)] cursor-pointer">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="max-h-72">
+                  <SelectItem value="Main Warehouse" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">Main Warehouse</SelectItem>
+                  <SelectItem value="Secondary Warehouse" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">Secondary Warehouse</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
@@ -159,16 +164,15 @@ export default function UpdateProductInfoCard({
               <label className="block text-xs font-semibold text-[var(--brand-black-font)] mb-1.5">
                 Selling Type <span className="text-[var(--brand-red)] ml-0.5">*</span>
               </label>
-              <div className="relative">
-                <select
-                  defaultValue="Retail"
-                  className="w-full h-10 rounded-xl border border-[var(--brand-stroke)] px-3 pr-8 text-xs text-[var(--brand-black-font)] bg-white focus:outline-none focus:border-[var(--brand-green)] appearance-none cursor-pointer"
-                >
-                  <option value="Retail">Retail</option>
-                  <option value="Wholesale">Wholesale</option>
-                </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
-              </div>
+              <Select defaultValue="Retail">
+                <SelectTrigger className="w-full h-10 data-[size=default]:h-10 rounded-xl border border-[var(--brand-stroke)] px-3 text-xs text-[var(--brand-black-font)] bg-white focus:border-[var(--brand-green)] cursor-pointer">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="max-h-72">
+                  <SelectItem value="Retail" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">Retail</SelectItem>
+                  <SelectItem value="Wholesale" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">Wholesale</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
@@ -186,33 +190,31 @@ export default function UpdateProductInfoCard({
                   <span className="text-sm leading-none">⊕</span> Add New
                 </Link>
               </div>
-              <div className="relative">
-                <select
-                  defaultValue="Computers"
-                  className="w-full h-10 rounded-xl border border-[var(--brand-stroke)] px-3 pr-8 text-xs text-[var(--brand-black-font)] bg-white focus:outline-none focus:border-[var(--brand-green)] appearance-none cursor-pointer"
-                >
-                  <option value="Computers">Computers</option>
-                  <option value="Electronics">Electronics</option>
-                  <option value="Shoe">Shoe</option>
-                </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
-              </div>
+              <Select defaultValue="Computers">
+                <SelectTrigger className="w-full h-10 data-[size=default]:h-10 rounded-xl border border-[var(--brand-stroke)] px-3 text-xs text-[var(--brand-black-font)] bg-white focus:border-[var(--brand-green)] cursor-pointer">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="max-h-72">
+                  <SelectItem value="Computers" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">Computers</SelectItem>
+                  <SelectItem value="Electronics" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">Electronics</SelectItem>
+                  <SelectItem value="Shoe" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">Shoe</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-[var(--brand-black-font)] mb-1.5">
                 Sub Category <span className="text-[var(--brand-red)] ml-0.5">*</span>
               </label>
-              <div className="relative">
-                <select
-                  defaultValue="Laptops"
-                  className="w-full h-10 rounded-xl border border-[var(--brand-stroke)] px-3 pr-8 text-xs text-[var(--brand-black-font)] bg-white focus:outline-none focus:border-[var(--brand-green)] appearance-none cursor-pointer"
-                >
-                  <option value="Laptops">Laptops</option>
-                  <option value="Accessories">Accessories</option>
-                </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
-              </div>
+              <Select defaultValue="Laptops">
+                <SelectTrigger className="w-full h-10 data-[size=default]:h-10 rounded-xl border border-[var(--brand-stroke)] px-3 text-xs text-[var(--brand-black-font)] bg-white focus:border-[var(--brand-green)] cursor-pointer">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="max-h-72">
+                  <SelectItem value="Laptops" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">Laptops</SelectItem>
+                  <SelectItem value="Accessories" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">Accessories</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
@@ -222,34 +224,32 @@ export default function UpdateProductInfoCard({
               <label className="block text-xs font-semibold text-[var(--brand-black-font)] mb-1.5">
                 Brand <span className="text-[var(--brand-red)] ml-0.5">*</span>
               </label>
-              <div className="relative">
-                <select
-                  defaultValue="Lenovo"
-                  className="w-full h-10 rounded-xl border border-[var(--brand-stroke)] px-3 pr-8 text-xs text-[var(--brand-black-font)] bg-white focus:outline-none focus:border-[var(--brand-green)] appearance-none cursor-pointer"
-                >
-                  <option value="Lenovo">Lenovo</option>
-                  <option value="Apple">Apple</option>
-                  <option value="Dell">Dell</option>
-                </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
-              </div>
+              <Select defaultValue="Lenovo">
+                <SelectTrigger className="w-full h-10 data-[size=default]:h-10 rounded-xl border border-[var(--brand-stroke)] px-3 text-xs text-[var(--brand-black-font)] bg-white focus:border-[var(--brand-green)] cursor-pointer">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="max-h-72">
+                  <SelectItem value="Lenovo" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">Lenovo</SelectItem>
+                  <SelectItem value="Apple" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">Apple</SelectItem>
+                  <SelectItem value="Dell" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">Dell</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-[var(--brand-black-font)] mb-1.5">
                 Unit <span className="text-[var(--brand-red)] ml-0.5">*</span>
               </label>
-              <div className="relative">
-                <select
-                  defaultValue="Pc"
-                  className="w-full h-10 rounded-xl border border-[var(--brand-stroke)] px-3 pr-8 text-xs text-[var(--brand-black-font)] bg-white focus:outline-none focus:border-[var(--brand-green)] appearance-none cursor-pointer"
-                >
-                  <option value="Pc">Pc</option>
-                  <option value="Box">Box</option>
-                  <option value="Kg">Kg</option>
-                </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
-              </div>
+              <Select defaultValue="Pc">
+                <SelectTrigger className="w-full h-10 data-[size=default]:h-10 rounded-xl border border-[var(--brand-stroke)] px-3 text-xs text-[var(--brand-black-font)] bg-white focus:border-[var(--brand-green)] cursor-pointer">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="max-h-72">
+                  <SelectItem value="Pc" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">Pc</SelectItem>
+                  <SelectItem value="Box" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">Box</SelectItem>
+                  <SelectItem value="Kg" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">Kg</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
@@ -281,17 +281,16 @@ export default function UpdateProductInfoCard({
               <label className="block text-xs font-semibold text-[var(--brand-black-font)] mb-1.5">
                 Barcode Symbology <span className="text-[var(--brand-red)] ml-0.5">*</span>
               </label>
-              <div className="relative">
-                <select
-                  defaultValue="Code 128"
-                  className="w-full h-10 rounded-xl border border-[var(--brand-stroke)] px-3 pr-8 text-xs text-[var(--brand-black-font)] bg-white focus:outline-none focus:border-[var(--brand-green)] appearance-none cursor-pointer"
-                >
-                  <option value="Code 128">Code 128</option>
-                  <option value="QR Code">QR Code</option>
-                  <option value="EAN-13">EAN-13</option>
-                </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
-              </div>
+              <Select defaultValue="Code 128">
+                <SelectTrigger className="w-full h-10 data-[size=default]:h-10 rounded-xl border border-[var(--brand-stroke)] px-3 text-xs text-[var(--brand-black-font)] bg-white focus:border-[var(--brand-green)] cursor-pointer">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="max-h-72">
+                  <SelectItem value="Code 128" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">Code 128</SelectItem>
+                  <SelectItem value="QR Code" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">QR Code</SelectItem>
+                  <SelectItem value="EAN-13" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">EAN-13</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 

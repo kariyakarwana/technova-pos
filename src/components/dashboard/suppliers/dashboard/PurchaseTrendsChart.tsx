@@ -1,6 +1,12 @@
 "use client";
 
-import { ChevronDown } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { PurchaseTrendDataPoint } from "./SupplierDashboardMock";
 
 interface PurchaseTrendsChartProps {
@@ -39,14 +45,16 @@ export default function PurchaseTrendsChart({ data }: PurchaseTrendsChartProps) 
           Purchase Trends
         </h2>
 
-        <div className="relative">
-          <select className="h-8 pl-3 pr-7 rounded-lg border border-[var(--brand-stroke)] bg-white text-xs font-semibold text-slate-700 appearance-none focus:outline-none focus:border-[var(--brand-green)] cursor-pointer shadow-xs">
-            <option value="This Year">This Year</option>
-            <option value="Last Year">Last Year</option>
-            <option value="All Time">All Time</option>
-          </select>
-          <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
-        </div>
+        <Select defaultValue="This Year">
+          <SelectTrigger className="h-8 data-[size=default]:h-8 px-3 rounded-lg border border-[var(--brand-stroke)] bg-white text-xs font-semibold text-slate-700 shadow-xs focus:border-[var(--brand-green)]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="This Year" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">This Year</SelectItem>
+            <SelectItem value="Last Year" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">Last Year</SelectItem>
+            <SelectItem value="All Time" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">All Time</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Responsive SVG Chart */}

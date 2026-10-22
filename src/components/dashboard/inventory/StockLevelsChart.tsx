@@ -1,7 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { MOCK_STOCK_CHART_DATA } from "./inventory.mock";
 
 export default function StockLevelsChart() {
@@ -14,18 +20,35 @@ export default function StockLevelsChart() {
         <h3 className="text-base font-bold text-[#1D2939]">
           Stock Levels vs Sales
         </h3>
-        <div className="relative">
-          <select
-            value={selectedTimeframe}
-            onChange={(e) => setSelectedTimeframe(e.target.value)}
-            className="flex items-center gap-1.5 px-3 py-1 pr-7 rounded-lg border border-[#E4E7EC] bg-[#F8FAFC] text-xs font-semibold text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer appearance-none"
+        <Select value={selectedTimeframe} onValueChange={setSelectedTimeframe}>
+          <SelectTrigger className="h-8 data-[size=default]:h-8 w-28 rounded-lg border border-[#E4E7EC] bg-[#F8FAFC] px-3 text-xs font-semibold text-slate-700 shadow-none focus-visible:border-[#0E9384] focus-visible:ring-0 cursor-pointer">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent
+            position="popper"
+            sideOffset={4}
+            className="w-28 min-w-[7rem] rounded-lg border border-slate-200 bg-white p-1 shadow-lg ring-0"
           >
-            <option value="This Week">This Week</option>
-            <option value="Last Week">Last Week</option>
-            <option value="This Month">This Month</option>
-          </select>
-          <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
-        </div>
+            <SelectItem
+              value="This Week"
+              className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+            >
+              This Week
+            </SelectItem>
+            <SelectItem
+              value="Last Week"
+              className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+            >
+              Last Week
+            </SelectItem>
+            <SelectItem
+              value="This Month"
+              className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+            >
+              This Month
+            </SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Chart Canvas / Visual Bars */}

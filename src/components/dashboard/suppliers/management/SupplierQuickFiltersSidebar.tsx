@@ -1,6 +1,13 @@
 "use client";
 
-import { ChevronDown, Filter } from "lucide-react";
+import { Filter } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { SupplierStatus } from "./SupplierManagementMock";
 
 interface SupplierQuickFiltersSidebarProps {
@@ -81,20 +88,25 @@ export default function SupplierQuickFiltersSidebar({
         <label className="text-[11px] font-semibold text-slate-500">
           Category
         </label>
-        <div className="relative">
-          <select
-            value={categoryFilter}
-            onChange={(e) => onCategoryFilterChange(e.target.value)}
-            className="w-full h-9 pl-3 pr-8 text-xs bg-white border border-[var(--brand-stroke)] rounded-xl text-[var(--brand-black-font)] appearance-none focus:outline-none focus:border-[var(--brand-green)] cursor-pointer shadow-xs font-medium"
-          >
+        <Select
+          value={categoryFilter}
+          onValueChange={(val) => onCategoryFilterChange(val)}
+        >
+          <SelectTrigger className="w-full h-9 data-[size=default]:h-9 px-3 text-xs bg-white border border-[var(--brand-stroke)] rounded-xl text-[var(--brand-black-font)] shadow-xs font-medium focus:border-[var(--brand-green)]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="max-h-72">
             {categories.map((c) => (
-              <option key={c} value={c}>
+              <SelectItem
+                key={c}
+                value={c}
+                className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer"
+              >
                 {c}
-              </option>
+              </SelectItem>
             ))}
-          </select>
-          <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
-        </div>
+          </SelectContent>
+        </Select>
       </div>
     </div>
   );

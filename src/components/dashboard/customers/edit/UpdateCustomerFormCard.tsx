@@ -1,6 +1,13 @@
 "use client";
 
 import { Calendar, ChevronDown, Info } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface UpdateCustomerFormCardProps {
   customerId: string;
@@ -77,20 +84,21 @@ export default function UpdateCustomerFormCard({
               <label className="text-xs font-semibold text-slate-700">
                 Customer Id
               </label>
-              <div className="relative">
-                <select
-                  value={customerId}
-                  onChange={(e) => onCustomerIdChange(e.target.value)}
-                  className="w-full h-10 pl-3.5 pr-9 text-xs bg-white border border-[var(--brand-stroke)] rounded-xl text-[var(--brand-black-font)] appearance-none focus:outline-none focus:border-[var(--brand-green)] cursor-pointer shadow-xs font-medium"
-                >
+              <Select
+                value={customerId}
+                onValueChange={(val) => onCustomerIdChange(val)}
+              >
+                <SelectTrigger className="w-full h-10 data-[size=default]:h-10 px-3.5 text-xs bg-white border border-[var(--brand-stroke)] rounded-xl text-[var(--brand-black-font)] focus:outline-none focus:border-[var(--brand-green)] shadow-xs font-medium">
+                  <SelectValue placeholder="Select customer" />
+                </SelectTrigger>
+                <SelectContent>
                   {customerOptions.map((opt) => (
-                    <option key={opt} value={opt}>
+                    <SelectItem key={opt} value={opt} className="text-xs">
                       {opt}
-                    </option>
+                    </SelectItem>
                   ))}
-                </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
-              </div>
+                </SelectContent>
+              </Select>
             </div>
 
             {/* First Name */}

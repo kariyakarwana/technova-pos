@@ -1,6 +1,13 @@
 "use client";
 
-import { Bot, ChevronDown } from "lucide-react";
+import { Bot } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface UpdateSupplierFinancialDetailsCardProps {
   taxId: string;
@@ -47,19 +54,20 @@ export default function UpdateSupplierFinancialDetailsCard({
           <label className="text-xs font-semibold text-slate-700">
             Payment Terms
           </label>
-          <div className="relative">
-            <select
-              value={paymentTerms}
-              onChange={(e) => onPaymentTermsChange(e.target.value)}
-              className="w-full h-10 pl-3.5 pr-9 text-xs bg-white border border-[var(--brand-stroke)] rounded-xl text-[var(--brand-black-font)] appearance-none focus:outline-none focus:border-[var(--brand-green)] cursor-pointer shadow-xs font-medium"
-            >
-              <option value="Net 30">Net 30</option>
-              <option value="Net 45">Net 45</option>
-              <option value="Net 60">Net 60</option>
-              <option value="Due on Receipt">Due on Receipt</option>
-            </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
-          </div>
+          <Select
+            value={paymentTerms}
+            onValueChange={(val) => onPaymentTermsChange(val)}
+          >
+            <SelectTrigger className="w-full h-10 data-[size=default]:h-10 px-3.5 text-xs bg-white border border-[var(--brand-stroke)] rounded-xl text-[var(--brand-black-font)] shadow-xs font-medium focus:border-[var(--brand-green)]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Net 30" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">Net 30</SelectItem>
+              <SelectItem value="Net 45" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">Net 45</SelectItem>
+              <SelectItem value="Net 60" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">Net 60</SelectItem>
+              <SelectItem value="Due on Receipt" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">Due on Receipt</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Credit Limit (USD) */}

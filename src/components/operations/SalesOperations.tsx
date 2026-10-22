@@ -8,6 +8,13 @@ import PaginationControls, {
   type PageMeta,
 } from "@/components/operations/PaginationControls";
 import { apiGet } from "@/lib/api/client";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type Sale = {
   id: string;
@@ -115,26 +122,72 @@ export default function SalesOperations({ isSuperAdmin = false }: { isSuperAdmin
           placeholder="Invoice or customer"
           className="h-10 w-full rounded-lg border border-[#E4E7EC] pl-9 pr-3 text-xs focus:border-[#0E9384] focus:outline-none"
         /></div></label>
-        <label className="text-xs font-medium text-[#1D2939]">Status<select
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
-          className="mt-1.5 h-10 w-full rounded-lg border border-[#E4E7EC] px-3 text-xs focus:border-[#0E9384] focus:outline-none"
-        >
-          <option value="">All statuses</option>
-          <option value="COMPLETED">Completed</option>
-          <option value="PARTIALLY_REFUNDED">Partially refunded</option>
-          <option value="REFUNDED">Refunded</option>
-          <option value="VOIDED">Voided</option>
-        </select></label>
-        {isSuperAdmin && <label className="text-xs font-medium text-[#1D2939]">Branch<select value={salesBranchId} onChange={(event) => setSalesBranchId(event.target.value)} className="mt-1.5 h-10 w-full rounded-lg border border-[#E4E7EC] px-3 text-xs focus:border-[#0E9384] focus:outline-none"><option value="">All branches</option>{branches.map((branch) => <option key={branch.id} value={branch.id}>{branch.name}</option>)}</select></label>}
-        <label className="text-xs font-medium text-[#1D2939]">Cashier<select
-          value={cashierId}
-          onChange={(e) => setCashierId(e.target.value)}
-          className="mt-1.5 h-10 w-full rounded-lg border border-[#E4E7EC] px-3 text-xs focus:border-[#0E9384] focus:outline-none"
-        >
-          <option value="">All cashiers</option>
-          {cashiers.map((cashier) => <option key={cashier.id} value={cashier.id}>{cashier.email}</option>)}
-        </select></label>
+        <div className="text-xs font-medium text-[#1D2939]">
+          <span>Status</span>
+          <Select
+            value={status || "all"}
+            onValueChange={(val) => setStatus(val === "all" ? "" : val)}
+          >
+            <SelectTrigger className="mt-1.5 h-10 data-[size=default]:h-10 w-full rounded-lg border border-[#E4E7EC] bg-white px-3 text-xs text-[#1D2939] shadow-xs focus-visible:border-[#0E9384] focus-visible:ring-0 cursor-pointer">
+              <SelectValue placeholder="All statuses" />
+            </SelectTrigger>
+            <SelectContent position="popper" sideOffset={4} className="w-[var(--radix-select-trigger-width)] min-w-[var(--radix-select-trigger-width)] max-h-72 rounded-xl border border-slate-200 bg-white p-1 shadow-lg ring-0">
+              <SelectItem value="all" className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]">All statuses</SelectItem>
+              <SelectItem value="COMPLETED" className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]">Completed</SelectItem>
+              <SelectItem value="PARTIALLY_REFUNDED" className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]">Partially refunded</SelectItem>
+              <SelectItem value="REFUNDED" className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]">Refunded</SelectItem>
+              <SelectItem value="VOIDED" className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]">Voided</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        {isSuperAdmin && (
+          <div className="text-xs font-medium text-[#1D2939]">
+            <span>Branch</span>
+            <Select
+              value={salesBranchId || "all"}
+              onValueChange={(val) => setSalesBranchId(val === "all" ? "" : val)}
+            >
+              <SelectTrigger className="mt-1.5 h-10 data-[size=default]:h-10 w-full rounded-lg border border-[#E4E7EC] bg-white px-3 text-xs text-[#1D2939] shadow-xs focus-visible:border-[#0E9384] focus-visible:ring-0 cursor-pointer">
+                <SelectValue placeholder="All branches" />
+              </SelectTrigger>
+              <SelectContent position="popper" sideOffset={4} className="w-[var(--radix-select-trigger-width)] min-w-[var(--radix-select-trigger-width)] max-h-72 rounded-xl border border-slate-200 bg-white p-1 shadow-lg ring-0">
+                <SelectItem value="all" className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]">All branches</SelectItem>
+                {branches.map((branch) => (
+                  <SelectItem
+                    key={branch.id}
+                    value={branch.id}
+                    className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+                  >
+                    {branch.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+        <div className="text-xs font-medium text-[#1D2939]">
+          <span>Cashier</span>
+          <Select
+            value={cashierId || "all"}
+            onValueChange={(val) => setCashierId(val === "all" ? "" : val)}
+          >
+            <SelectTrigger className="mt-1.5 h-10 data-[size=default]:h-10 w-full rounded-lg border border-[#E4E7EC] bg-white px-3 text-xs text-[#1D2939] shadow-xs focus-visible:border-[#0E9384] focus-visible:ring-0 cursor-pointer">
+              <SelectValue placeholder="All cashiers" />
+            </SelectTrigger>
+            <SelectContent position="popper" sideOffset={4} className="w-[var(--radix-select-trigger-width)] min-w-[var(--radix-select-trigger-width)] max-h-72 rounded-xl border border-slate-200 bg-white p-1 shadow-lg ring-0">
+              <SelectItem value="all" className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]">All cashiers</SelectItem>
+              {cashiers.map((cashier) => (
+                <SelectItem
+                  key={cashier.id}
+                  value={cashier.id}
+                  className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+                >
+                  {cashier.email}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
         <label className="text-xs font-medium text-[#1D2939]">
           From
           <input

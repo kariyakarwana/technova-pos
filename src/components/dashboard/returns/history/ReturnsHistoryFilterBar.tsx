@@ -1,6 +1,13 @@
 "use client";
 
-import { Calendar, ChevronDown, FileSpreadsheet, FileText, RotateCcw } from "lucide-react";
+import { Calendar, FileSpreadsheet, FileText, RotateCcw } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface ReturnsHistoryFilterBarProps {
   dateRange: string;
@@ -53,17 +60,20 @@ export default function ReturnsHistoryFilterBar({
           <label className="text-[11px] font-semibold text-slate-700">
             Return Status
           </label>
-          <div className="relative w-44">
-            <select
+          <div className="w-44">
+            <Select
               value={status}
-              onChange={(e) => onStatusChange(e.target.value)}
-              className="w-full h-9 pl-3 pr-8 text-xs bg-white border border-[var(--brand-stroke)] rounded-xl text-[var(--brand-black-font)] appearance-none focus:outline-none focus:border-[var(--brand-green)] cursor-pointer shadow-xs font-medium"
+              onValueChange={(val) => onStatusChange(val)}
             >
-              <option value="All Statuses">All Statuses</option>
-              <option value="DAMAGED">Damaged</option>
-              <option value="RESALABLE">Resalable</option>
-            </select>
-            <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
+              <SelectTrigger className="w-full h-9 data-[size=default]:h-9 px-3 text-xs bg-white border border-[var(--brand-stroke)] rounded-xl text-[var(--brand-black-font)] shadow-xs font-medium focus:border-[var(--brand-green)]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="All Statuses" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">All Statuses</SelectItem>
+                <SelectItem value="DAMAGED" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">Damaged</SelectItem>
+                <SelectItem value="RESALABLE" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">Resalable</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
@@ -72,17 +82,20 @@ export default function ReturnsHistoryFilterBar({
           <label className="text-[11px] font-semibold text-slate-700">
             Branch
           </label>
-          <div className="relative w-44">
-            <select
+          <div className="w-44">
+            <Select
               value={branch}
-              onChange={(e) => onBranchChange(e.target.value)}
-              className="w-full h-9 pl-3 pr-8 text-xs bg-white border border-[var(--brand-stroke)] rounded-xl text-[var(--brand-black-font)] appearance-none focus:outline-none focus:border-[var(--brand-green)] cursor-pointer shadow-xs font-medium"
+              onValueChange={(val) => onBranchChange(val)}
             >
-              <option value="All">All</option>
-              <option value="Branch 1 - Main">Branch 1 - Main</option>
-              <option value="Branch 2 - Downtown">Branch 2 - Downtown</option>
-            </select>
-            <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
+              <SelectTrigger className="w-full h-9 data-[size=default]:h-9 px-3 text-xs bg-white border border-[var(--brand-stroke)] rounded-xl text-[var(--brand-black-font)] shadow-xs font-medium focus:border-[var(--brand-green)]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="All" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">All</SelectItem>
+                <SelectItem value="Branch 1 - Main" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">Branch 1 - Main</SelectItem>
+                <SelectItem value="Branch 2 - Downtown" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">Branch 2 - Downtown</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </div>

@@ -1,6 +1,12 @@
 "use client";
 
-import { ChevronDown } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { ReturnableItem } from "./ProcessReturnMock";
 
 interface SelectReturnItemsCardProps {
@@ -139,59 +145,73 @@ export default function SelectReturnItemsCard({
 
                   {/* Condition Dropdown */}
                   <td className="py-4 px-4">
-                    <div className="relative">
-                      <select
-                        value={item.isSelected ? item.condition : ""}
-                        disabled={!item.isSelected}
-                        onChange={(e) => onUpdateCondition(item.id, e.target.value)}
+                    <Select
+                      value={item.isSelected ? item.condition || "none" : "none"}
+                      disabled={!item.isSelected}
+                      onValueChange={(val) => onUpdateCondition(item.id, val === "none" ? "" : val)}
+                    >
+                      <SelectTrigger
                         className={[
-                          "w-full h-8 pl-3 pr-7 text-xs rounded-lg border appearance-none focus:outline-none cursor-pointer font-medium",
+                          "w-full h-8 data-[size=default]:h-8 px-3 text-xs rounded-lg border font-medium",
                           item.isSelected
                             ? "bg-white text-[var(--brand-black-font)] border-white shadow-2xs"
                             : "bg-slate-50 text-slate-400 border-[var(--brand-stroke)] cursor-not-allowed",
                         ].join(" ")}
                       >
-                        {!item.isSelected && <option value="">Select...</option>}
-                        <option value="Resalable">Resalable</option>
-                        <option value="Damaged">Damaged</option>
-                        <option value="Defective">Defective</option>
-                      </select>
-                      <ChevronDown
-                        className={[
-                          "absolute right-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 pointer-events-none",
-                          item.isSelected ? "text-slate-500" : "text-slate-400",
-                        ].join(" ")}
-                      />
-                    </div>
+                        <SelectValue placeholder="Select..." />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-72">
+                        <SelectItem value="none" className="text-xs hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">
+                          Select...
+                        </SelectItem>
+                        <SelectItem value="Resalable" className="text-xs hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">
+                          Resalable
+                        </SelectItem>
+                        <SelectItem value="Damaged" className="text-xs hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">
+                          Damaged
+                        </SelectItem>
+                        <SelectItem value="Defective" className="text-xs hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">
+                          Defective
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
                   </td>
 
                   {/* Reason Dropdown */}
                   <td className="py-4 px-4">
-                    <div className="relative">
-                      <select
-                        value={item.isSelected ? item.reason : ""}
-                        disabled={!item.isSelected}
-                        onChange={(e) => onUpdateReason(item.id, e.target.value)}
+                    <Select
+                      value={item.isSelected ? item.reason || "none" : "none"}
+                      disabled={!item.isSelected}
+                      onValueChange={(val) => onUpdateReason(item.id, val === "none" ? "" : val)}
+                    >
+                      <SelectTrigger
                         className={[
-                          "w-full h-8 pl-3 pr-7 text-xs rounded-lg border appearance-none focus:outline-none cursor-pointer font-medium",
+                          "w-full h-8 data-[size=default]:h-8 px-3 text-xs rounded-lg border font-medium",
                           item.isSelected
                             ? "bg-white text-[var(--brand-black-font)] border-white shadow-2xs"
                             : "bg-slate-50 text-slate-400 border-[var(--brand-stroke)] cursor-not-allowed",
                         ].join(" ")}
                       >
-                        {!item.isSelected && <option value="">Select...</option>}
-                        <option value="Changed Mind">Changed Mind</option>
-                        <option value="Wrong Size">Wrong Size</option>
-                        <option value="Defective">Defective</option>
-                        <option value="Item Missing Parts">Item Missing Parts</option>
-                      </select>
-                      <ChevronDown
-                        className={[
-                          "absolute right-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 pointer-events-none",
-                          item.isSelected ? "text-slate-500" : "text-slate-400",
-                        ].join(" ")}
-                      />
-                    </div>
+                        <SelectValue placeholder="Select..." />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-72">
+                        <SelectItem value="none" className="text-xs hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">
+                          Select...
+                        </SelectItem>
+                        <SelectItem value="Changed Mind" className="text-xs hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">
+                          Changed Mind
+                        </SelectItem>
+                        <SelectItem value="Wrong Size" className="text-xs hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">
+                          Wrong Size
+                        </SelectItem>
+                        <SelectItem value="Defective" className="text-xs hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">
+                          Defective
+                        </SelectItem>
+                        <SelectItem value="Item Missing Parts" className="text-xs hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">
+                          Item Missing Parts
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
                   </td>
                 </tr>
               );

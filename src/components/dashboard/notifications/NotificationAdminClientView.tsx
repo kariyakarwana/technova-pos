@@ -23,6 +23,13 @@ import PaginationControls, {
   type PageMeta,
 } from "@/components/operations/PaginationControls";
 import { apiGet, apiPatch, apiPost } from "@/lib/api/client";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { ProviderStatus } from "@/app/(Dashboard)/notifications/page";
 
 export type NotificationTemplate = {
@@ -476,24 +483,32 @@ export default function NotificationAdminClientView({
                   className="pl-9"
                 />
               </div>
-              <select
+              <Select
                 value={templateChannel}
-                onChange={(event) => setTemplateChannel(event.target.value)}
-                className="h-10 rounded-md border bg-white px-3 text-sm"
+                onValueChange={(val) => setTemplateChannel(val)}
               >
-                <option value="ALL">All channels</option>
-                <option value="EMAIL">Email</option>
-                <option value="WHATSAPP">WhatsApp</option>
-              </select>
-              <select
+                <SelectTrigger className="h-10 data-[size=default]:h-10 rounded-md border bg-white px-3 text-sm">
+                  <SelectValue placeholder="All channels" />
+                </SelectTrigger>
+                <SelectContent className="max-h-72">
+                  <SelectItem value="ALL" className="text-sm hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">All channels</SelectItem>
+                  <SelectItem value="EMAIL" className="text-sm hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">Email</SelectItem>
+                  <SelectItem value="WHATSAPP" className="text-sm hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">WhatsApp</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select
                 value={templateStatus}
-                onChange={(event) => setTemplateStatus(event.target.value)}
-                className="h-10 rounded-md border bg-white px-3 text-sm"
+                onValueChange={(val) => setTemplateStatus(val)}
               >
-                <option value="ALL">All statuses</option>
-                <option value="ACTIVE">Active</option>
-                <option value="INACTIVE">Inactive</option>
-              </select>
+                <SelectTrigger className="h-10 data-[size=default]:h-10 rounded-md border bg-white px-3 text-sm">
+                  <SelectValue placeholder="All statuses" />
+                </SelectTrigger>
+                <SelectContent className="max-h-72">
+                  <SelectItem value="ALL" className="text-sm hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">All statuses</SelectItem>
+                  <SelectItem value="ACTIVE" className="text-sm hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">Active</SelectItem>
+                  <SelectItem value="INACTIVE" className="text-sm hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">Inactive</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </CardHeader>
           <CardContent className="grid gap-4 lg:grid-cols-2">
@@ -594,37 +609,47 @@ export default function NotificationAdminClientView({
                   className="pl-9"
                 />
               </div>
-              <select
+              <Select
                 value={outboxChannel}
-                onChange={(event) => {
-                  setOutboxChannel(event.target.value);
+                onValueChange={(val) => {
+                  setOutboxChannel(val);
                   setOutboxPageNumber(1);
                 }}
-                className="h-10 rounded-md border bg-white px-3 text-sm"
               >
-                <option value="ALL">All channels</option>
-                <option value="EMAIL">Email</option>
-                <option value="WHATSAPP">WhatsApp</option>
-              </select>
-              <select
+                <SelectTrigger className="h-10 data-[size=default]:h-10 rounded-md border bg-white px-3 text-sm">
+                  <SelectValue placeholder="All channels" />
+                </SelectTrigger>
+                <SelectContent className="max-h-72">
+                  <SelectItem value="ALL" className="text-sm hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">All channels</SelectItem>
+                  <SelectItem value="EMAIL" className="text-sm hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">Email</SelectItem>
+                  <SelectItem value="WHATSAPP" className="text-sm hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">WhatsApp</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select
                 value={outboxStatus}
-                onChange={(event) => {
-                  setOutboxStatus(event.target.value);
+                onValueChange={(val) => {
+                  setOutboxStatus(val);
                   setOutboxPageNumber(1);
                 }}
-                className="h-10 rounded-md border bg-white px-3 text-sm"
               >
-                {[
-                  "ALL",
-                  "PENDING",
-                  "PROCESSING",
-                  "SENT",
-                  "FAILED",
-                  "DEAD_LETTER",
-                ].map((value) => (
-                  <option key={value}>{value}</option>
-                ))}
-              </select>
+                <SelectTrigger className="h-10 data-[size=default]:h-10 rounded-md border bg-white px-3 text-sm">
+                  <SelectValue placeholder="All" />
+                </SelectTrigger>
+                <SelectContent className="max-h-72">
+                  {[
+                    "ALL",
+                    "PENDING",
+                    "PROCESSING",
+                    "SENT",
+                    "FAILED",
+                    "DEAD_LETTER",
+                  ].map((value) => (
+                    <SelectItem key={value} value={value} className="text-sm hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">
+                      {value}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <Button onClick={() => void processPending()} variant="outline">
                 <RefreshCw
                   className={`mr-2 h-4 w-4 ${outboxLoading ? "animate-spin" : ""}`}
@@ -746,38 +771,46 @@ export default function NotificationAdminClientView({
             <div className="grid gap-4 sm:grid-cols-3">
               <label className="text-sm font-medium text-slate-700">
                 Message type
-                <select
+                <Select
                   value={preference.eventType}
-                  onChange={(event) =>
+                  onValueChange={(val) =>
                     setPreference((current) => ({
                       ...current,
-                      eventType: event.target.value,
+                      eventType: val,
                     }))
                   }
-                  className="mt-2 h-10 w-full rounded-md border bg-white px-3"
                 >
-                  {catalog.map((item) => (
-                    <option key={item.eventType} value={item.eventType}>
-                      {item.label}
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger className="mt-2 h-10 data-[size=default]:h-10 w-full rounded-md border bg-white px-3">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-72">
+                    {catalog.map((item) => (
+                      <SelectItem key={item.eventType} value={item.eventType} className="text-sm hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">
+                        {item.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </label>
               <label className="text-sm font-medium text-slate-700">
                 Channel
-                <select
+                <Select
                   value={preference.channel}
-                  onChange={(event) =>
+                  onValueChange={(val) =>
                     setPreference((current) => ({
                       ...current,
-                      channel: event.target.value as "EMAIL" | "WHATSAPP",
+                      channel: val as "EMAIL" | "WHATSAPP",
                     }))
                   }
-                  className="mt-2 h-10 w-full rounded-md border bg-white px-3"
                 >
-                  <option value="WHATSAPP">WhatsApp</option>
-                  <option value="EMAIL">Email</option>
-                </select>
+                  <SelectTrigger className="mt-2 h-10 data-[size=default]:h-10 w-full rounded-md border bg-white px-3">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-72">
+                    <SelectItem value="WHATSAPP" className="text-sm hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">WhatsApp</SelectItem>
+                    <SelectItem value="EMAIL" className="text-sm hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">Email</SelectItem>
+                  </SelectContent>
+                </Select>
               </label>
               <label className="flex items-center gap-3 self-end rounded-lg border p-3 text-sm">
                 <input
@@ -881,32 +914,40 @@ function TemplateEditor({
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="text-sm font-semibold">
                 Business event
-                <select
+                <Select
                   disabled={Boolean(draft.id)}
                   value={draft.eventType}
-                  onChange={(e) => onEventChange(e.target.value)}
-                  className="mt-2 h-10 w-full rounded-xl border bg-white px-3 font-normal disabled:bg-slate-50"
+                  onValueChange={(val) => onEventChange(val)}
                 >
-                  {catalog.map((item) => (
-                    <option key={item.eventType} value={item.eventType}>
-                      {item.label}
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger className="mt-2 h-10 data-[size=default]:h-10 w-full rounded-xl border bg-white px-3 font-normal disabled:bg-slate-50">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="z-50 max-h-72">
+                    {catalog.map((item) => (
+                      <SelectItem key={item.eventType} value={item.eventType}>
+                        {item.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </label>
               <label className="text-sm font-semibold">
                 Delivery channel
-                <select
+                <Select
                   disabled={Boolean(draft.id)}
                   value={draft.channel}
-                  onChange={(e) =>
-                    onChannelChange(e.target.value as "EMAIL" | "WHATSAPP")
+                  onValueChange={(val) =>
+                    onChannelChange(val as "EMAIL" | "WHATSAPP")
                   }
-                  className="mt-2 h-10 w-full rounded-xl border bg-white px-3 font-normal disabled:bg-slate-50"
                 >
-                  <option value="EMAIL">Email / Gmail</option>
-                  <option value="WHATSAPP">WhatsApp</option>
-                </select>
+                  <SelectTrigger className="mt-2 h-10 data-[size=default]:h-10 w-full rounded-xl border bg-white px-3 font-normal disabled:bg-slate-50">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="z-50 max-h-72">
+                    <SelectItem value="EMAIL">Email / Gmail</SelectItem>
+                    <SelectItem value="WHATSAPP">WhatsApp</SelectItem>
+                  </SelectContent>
+                </Select>
               </label>
             </div>
             {event && (

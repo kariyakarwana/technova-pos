@@ -1,7 +1,14 @@
 "use client";
 
-import { ChevronDown, Menu } from "lucide-react";
+import { Menu } from "lucide-react";
 import type { PromotionPerformanceItem } from "./PromotionPerformanceMock";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface PromotionPerformanceTableProps {
   items: PromotionPerformanceItem[];
@@ -46,18 +53,21 @@ export default function PromotionPerformanceTable({
 
         {/* Filter Dropdown */}
         <div className="relative">
-          <select
+          <Menu className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3 w-3 text-white pointer-events-none z-10" />
+          <Select
             value={selectedTypeFilter}
-            onChange={(e) => onTypeFilterChange?.(e.target.value)}
-            className="h-8 pl-7 pr-7 rounded-lg bg-[var(--brand-green)] hover:bg-[#0B6E63] text-white text-xs font-semibold appearance-none focus:outline-none cursor-pointer shadow-2xs"
+            onValueChange={(val) => onTypeFilterChange?.(val)}
           >
-            <option value="All Types" className="text-slate-800 bg-white">All Types</option>
-            <option value="Percentage" className="text-slate-800 bg-white">Percentage</option>
-            <option value="Fixed Amount" className="text-slate-800 bg-white">Fixed Amount</option>
-            <option value="Free Shipping" className="text-slate-800 bg-white">Free Shipping</option>
-          </select>
-          <Menu className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3 w-3 text-white pointer-events-none" />
-          <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 text-white pointer-events-none" />
+            <SelectTrigger className="h-8 data-[size=default]:h-8 pl-7 pr-3 rounded-lg bg-[var(--brand-green)] hover:bg-[#0B6E63] text-white text-xs font-semibold border-0 shadow-2xs focus:ring-0 [&>svg]:text-white">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="All Types" className="text-slate-800 hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)]">All Types</SelectItem>
+              <SelectItem value="Percentage" className="text-slate-800 hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)]">Percentage</SelectItem>
+              <SelectItem value="Fixed Amount" className="text-slate-800 hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)]">Fixed Amount</SelectItem>
+              <SelectItem value="Free Shipping" className="text-slate-800 hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)]">Free Shipping</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 

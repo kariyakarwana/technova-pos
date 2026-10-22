@@ -401,19 +401,43 @@ export default function RecommendationPanel({
                     className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-xs font-medium text-slate-800 outline-none focus:border-[#025148]"
                   />
                   {overview?.customers && overview.customers.length > 0 && (
-                    <select
-                      value={customerId}
-                      onChange={(e) => setCustomerId(e.target.value)}
-                      className="h-10 rounded-xl border border-slate-200 bg-white px-2 text-xs text-slate-700 outline-none focus:border-[#025148]"
-                      title="Select Customer"
+                    <Select
+                      value={
+                        overview.customers.some((c) => (c.customerNumber || c.id) === customerId)
+                          ? customerId
+                          : "none"
+                      }
+                      onValueChange={(v) => setCustomerId(v === "none" ? "" : v)}
                     >
-                      <option value="">Select a customer...</option>
-                      {overview.customers.map((c) => (
-                        <option key={c.id} value={c.customerNumber || c.id}>
-                          {c.customerNumber} — {c.firstName} {c.lastName ?? ""}
-                        </option>
-                      ))}
-                    </select>
+                      <SelectTrigger
+                        className="h-10 data-[size=default]:h-10 w-60 sm:w-72 shrink-0 min-w-0 rounded-xl border border-slate-200 bg-white px-3 text-xs font-normal text-slate-800 shadow-none focus-visible:border-[#025148] focus-visible:ring-0 cursor-pointer"
+                        title="Select Customer"
+                      >
+                        <SelectValue placeholder="Select a customer..." className="truncate min-w-0" />
+                      </SelectTrigger>
+                      <SelectContent
+                        className="w-[var(--radix-select-trigger-width)] min-w-[var(--radix-select-trigger-width)] max-h-72 rounded-xl border border-slate-200 bg-white p-1 shadow-lg ring-0"
+                      >
+                        <SelectItem
+                          value="none"
+                          className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+                        >
+                          Select a customer...
+                        </SelectItem>
+                        {overview.customers.map((c) => {
+                          const val = c.customerNumber || c.id;
+                          return (
+                            <SelectItem
+                              key={c.id}
+                              value={val}
+                              className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+                            >
+                              {c.customerNumber} — {c.firstName} {c.lastName ?? ""}
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
                   )}
                 </div>
               </label>

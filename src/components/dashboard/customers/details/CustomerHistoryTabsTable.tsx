@@ -1,7 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronDown, Search } from "lucide-react";
+import { Search } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type {
   PointHistoryItem,
   PurchaseHistoryItem,
@@ -99,19 +106,41 @@ export default function CustomerHistoryTabsTable({
         </div>
 
         {/* Date Filter */}
-        <div className="relative shrink-0">
-          <select
-            value={dateRange}
-            onChange={(e) => onDateRangeChange(e.target.value)}
-            className="h-8 pl-3 pr-7 text-xs bg-slate-50 border border-[var(--brand-stroke)] rounded-lg text-[var(--brand-black-font)] appearance-none focus:outline-none focus:border-[var(--brand-green)] focus:bg-white cursor-pointer"
+        <Select value={dateRange} onValueChange={onDateRangeChange}>
+          <SelectTrigger className="h-8 data-[size=default]:h-8 w-36 shrink-0 rounded-lg border border-[var(--brand-stroke)] bg-white px-3 text-xs text-[var(--brand-black-font)] shadow-xs focus-visible:border-[var(--brand-green)] focus-visible:ring-0 cursor-pointer">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent
+            position="popper"
+            sideOffset={4}
+            className="w-36 min-w-[9rem] rounded-lg border border-slate-200 bg-white p-1 shadow-lg ring-0"
           >
-            <option value="Last 30 Days">Last 30 Days</option>
-            <option value="Last 60 Days">Last 60 Days</option>
-            <option value="This Year">This Year</option>
-            <option value="All Time">All Time</option>
-          </select>
-          <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 text-slate-400 pointer-events-none" />
-        </div>
+            <SelectItem
+              value="Last 30 Days"
+              className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+            >
+              Last 30 Days
+            </SelectItem>
+            <SelectItem
+              value="Last 60 Days"
+              className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+            >
+              Last 60 Days
+            </SelectItem>
+            <SelectItem
+              value="This Year"
+              className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+            >
+              This Year
+            </SelectItem>
+            <SelectItem
+              value="All Time"
+              className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+            >
+              All Time
+            </SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Table */}

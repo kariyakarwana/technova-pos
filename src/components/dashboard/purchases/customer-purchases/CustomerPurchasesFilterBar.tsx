@@ -1,6 +1,13 @@
 "use client";
 
-import { Calendar, ChevronDown, FileSpreadsheet, FileText, RotateCcw } from "lucide-react";
+import { Calendar, FileSpreadsheet, FileText, RotateCcw } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface CustomerPurchasesFilterBarProps {
   dateRange: string;
@@ -57,20 +64,25 @@ export default function CustomerPurchasesFilterBar({
           <label className="text-xs font-semibold text-[var(--brand-black-font)]">
             Cashier
           </label>
-          <div className="relative">
-            <select
-              value={selectedCashier}
-              onChange={(e) => onCashierChange(e.target.value)}
-              className="w-full h-9 pl-3 pr-8 text-xs bg-white border border-[var(--brand-stroke)] rounded-xl text-[var(--brand-black-font)] appearance-none focus:outline-none focus:border-[var(--brand-green)] cursor-pointer shadow-xs font-medium"
-            >
+          <Select
+            value={selectedCashier}
+            onValueChange={(val) => onCashierChange(val)}
+          >
+            <SelectTrigger className="w-full h-9 data-[size=default]:h-9 px-3 text-xs bg-white border border-[var(--brand-stroke)] rounded-xl text-[var(--brand-black-font)] shadow-xs font-medium focus:border-[var(--brand-green)]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="max-h-72">
               {cashiers.map((c) => (
-                <option key={c} value={c}>
+                <SelectItem
+                  key={c}
+                  value={c}
+                  className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer"
+                >
                   {c}
-                </option>
+                </SelectItem>
               ))}
-            </select>
-            <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
-          </div>
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Branch */}
@@ -78,20 +90,25 @@ export default function CustomerPurchasesFilterBar({
           <label className="text-xs font-semibold text-[var(--brand-black-font)]">
             Branch
           </label>
-          <div className="relative">
-            <select
-              value={selectedBranch}
-              onChange={(e) => onBranchChange(e.target.value)}
-              className="w-full h-9 pl-3 pr-8 text-xs bg-white border border-[var(--brand-stroke)] rounded-xl text-[var(--brand-black-font)] appearance-none focus:outline-none focus:border-[var(--brand-green)] cursor-pointer shadow-xs font-medium"
-            >
+          <Select
+            value={selectedBranch}
+            onValueChange={(val) => onBranchChange(val)}
+          >
+            <SelectTrigger className="w-full h-9 data-[size=default]:h-9 px-3 text-xs bg-white border border-[var(--brand-stroke)] rounded-xl text-[var(--brand-black-font)] shadow-xs font-medium focus:border-[var(--brand-green)]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="max-h-72">
               {branches.map((b) => (
-                <option key={b} value={b}>
+                <SelectItem
+                  key={b}
+                  value={b}
+                  className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer"
+                >
                   {b}
-                </option>
+                </SelectItem>
               ))}
-            </select>
-            <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
-          </div>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 

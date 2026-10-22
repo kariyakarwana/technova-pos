@@ -3,11 +3,17 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   AlertTriangle,
-  ChevronDown,
   LoaderCircle,
   RefreshCw,
   TrendingUp,
 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Area,
   AreaChart,
@@ -190,23 +196,22 @@ export default function RevenueForecastChartCard({
           </p>
         </div>
 
-        <div className="relative">
-          <select
-            value={activeHorizon}
-            onChange={(e) =>
-              handleHorizonChange(
-                Number(e.target.value) as SalesForecastHorizon,
-              )
-            }
-            className="h-8 pl-3 pr-7 text-xs bg-slate-50 border border-[var(--brand-stroke,#e2e8f0)] rounded-lg text-slate-700 font-semibold appearance-none focus:outline-none focus:border-[var(--brand-green,#0E9384)] cursor-pointer"
-          >
-            <option value={1}>1 Day</option>
-            <option value={7}>7 Days</option>
-            <option value={14}>14 Days</option>
-            <option value={30}>30 Days</option>
-          </select>
-          <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
-        </div>
+        <Select
+          value={String(activeHorizon)}
+          onValueChange={(val) =>
+            handleHorizonChange(Number(val) as SalesForecastHorizon)
+          }
+        >
+          <SelectTrigger className="h-8 data-[size=default]:h-8 pl-3 pr-2 text-xs bg-slate-50 border border-[var(--brand-stroke,#e2e8f0)] rounded-lg text-slate-700 font-semibold focus:outline-none focus:border-[var(--brand-green,#0E9384)] cursor-pointer">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="1" className="text-xs">1 Day</SelectItem>
+            <SelectItem value="7" className="text-xs">7 Days</SelectItem>
+            <SelectItem value="14" className="text-xs">14 Days</SelectItem>
+            <SelectItem value="30" className="text-xs">30 Days</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Metric Summaries */}

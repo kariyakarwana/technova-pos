@@ -129,6 +129,10 @@ export default function PurchaseOrderOperations() {
     e.preventDefault();
     if (!branchId)
       return setMessage("Select a branch before creating an order.");
+    if (!supplierId)
+      return setMessage("Select a supplier before creating an order.");
+    if (lines.some((line) => !line.productId))
+      return setMessage("Select a product for every order line.");
     if (
       lines.some(
         (line) => line.discount > line.quantity * line.unitCost + line.tax,
@@ -407,24 +411,27 @@ export default function PurchaseOrderOperations() {
             </div>
             <div className="space-y-5 p-6">
               <div className="grid gap-4 md:grid-cols-3">
-                <label className="text-xs font-semibold">
-                  Supplier *
-                  <select
-                    required
-                    value={supplierId}
-                    onChange={(e) => setSupplierId(e.target.value)}
-                    className={input}
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold">Supplier *</label>
+                  <Select
+                    value={supplierId || "none"}
+                    onValueChange={(val) => setSupplierId(val === "none" ? "" : val)}
                   >
-                    <option value="">Select supplier</option>
-                    {suppliers
-                      .filter((s) => !s.status || s.status === "ACTIVE")
-                      .map((s) => (
-                        <option key={s.id} value={s.id}>
-                          {s.code} · {s.name}
-                        </option>
-                      ))}
-                  </select>
-                </label>
+                    <SelectTrigger className={`${input} data-[size=default]:h-10 text-sm font-normal text-slate-700 shadow-none focus-visible:border-[#0E9384] focus-visible:ring-0 cursor-pointer`}>
+                      <SelectValue placeholder="Select supplier" />
+                    </SelectTrigger>
+                    <SelectContent position="popper" sideOffset={4} className="z-50 max-h-72">
+                      <SelectItem value="none" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">Select supplier</SelectItem>
+                      {suppliers
+                        .filter((s) => !s.status || s.status === "ACTIVE")
+                        .map((s) => (
+                          <SelectItem key={s.id} value={s.id} className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">
+                            {s.code} · {s.name}
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                </div>
                 <label className="text-xs font-semibold">
                   Expected delivery date
                   <div className="relative">
@@ -474,38 +481,40 @@ export default function PurchaseOrderOperations() {
                         key={index}
                         className="grid gap-3 rounded-xl border p-3 md:grid-cols-[2fr_100px_130px_120px_120px_130px_40px]"
                       >
-                        <label className="text-[11px] font-semibold">
-                          Product *
-                          <select
-                            required
-                            value={line.productId}
-                            onChange={(e) => {
-                              const product = products.find(
-                                (p) => p.id === e.target.value,
-                              );
+                        <div className="space-y-1">
+                          <label className="text-[11px] font-semibold">Product *</label>
+                          <Select
+                            value={line.productId || "none"}
+                            onValueChange={(val) => {
+                              const pid = val === "none" ? "" : val;
+                              const product = products.find((p) => p.id === pid);
                               update(index, {
-                                productId: e.target.value,
+                                productId: pid,
                                 unitCost: Number(product?.costPrice ?? 0),
                               });
                             }}
-                            className={input}
                           >
-                            <option value="">Select product</option>
-                            {products
-                              .filter(
-                                (p) =>
-                                  !lines.some(
-                                    (l, i) =>
-                                      i !== index && l.productId === p.id,
-                                  ),
-                              )
-                              .map((p) => (
-                                <option key={p.id} value={p.id}>
-                                  {p.sku} · {p.name}
-                                </option>
-                              ))}
-                          </select>
-                        </label>
+                            <SelectTrigger className={`${input} data-[size=default]:h-10 text-sm font-normal text-slate-700 shadow-none focus-visible:border-[#0E9384] focus-visible:ring-0 cursor-pointer`}>
+                              <SelectValue placeholder="Select product" />
+                            </SelectTrigger>
+                            <SelectContent position="popper" sideOffset={4} className="z-50 max-h-72">
+                              <SelectItem value="none" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">Select product</SelectItem>
+                              {products
+                                .filter(
+                                  (p) =>
+                                    !lines.some(
+                                      (l, i) =>
+                                        i !== index && l.productId === p.id,
+                                    ),
+                                )
+                                .map((p) => (
+                                  <SelectItem key={p.id} value={p.id} className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">
+                                    {p.sku} · {p.name}
+                                  </SelectItem>
+                                ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
                         <label className="text-[11px] font-semibold">
                           Quantity *
                           <input

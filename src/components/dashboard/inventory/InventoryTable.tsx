@@ -3,13 +3,19 @@
 import Image from "next/image";
 import Link from "next/link";
 import {
-  ChevronDown,
   ChevronLeft,
   ChevronRight,
   Eye,
   MoreVertical,
   Pencil,
 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { InventoryItem } from "./inventory.mock";
 
 interface InventoryTableProps {
@@ -205,18 +211,25 @@ export default function InventoryTable({
         {/* Row Per Page */}
         <div className="flex items-center gap-2">
           <span>Row Per Page</span>
-          <div className="relative">
-            <select
-              value={rowsPerPage}
-              onChange={(e) => onRowsPerPageChange(Number(e.target.value))}
-              className="h-7 pl-2 pr-6 border border-[#E4E7EC] rounded-md bg-white text-xs text-[#1D2939] appearance-none focus:outline-none focus:border-[#0E9384] cursor-pointer"
-            >
-              <option value={10}>10</option>
-              <option value={20}>20</option>
-              <option value={50}>50</option>
-            </select>
-            <ChevronDown className="absolute right-1.5 top-1/2 -translate-y-1/2 h-3 w-3 text-slate-400 pointer-events-none" />
-          </div>
+          <Select
+            value={String(rowsPerPage)}
+            onValueChange={(val) => onRowsPerPageChange(Number(val))}
+          >
+            <SelectTrigger className="h-7 data-[size=default]:h-7 w-[65px] px-2 border border-[#E4E7EC] rounded-md bg-white text-xs text-[#1D2939] focus:outline-none focus:border-[#0E9384] cursor-pointer">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="max-h-72">
+              <SelectItem value="10" className="text-xs hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">
+                10
+              </SelectItem>
+              <SelectItem value="20" className="text-xs hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">
+                20
+              </SelectItem>
+              <SelectItem value="50" className="text-xs hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">
+                50
+              </SelectItem>
+            </SelectContent>
+          </Select>
           <span>Entries</span>
         </div>
 

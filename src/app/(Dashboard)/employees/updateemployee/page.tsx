@@ -9,6 +9,13 @@ import {
   Info 
 } from "lucide-react";
 import Link from "next/link";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function UpdateEmployeePage() {
 
@@ -87,19 +94,21 @@ export default function UpdateEmployeePage() {
               {/* Emp Id */}
               <div className="flex flex-col gap-1.5">
                 <label className="text-sm font-medium text-gray-700">Emp Id</label>
-                <div className="relative">
-                  <select 
-                    name="empId"
-                    value={formData.empId}
-                    onChange={handleChange}
-                    disabled 
-                    className="w-full h-10 px-3 text-sm text-gray-500 bg-gray-50 border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-[#0E9384] appearance-none cursor-not-allowed"
-                  >
-                    <option value="EMP-02-0001">EMP-02-0001</option>
-                    <option value="EMP-02-0002">EMP-02-0002</option>
-                  </select>
-                  <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-                </div>
+                <Select
+                  disabled
+                  value={formData.empId}
+                  onValueChange={(val) =>
+                    setFormData((prev) => ({ ...prev, empId: val }))
+                  }
+                >
+                  <SelectTrigger className="w-full h-10 data-[size=default]:h-10 px-3 text-sm text-gray-500 bg-gray-50 border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-[#0E9384] cursor-not-allowed">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="EMP-02-0001">EMP-02-0001</SelectItem>
+                    <SelectItem value="EMP-02-0002">EMP-02-0002</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* Name */}
@@ -166,20 +175,21 @@ export default function UpdateEmployeePage() {
               {/* Role */}
               <div className="flex flex-col gap-1.5">
                 <label className="text-sm font-medium text-gray-700">Role</label>
-                <div className="relative">
-                  <select 
-                    name="role"
-                    value={formData.role}
-                    onChange={handleChange}
-                    className="w-full h-10 px-3 text-sm text-gray-800 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-[#0E9384] appearance-none"
-                  >
-                    <option value="" disabled></option>
-                    <option value="Manager">Manager</option>
-                    <option value="Cashier">Cashier</option>
-                    <option value="Admin">Admin</option>
-                  </select>
-                  <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-                </div>
+                <Select
+                  value={formData.role || undefined}
+                  onValueChange={(val) =>
+                    setFormData((prev) => ({ ...prev, role: val }))
+                  }
+                >
+                  <SelectTrigger className="w-full h-10 data-[size=default]:h-10 px-3 text-sm text-gray-800 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-[#0E9384]">
+                    <SelectValue placeholder="Select role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Manager">Manager</SelectItem>
+                    <SelectItem value="Cashier">Cashier</SelectItem>
+                    <SelectItem value="Admin">Admin</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* Address 2 */}

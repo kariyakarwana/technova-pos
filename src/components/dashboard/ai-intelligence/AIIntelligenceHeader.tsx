@@ -1,7 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { Calendar, ChevronDown, ChevronRight, Filter, Menu } from "lucide-react";
+import { Calendar, ChevronRight, Filter, Menu } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface AIIntelligenceHeaderProps {
   isDetailsHidden: boolean;
@@ -67,17 +74,20 @@ export default function AIIntelligenceHeader({
 
           {/* Date Range Selector */}
           <div className="relative">
-            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--brand-green)] pointer-events-none" />
-            <select
+            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--brand-green)] pointer-events-none z-10" />
+            <Select
               value={dateRange}
-              onChange={(e) => onDateRangeChange(e.target.value)}
-              className="h-9 pl-9 pr-8 text-xs bg-white border border-[var(--brand-green)] rounded-xl text-[var(--brand-black-font)] font-semibold appearance-none focus:outline-none focus:ring-1 focus:ring-[var(--brand-green)] cursor-pointer shadow-xs"
+              onValueChange={(val) => onDateRangeChange(val)}
             >
-              <option value="Last 30 days">Last 30 days</option>
-              <option value="Last 90 days">Last 90 days</option>
-              <option value="This Year">This Year</option>
-            </select>
-            <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
+              <SelectTrigger className="h-9 data-[size=default]:h-9 pl-9 pr-3 text-xs bg-white border border-[var(--brand-green)] rounded-xl text-[var(--brand-black-font)] font-semibold shadow-xs focus:ring-1 focus:ring-[var(--brand-green)] focus:outline-none cursor-pointer">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Last 30 days" className="text-xs">Last 30 days</SelectItem>
+                <SelectItem value="Last 90 days" className="text-xs">Last 90 days</SelectItem>
+                <SelectItem value="This Year" className="text-xs">This Year</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </div>

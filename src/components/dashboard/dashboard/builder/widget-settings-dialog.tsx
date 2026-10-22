@@ -3,6 +3,13 @@
 import { useCallback, useEffect, useId, useState } from "react";
 import { RotateCcw, Settings, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { getWidgetDefinition } from "@/components/dashboard/dashboard/registry/widget-registry";
 import type {
   DashboardLayoutWidget,
@@ -150,12 +157,9 @@ export function WidgetSettingsDialog({
                   </div>
 
                   {field.type === "select" && (
-                    <select
-                      id={fieldId}
+                    <Select
                       value={String(value ?? "")}
-                      onChange={(e) => {
-                        const raw = e.target.value;
-                        // Coerce to number if options are numeric
+                      onValueChange={(raw) => {
                         const num = Number(raw);
                         const finalVal =
                           !isNaN(num) &&
@@ -164,14 +168,29 @@ export function WidgetSettingsDialog({
                             : raw;
                         handleFieldChange(field.key, finalVal);
                       }}
-                      className="h-9 w-full rounded-xl border border-[var(--brand-stroke)] bg-slate-50 px-3 text-xs text-slate-800 focus:border-[var(--brand-green)] focus:bg-white focus:outline-none cursor-pointer"
                     >
-                      {field.options?.map((opt) => (
-                        <option key={String(opt.value)} value={opt.value}>
-                          {opt.label}
-                        </option>
-                      ))}
-                    </select>
+                      <SelectTrigger
+                        id={fieldId}
+                        className="h-9 data-[size=default]:h-9 w-full rounded-xl border border-[var(--brand-stroke)] bg-slate-50 px-3 text-xs font-normal text-slate-800 shadow-none focus-visible:border-[var(--brand-green)] focus-visible:bg-white focus-visible:ring-0 cursor-pointer"
+                      >
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent
+                        position="popper"
+                        sideOffset={4}
+                        className="w-[var(--radix-select-trigger-width)] min-w-[var(--radix-select-trigger-width)] rounded-xl border border-slate-200 bg-white p-1 shadow-lg ring-0 z-50"
+                      >
+                        {field.options?.map((opt) => (
+                          <SelectItem
+                            key={String(opt.value)}
+                            value={String(opt.value)}
+                            className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+                          >
+                            {opt.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   )}
 
                   {field.type === "number" && (
