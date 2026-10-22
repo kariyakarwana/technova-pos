@@ -19,6 +19,13 @@ import {
   Send,
 } from "lucide-react";
 import PageHeader from "@/components/common/PageHeader";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Sub-components & Helpers
@@ -57,25 +64,6 @@ function Input({
   );
 }
 
-function Select({
-  defaultValue = "",
-  children,
-}: {
-  defaultValue?: string;
-  children?: React.ReactNode;
-}) {
-  return (
-    <div className="relative">
-      <select
-        defaultValue={defaultValue}
-        className="w-full h-10 rounded-xl border border-[var(--brand-stroke)] px-3 pr-8 text-xs text-[var(--brand-black-font)] bg-white focus:outline-none focus:border-[var(--brand-green)] focus:ring-1 focus:ring-[var(--brand-green)]/20 transition-all appearance-none cursor-pointer"
-      >
-        {children}
-      </select>
-      <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
-    </div>
-  );
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Main Update Category Page
@@ -199,15 +187,25 @@ export default function UpdateCategoryPage() {
                 <div>
                   <Label required>Store</Label>
                   <Select defaultValue="Branch 1">
-                    <option value="Branch 1">Branch 1</option>
-                    <option value="Branch 2">Branch 2</option>
+                    <SelectTrigger className="w-full h-10 data-[size=default]:h-10 rounded-xl border border-[var(--brand-stroke)] px-3 text-xs text-[var(--brand-black-font)] bg-white focus:outline-none focus:border-[var(--brand-green)] focus:ring-1 focus:ring-[var(--brand-green)]/20 transition-all">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-72">
+                      <SelectItem value="Branch 1" className="text-xs hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">Branch 1</SelectItem>
+                      <SelectItem value="Branch 2" className="text-xs hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">Branch 2</SelectItem>
+                    </SelectContent>
                   </Select>
                 </div>
                 <div>
                   <Label required>Warehouse</Label>
                   <Select defaultValue="Warehouse 1">
-                    <option value="Warehouse 1">Warehouse 1</option>
-                    <option value="Warehouse 2">Warehouse 2</option>
+                    <SelectTrigger className="w-full h-10 data-[size=default]:h-10 rounded-xl border border-[var(--brand-stroke)] px-3 text-xs text-[var(--brand-black-font)] bg-white focus:outline-none focus:border-[var(--brand-green)] focus:ring-1 focus:ring-[var(--brand-green)]/20 transition-all">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-72">
+                      <SelectItem value="Warehouse 1" className="text-xs hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">Warehouse 1</SelectItem>
+                      <SelectItem value="Warehouse 2" className="text-xs hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">Warehouse 2</SelectItem>
+                    </SelectContent>
                   </Select>
                 </div>
               </div>
@@ -248,9 +246,13 @@ export default function UpdateCategoryPage() {
                 <div>
                   <Label required>Selling Type</Label>
                   <Select defaultValue="">
-                    <option value="">Select</option>
-                    <option value="retail">Retail</option>
-                    <option value="wholesale">Wholesale</option>
+                    <SelectTrigger className="w-full h-10 data-[size=default]:h-10 rounded-xl border border-[var(--brand-stroke)] px-3 text-xs text-[var(--brand-black-font)] bg-white focus:outline-none focus:border-[var(--brand-green)] focus:ring-1 focus:ring-[var(--brand-green)]/20 transition-all">
+                      <SelectValue placeholder="Select" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-72">
+                      <SelectItem value="retail" className="text-xs hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">Retail</SelectItem>
+                      <SelectItem value="wholesale" className="text-xs hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">Wholesale</SelectItem>
+                    </SelectContent>
                   </Select>
                 </div>
               </div>

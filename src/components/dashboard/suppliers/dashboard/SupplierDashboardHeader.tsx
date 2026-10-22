@@ -1,7 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { Calendar, ChevronDown, ChevronRight, Filter } from "lucide-react";
+import { Calendar, ChevronRight, Filter } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface SupplierDashboardHeaderProps {
   dateRange: string;
@@ -54,20 +61,21 @@ export default function SupplierDashboardHeader({
 
           {/* Date Selector */}
           <div className="relative">
-            <div className="h-9 pl-8 pr-7 rounded-xl border border-[var(--brand-green)] bg-white text-xs font-semibold text-slate-700 flex items-center shadow-xs cursor-pointer">
-              <Calendar className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--brand-green)] pointer-events-none" />
-              <select
-                value={dateRange}
-                onChange={(e) => onDateRangeChange?.(e.target.value)}
-                className="bg-transparent focus:outline-none cursor-pointer appearance-none pr-2"
-              >
-                <option value="Last 30 days">Last 30 days</option>
-                <option value="This Month">This Month</option>
-                <option value="This Quarter">This Quarter</option>
-                <option value="This Year">This Year</option>
-              </select>
-              <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
-            </div>
+            <Calendar className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--brand-green)] pointer-events-none z-10" />
+            <Select
+              value={dateRange}
+              onValueChange={(val) => onDateRangeChange?.(val)}
+            >
+              <SelectTrigger className="h-9 data-[size=default]:h-9 pl-8 pr-3 rounded-xl border border-[var(--brand-green)] bg-white text-xs font-semibold text-slate-700 shadow-xs focus:ring-0 cursor-pointer">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Last 30 days" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">Last 30 days</SelectItem>
+                <SelectItem value="This Month" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">This Month</SelectItem>
+                <SelectItem value="This Quarter" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">This Quarter</SelectItem>
+                <SelectItem value="This Year" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">This Year</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </div>

@@ -2,7 +2,14 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { ChevronDown, ShoppingBag } from "lucide-react";
+import { ShoppingBag } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { RecentSaleItem } from "./AdminDashboardTypes";
 
 interface RecentSalesCardProps {
@@ -61,18 +68,35 @@ export default function RecentSalesCard({
         </div>
 
         {/* Period Selector */}
-        <div className="relative">
-          <select
-            value={period}
-            onChange={(e) => setPeriod(e.target.value)}
-            className="h-7 pl-2.5 pr-6 text-[11px] bg-slate-50 border border-[var(--brand-stroke)] rounded-lg text-slate-700 font-semibold appearance-none focus:outline-none cursor-pointer"
+        <Select value={period} onValueChange={setPeriod}>
+          <SelectTrigger className="h-7 data-[size=default]:h-7 w-24 rounded-lg border border-[var(--brand-stroke)] bg-slate-50 px-2.5 text-[11px] font-semibold text-slate-700 shadow-none focus-visible:border-[var(--brand-green)] focus-visible:ring-0 cursor-pointer">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent
+            position="popper"
+            sideOffset={4}
+            className="w-24 min-w-[6rem] rounded-lg border border-slate-200 bg-white p-1 shadow-lg ring-0"
           >
-            <option value="Today">Today</option>
-            <option value="Weekly">Weekly</option>
-            <option value="Monthly">Monthly</option>
-          </select>
-          <ChevronDown className="absolute right-1.5 top-1/2 -translate-y-1/2 h-3 w-3 text-slate-400 pointer-events-none" />
-        </div>
+            <SelectItem
+              value="Today"
+              className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+            >
+              Today
+            </SelectItem>
+            <SelectItem
+              value="Weekly"
+              className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+            >
+              Weekly
+            </SelectItem>
+            <SelectItem
+              value="Monthly"
+              className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+            >
+              Monthly
+            </SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Sales List */}

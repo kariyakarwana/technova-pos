@@ -5,6 +5,13 @@ import { useState } from "react";
 import { Printer, QrCode } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { apiPost } from "@/lib/api/client";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export type PurchaseDetail = {
   id: string;
@@ -477,27 +484,38 @@ export default function PurchaseOrderDetail({
           </div>
           {order.supplierInvoices.length > 0 && (
             <div className="rounded-xl border border-teal-100 bg-teal-50/50 p-4">
-              <label className="block text-xs font-semibold">
-                Supplier-uploaded invoice
-                <select
-                  value={supplierInvoiceId}
-                  onChange={(event) => {
+              <div className="space-y-1">
+                <label className="block text-xs font-semibold">Supplier-uploaded invoice</label>
+                <Select
+                  value={supplierInvoiceId || "none"}
+                  onValueChange={(val) => {
+                    const id = val === "none" ? "" : val;
                     const invoice = order.supplierInvoices.find(
-                      (item) => item.id === event.target.value,
+                      (item) => item.id === id,
                     );
                     setSupplierInvoiceId(invoice?.id ?? "");
                     setSupplierInvoiceNumber(invoice?.invoiceNumber ?? "");
                   }}
-                  className={input}
                 >
-                  {order.supplierInvoices.map((invoice) => (
-                    <option key={invoice.id} value={invoice.id}>
-                      {invoice.invoiceNumber} · {invoice.fileName}
-                    </option>
-                  ))}
-                  <option value="">No uploaded invoice — enter number manually</option>
-                </select>
-              </label>
+                  <SelectTrigger className={`${input} data-[size=default]:h-10 text-sm font-normal text-slate-700 bg-white cursor-pointer`}>
+                    <SelectValue placeholder="No uploaded invoice — enter number manually" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-72">
+                    <SelectItem value="none" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">
+                      No uploaded invoice — enter number manually
+                    </SelectItem>
+                    {order.supplierInvoices.map((invoice) => (
+                      <SelectItem
+                        key={invoice.id}
+                        value={invoice.id}
+                        className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer"
+                      >
+                        {invoice.invoiceNumber} · {invoice.fileName}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
               {supplierInvoiceId && (
                 <a
                   href={`/api/backend/supplier-portal/invoices/${supplierInvoiceId}/file`}

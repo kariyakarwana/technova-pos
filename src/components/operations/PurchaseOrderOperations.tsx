@@ -3,6 +3,13 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { CalendarDays, Plus, Trash2, X } from "lucide-react";
 import { useBranch } from "@/components/dashboard/BranchContext";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { apiGet, apiPost } from "@/lib/api/client";
 import PaginationControls, { type PageMeta } from "./PaginationControls";
 type Order = {
@@ -122,6 +129,10 @@ export default function PurchaseOrderOperations() {
     e.preventDefault();
     if (!branchId)
       return setMessage("Select a branch before creating an order.");
+    if (!supplierId)
+      return setMessage("Select a supplier before creating an order.");
+    if (lines.some((line) => !line.productId))
+      return setMessage("Select a product for every order line.");
     if (
       lines.some(
         (line) => line.discount > line.quantity * line.unitCost + line.tax,
@@ -204,10 +215,99 @@ export default function PurchaseOrderOperations() {
         </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
           <label className="text-xs font-semibold text-slate-600">Order number<input value={orderNumber} onChange={(e) => setOrderNumber(e.target.value)} placeholder="Search PO number" className={input}/></label>
-          <label className="text-xs font-semibold text-slate-600">Supplier<select value={filterSupplierId} onChange={(e) => setFilterSupplierId(e.target.value)} className={input}><option value="">All suppliers</option>{suppliers.map((supplier) => <option key={supplier.id} value={supplier.id}>{supplier.code} · {supplier.name}</option>)}</select></label>
+          <label className="text-xs font-semibold text-slate-600">
+            Supplier
+            <Select
+              value={filterSupplierId || "all"}
+              onValueChange={(v) => setFilterSupplierId(v === "all" ? "" : v)}
+            >
+              <SelectTrigger className={`${input} data-[size=default]:h-10 text-sm font-normal text-slate-700 shadow-none focus-visible:border-[#0E9384] focus-visible:ring-0 cursor-pointer`}>
+                <SelectValue placeholder="All suppliers" />
+              </SelectTrigger>
+              <SelectContent
+                position="popper"
+                sideOffset={4}
+                className="w-[var(--radix-select-trigger-width)] min-w-[var(--radix-select-trigger-width)] max-h-72 rounded-xl border border-slate-200 bg-white p-1 shadow-lg ring-0"
+              >
+                <SelectItem
+                  value="all"
+                  className="cursor-pointer text-sm text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+                >
+                  All suppliers
+                </SelectItem>
+                {suppliers.map((supplier) => (
+                  <SelectItem
+                    key={supplier.id}
+                    value={supplier.id}
+                    className="cursor-pointer text-sm text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+                  >
+                    {supplier.code} · {supplier.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </label>
           <label className="text-xs font-semibold text-slate-600">Minimum amount<input type="number" min="0" step="0.01" value={minAmount} onChange={(e) => setMinAmount(e.target.value)} placeholder="0.00" className={input}/></label>
           <label className="text-xs font-semibold text-slate-600">Maximum amount<input type="number" min="0" step="0.01" value={maxAmount} onChange={(e) => setMaxAmount(e.target.value)} placeholder="Any amount" className={input}/></label>
-          <label className="text-xs font-semibold text-slate-600">Status<select value={status} onChange={(e) => setStatus(e.target.value)} className={input}><option value="">All statuses</option><option value="DRAFT">Draft</option><option value="SUBMITTED">Submitted</option><option value="APPROVED">Approved</option><option value="PARTIALLY_RECEIVED">Partially received</option><option value="RECEIVED">Received</option><option value="CANCELLED">Cancelled</option></select></label>
+          <label className="text-xs font-semibold text-slate-600">
+            Status
+            <Select
+              value={status || "all"}
+              onValueChange={(v) => setStatus(v === "all" ? "" : v)}
+            >
+              <SelectTrigger className={`${input} data-[size=default]:h-10 text-sm font-normal text-slate-700 shadow-none focus-visible:border-[#0E9384] focus-visible:ring-0 cursor-pointer`}>
+                <SelectValue placeholder="All statuses" />
+              </SelectTrigger>
+              <SelectContent
+                position="popper"
+                sideOffset={4}
+                className="w-[var(--radix-select-trigger-width)] min-w-[var(--radix-select-trigger-width)] max-h-72 rounded-xl border border-slate-200 bg-white p-1 shadow-lg ring-0"
+              >
+                <SelectItem
+                  value="all"
+                  className="cursor-pointer text-sm text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+                >
+                  All statuses
+                </SelectItem>
+                <SelectItem
+                  value="DRAFT"
+                  className="cursor-pointer text-sm text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+                >
+                  Draft
+                </SelectItem>
+                <SelectItem
+                  value="SUBMITTED"
+                  className="cursor-pointer text-sm text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+                >
+                  Submitted
+                </SelectItem>
+                <SelectItem
+                  value="APPROVED"
+                  className="cursor-pointer text-sm text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+                >
+                  Approved
+                </SelectItem>
+                <SelectItem
+                  value="PARTIALLY_RECEIVED"
+                  className="cursor-pointer text-sm text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+                >
+                  Partially Received
+                </SelectItem>
+                <SelectItem
+                  value="RECEIVED"
+                  className="cursor-pointer text-sm text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+                >
+                  Received
+                </SelectItem>
+                <SelectItem
+                  value="CANCELLED"
+                  className="cursor-pointer text-sm text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+                >
+                  Cancelled
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </label>
           <label className="text-xs font-semibold text-slate-600">From date<input type="date" value={from} max={to || undefined} onChange={(e) => setFrom(e.target.value)} className={input}/></label>
           <label className="text-xs font-semibold text-slate-600">To date<input type="date" value={to} min={from || undefined} onChange={(e) => setTo(e.target.value)} className={input}/></label>
         </div>
@@ -311,24 +411,27 @@ export default function PurchaseOrderOperations() {
             </div>
             <div className="space-y-5 p-6">
               <div className="grid gap-4 md:grid-cols-3">
-                <label className="text-xs font-semibold">
-                  Supplier *
-                  <select
-                    required
-                    value={supplierId}
-                    onChange={(e) => setSupplierId(e.target.value)}
-                    className={input}
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold">Supplier *</label>
+                  <Select
+                    value={supplierId || "none"}
+                    onValueChange={(val) => setSupplierId(val === "none" ? "" : val)}
                   >
-                    <option value="">Select supplier</option>
-                    {suppliers
-                      .filter((s) => !s.status || s.status === "ACTIVE")
-                      .map((s) => (
-                        <option key={s.id} value={s.id}>
-                          {s.code} · {s.name}
-                        </option>
-                      ))}
-                  </select>
-                </label>
+                    <SelectTrigger className={`${input} data-[size=default]:h-10 text-sm font-normal text-slate-700 shadow-none focus-visible:border-[#0E9384] focus-visible:ring-0 cursor-pointer`}>
+                      <SelectValue placeholder="Select supplier" />
+                    </SelectTrigger>
+                    <SelectContent position="popper" sideOffset={4} className="z-50 max-h-72">
+                      <SelectItem value="none" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">Select supplier</SelectItem>
+                      {suppliers
+                        .filter((s) => !s.status || s.status === "ACTIVE")
+                        .map((s) => (
+                          <SelectItem key={s.id} value={s.id} className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">
+                            {s.code} · {s.name}
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                </div>
                 <label className="text-xs font-semibold">
                   Expected delivery date
                   <div className="relative">
@@ -378,38 +481,40 @@ export default function PurchaseOrderOperations() {
                         key={index}
                         className="grid gap-3 rounded-xl border p-3 md:grid-cols-[2fr_100px_130px_120px_120px_130px_40px]"
                       >
-                        <label className="text-[11px] font-semibold">
-                          Product *
-                          <select
-                            required
-                            value={line.productId}
-                            onChange={(e) => {
-                              const product = products.find(
-                                (p) => p.id === e.target.value,
-                              );
+                        <div className="space-y-1">
+                          <label className="text-[11px] font-semibold">Product *</label>
+                          <Select
+                            value={line.productId || "none"}
+                            onValueChange={(val) => {
+                              const pid = val === "none" ? "" : val;
+                              const product = products.find((p) => p.id === pid);
                               update(index, {
-                                productId: e.target.value,
+                                productId: pid,
                                 unitCost: Number(product?.costPrice ?? 0),
                               });
                             }}
-                            className={input}
                           >
-                            <option value="">Select product</option>
-                            {products
-                              .filter(
-                                (p) =>
-                                  !lines.some(
-                                    (l, i) =>
-                                      i !== index && l.productId === p.id,
-                                  ),
-                              )
-                              .map((p) => (
-                                <option key={p.id} value={p.id}>
-                                  {p.sku} · {p.name}
-                                </option>
-                              ))}
-                          </select>
-                        </label>
+                            <SelectTrigger className={`${input} data-[size=default]:h-10 text-sm font-normal text-slate-700 shadow-none focus-visible:border-[#0E9384] focus-visible:ring-0 cursor-pointer`}>
+                              <SelectValue placeholder="Select product" />
+                            </SelectTrigger>
+                            <SelectContent position="popper" sideOffset={4} className="z-50 max-h-72">
+                              <SelectItem value="none" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">Select product</SelectItem>
+                              {products
+                                .filter(
+                                  (p) =>
+                                    !lines.some(
+                                      (l, i) =>
+                                        i !== index && l.productId === p.id,
+                                    ),
+                                )
+                                .map((p) => (
+                                  <SelectItem key={p.id} value={p.id} className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">
+                                    {p.sku} · {p.name}
+                                  </SelectItem>
+                                ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
                         <label className="text-[11px] font-semibold">
                           Quantity *
                           <input

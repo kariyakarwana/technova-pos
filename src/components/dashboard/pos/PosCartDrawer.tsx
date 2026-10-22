@@ -2,6 +2,13 @@
 
 import { useState } from "react";
 import { Minus, Plus, Trash2, ShoppingCart, AlertCircle } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { CartItem } from "./pos.mock";
 
 interface PosCartDrawerProps {
@@ -85,25 +92,40 @@ export default function PosCartDrawer({
             placeholder="Tare Ref Number"
             className="flex-1 h-7 rounded-md border border-[var(--brand-stroke)] text-[10px] px-2 placeholder:text-slate-300 focus:outline-none focus:border-[var(--brand-green)]"
           />
-          <select className="w-24 h-7 rounded-md border border-[var(--brand-stroke)] text-[10px] px-1 bg-white focus:outline-none focus:border-[var(--brand-green)]">
-            <option>Select Shop</option>
-            <option>Branch 1</option>
-            <option>Branch 2</option>
-          </select>
+          <Select defaultValue="Select Shop">
+            <SelectTrigger className="w-24 h-7 data-[size=default]:h-7 rounded-md border border-[var(--brand-stroke)] text-[10px] px-1 bg-white focus:outline-none focus:border-[var(--brand-green)]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="max-h-72">
+              <SelectItem value="Select Shop" className="text-[10px] hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">Select Shop</SelectItem>
+              <SelectItem value="Branch 1" className="text-[10px] hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">Branch 1</SelectItem>
+              <SelectItem value="Branch 2" className="text-[10px] hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">Branch 2</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Customer + currency */}
         <div className="flex gap-2">
-          <select className="flex-1 h-7 rounded-md border border-[var(--brand-stroke)] text-[10px] px-2 bg-white focus:outline-none focus:border-[var(--brand-green)]">
-            <option>Walk in Customer</option>
-            <option>John Smith</option>
-            <option>Jane Doe</option>
-          </select>
-          <select className="w-14 h-7 rounded-md border border-[var(--brand-stroke)] text-[10px] px-1 bg-white focus:outline-none focus:border-[var(--brand-green)]">
-            <option>USD</option>
-            <option>LKR</option>
-            <option>EUR</option>
-          </select>
+          <Select defaultValue="Walk in Customer">
+            <SelectTrigger className="flex-1 h-7 data-[size=default]:h-7 rounded-md border border-[var(--brand-stroke)] text-[10px] px-2 bg-white focus:outline-none focus:border-[var(--brand-green)]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="max-h-72">
+              <SelectItem value="Walk in Customer" className="text-[10px] hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">Walk in Customer</SelectItem>
+              <SelectItem value="John Smith" className="text-[10px] hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">John Smith</SelectItem>
+              <SelectItem value="Jane Doe" className="text-[10px] hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">Jane Doe</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select defaultValue="USD">
+            <SelectTrigger className="w-14 h-7 data-[size=default]:h-7 rounded-md border border-[var(--brand-stroke)] text-[10px] px-1 bg-white focus:outline-none focus:border-[var(--brand-green)]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="max-h-72">
+              <SelectItem value="USD" className="text-[10px] hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">USD</SelectItem>
+              <SelectItem value="LKR" className="text-[10px] hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">LKR</SelectItem>
+              <SelectItem value="EUR" className="text-[10px] hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">EUR</SelectItem>
+            </SelectContent>
+          </Select>
           <input
             type="text"
             placeholder="Currency Exchange Rate"

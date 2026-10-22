@@ -1,6 +1,13 @@
 "use client";
 
-import { Calendar, ChevronDown, Store } from "lucide-react";
+import { Calendar, Store } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface AddOrderDetailsCardProps {
   supplier: string;
@@ -41,21 +48,24 @@ export default function AddOrderDetailsCard({
           <label className="text-xs font-semibold text-slate-700">
             Supplier
           </label>
-          <div className="relative">
-            <select
-              value={supplier}
-              onChange={(e) => onSupplierChange(e.target.value)}
-              className="w-full h-10 pl-3.5 pr-9 text-xs bg-white border border-[var(--brand-stroke)] rounded-xl text-[var(--brand-black-font)] appearance-none focus:outline-none focus:border-[var(--brand-green)] cursor-pointer shadow-xs font-medium"
-            >
-              <option value="">Select Supplier</option>
+          <Select
+            value={supplier || "none"}
+            onValueChange={(val) => onSupplierChange(val === "none" ? "" : val)}
+          >
+            <SelectTrigger className="w-full h-10 data-[size=default]:h-10 px-3.5 text-xs bg-white border border-[var(--brand-stroke)] rounded-xl text-[var(--brand-black-font)] focus:outline-none focus:border-[var(--brand-green)] shadow-xs font-medium">
+              <SelectValue placeholder="Select Supplier" />
+            </SelectTrigger>
+            <SelectContent className="max-h-72">
+              <SelectItem value="none" className="text-xs hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">
+                Select Supplier
+              </SelectItem>
               {supplierOptions.map((s) => (
-                <option key={s} value={s}>
+                <SelectItem key={s} value={s} className="text-xs hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">
                   {s}
-                </option>
+                </SelectItem>
               ))}
-            </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
-          </div>
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Delivery Branch */}
@@ -64,19 +74,22 @@ export default function AddOrderDetailsCard({
             Delivery Branch
           </label>
           <div className="relative">
-            <Store className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
-            <select
-              value={branch}
-              onChange={(e) => onBranchChange(e.target.value)}
-              className="w-full h-10 pl-9 pr-9 text-xs bg-white border border-[var(--brand-stroke)] rounded-xl text-[var(--brand-black-font)] appearance-none focus:outline-none focus:border-[var(--brand-green)] cursor-pointer shadow-xs font-medium"
+            <Store className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none z-10" />
+            <Select
+              value={branch || "none"}
+              onValueChange={(val) => onBranchChange(val === "none" ? "" : val)}
             >
-              {branchOptions.map((b) => (
-                <option key={b} value={b}>
-                  {b}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
+              <SelectTrigger className="w-full h-10 data-[size=default]:h-10 pl-9 pr-3.5 text-xs bg-white border border-[var(--brand-stroke)] rounded-xl text-[var(--brand-black-font)] focus:outline-none focus:border-[var(--brand-green)] shadow-xs font-medium">
+                <SelectValue placeholder="Select Branch" />
+              </SelectTrigger>
+              <SelectContent className="max-h-72">
+                {branchOptions.map((b) => (
+                  <SelectItem key={b} value={b} className="text-xs hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">
+                    {b}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
 

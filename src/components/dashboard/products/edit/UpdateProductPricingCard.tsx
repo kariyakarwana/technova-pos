@@ -2,6 +2,13 @@
 
 import { useState } from "react";
 import { ChevronDown, ChevronUp, DollarSign } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface UpdateProductPricingCardProps {
   productType: "single" | "variable";
@@ -116,18 +123,19 @@ export default function UpdateProductPricingCard({
               <label className="block text-xs font-semibold text-[var(--brand-black-font)] mb-1.5">
                 Tax Type <span className="text-[var(--brand-red)] ml-0.5">*</span>
               </label>
-              <div className="relative">
-                <select
-                  value={taxType}
-                  onChange={(e) => onTaxTypeChange(e.target.value)}
-                  className="w-full h-10 rounded-xl border border-[var(--brand-stroke)] px-3 pr-8 text-xs text-[var(--brand-black-font)] bg-white focus:outline-none focus:border-[var(--brand-green)] appearance-none cursor-pointer"
-                >
-                  <option value="Exclusive">Exclusive</option>
-                  <option value="Inclusive">Inclusive</option>
-                  <option value="None">None</option>
-                </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
-              </div>
+              <Select
+                value={taxType}
+                onValueChange={(val) => onTaxTypeChange(val)}
+              >
+                <SelectTrigger className="w-full h-10 data-[size=default]:h-10 rounded-xl border border-[var(--brand-stroke)] px-3 text-xs text-[var(--brand-black-font)] bg-white focus:border-[var(--brand-green)] cursor-pointer">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="max-h-72">
+                  <SelectItem value="Exclusive" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">Exclusive</SelectItem>
+                  <SelectItem value="Inclusive" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">Inclusive</SelectItem>
+                  <SelectItem value="None" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">None</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
@@ -137,17 +145,18 @@ export default function UpdateProductPricingCard({
               <label className="block text-xs font-semibold text-[var(--brand-black-font)] mb-1.5">
                 Discount Type <span className="text-[var(--brand-red)] ml-0.5">*</span>
               </label>
-              <div className="relative">
-                <select
-                  value={discountType}
-                  onChange={(e) => onDiscountTypeChange(e.target.value)}
-                  className="w-full h-10 rounded-xl border border-[var(--brand-stroke)] px-3 pr-8 text-xs text-[var(--brand-black-font)] bg-white focus:outline-none focus:border-[var(--brand-green)] appearance-none cursor-pointer"
-                >
-                  <option value="Percentage">Percentage</option>
-                  <option value="Fixed Amount">Fixed Amount</option>
-                </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
-              </div>
+              <Select
+                value={discountType}
+                onValueChange={(val) => onDiscountTypeChange(val)}
+              >
+                <SelectTrigger className="w-full h-10 data-[size=default]:h-10 rounded-xl border border-[var(--brand-stroke)] px-3 text-xs text-[var(--brand-black-font)] bg-white focus:border-[var(--brand-green)] cursor-pointer">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="max-h-72">
+                  <SelectItem value="Percentage" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">Percentage</SelectItem>
+                  <SelectItem value="Fixed Amount" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">Fixed Amount</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <label className="block text-xs font-semibold text-[var(--brand-black-font)] mb-1.5">

@@ -1,6 +1,13 @@
 "use client";
 
-import { ArrowDown, ArrowUp, ChevronDown, Minus, Plus, SlidersHorizontal } from "lucide-react";
+import { ArrowDown, ArrowUp, Minus, Plus, SlidersHorizontal } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export type StockAdjustmentType = "OUT" | "IN";
 
@@ -110,21 +117,32 @@ export default function AdjustmentDetailsForm({
         <label className="text-xs font-semibold text-[var(--brand-black-font)]">
           Reason for Adjustment
         </label>
-        <div className="relative max-w-md">
-          <select
-            value={reason}
-            onChange={(e) => onReasonChange(e.target.value)}
-            className="w-full h-10 pl-3.5 pr-8 text-xs bg-white border border-[var(--brand-stroke)] rounded-xl text-[var(--brand-black-font)] appearance-none focus:outline-none focus:border-[var(--brand-green)] focus:ring-1 focus:ring-[var(--brand-green)]/20 cursor-pointer shadow-xs font-medium"
+        <div className="max-w-md">
+          <Select
+            value={reason || "Damaged Goods"}
+            onValueChange={(val) => onReasonChange(val)}
           >
-            <option value="Damaged Goods">Damaged Goods</option>
-            <option value="Inventory Count Correction">
-              Inventory Count Correction
-            </option>
-            <option value="Expired Stock">Expired Stock</option>
-            <option value="Display Write-Off">Display Write-Off</option>
-            <option value="Theft/Lost">Theft/Lost</option>
-          </select>
-          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+            <SelectTrigger className="w-full h-10 data-[size=default]:h-10 px-3.5 text-xs bg-white border border-[var(--brand-stroke)] rounded-xl text-[var(--brand-black-font)] focus:outline-none focus:border-[var(--brand-green)] focus:ring-1 focus:ring-[var(--brand-green)]/20 cursor-pointer shadow-xs font-medium">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="max-h-72">
+              <SelectItem value="Damaged Goods" className="text-xs hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">
+                Damaged Goods
+              </SelectItem>
+              <SelectItem value="Inventory Count Correction" className="text-xs hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">
+                Inventory Count Correction
+              </SelectItem>
+              <SelectItem value="Expired Stock" className="text-xs hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">
+                Expired Stock
+              </SelectItem>
+              <SelectItem value="Display Write-Off" className="text-xs hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">
+                Display Write-Off
+              </SelectItem>
+              <SelectItem value="Theft/Lost" className="text-xs hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">
+                Theft/Lost
+              </SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 

@@ -1,7 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, Link2 } from "lucide-react";
+import { Link2 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface ReceiptDetailsCardProps {
   onConfirm?: () => void;
@@ -28,19 +35,25 @@ export default function ReceiptDetailsCard({ onConfirm }: ReceiptDetailsCardProp
           <label className="text-xs font-semibold text-[#1D2939]">
             Supplier
           </label>
-          <div className="relative">
-            <select
-              value={supplier}
-              onChange={(e) => setSupplier(e.target.value)}
-              className="w-full h-10 pl-3 pr-8 text-xs bg-white border border-[#E4E7EC] rounded-xl text-[#1D2939] appearance-none focus:outline-none focus:border-[#0E9384] focus:ring-1 focus:ring-[#0E9384]/20 cursor-pointer shadow-xs font-medium"
-            >
-              <option value="GlobalTech Solutions">Select Supplier</option>
-              <option value="GlobalTech Solutions">GlobalTech Solutions</option>
-              <option value="Nexus Supplies Ltd">Nexus Supplies Ltd</option>
-              <option value="Prime Distributors">Prime Distributors</option>
-            </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
-          </div>
+          <Select
+            value={supplier}
+            onValueChange={(val) => setSupplier(val)}
+          >
+            <SelectTrigger className="w-full h-10 data-[size=default]:h-10 px-3 text-xs bg-white border border-[#E4E7EC] rounded-xl text-[#1D2939] focus:outline-none focus:border-[#0E9384] focus:ring-1 focus:ring-[#0E9384]/20 cursor-pointer shadow-xs font-medium">
+              <SelectValue placeholder="Select Supplier" />
+            </SelectTrigger>
+            <SelectContent className="max-h-72">
+              <SelectItem value="GlobalTech Solutions" className="text-xs hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">
+                GlobalTech Solutions
+              </SelectItem>
+              <SelectItem value="Nexus Supplies Ltd" className="text-xs hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">
+                Nexus Supplies Ltd
+              </SelectItem>
+              <SelectItem value="Prime Distributors" className="text-xs hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">
+                Prime Distributors
+              </SelectItem>
+            </SelectContent>
+          </Select>
           <div className="flex items-center gap-4 text-[11px] text-slate-500 font-medium pt-0.5">
             <span>ID: SUP-1001</span>
             <span>contact@globaltech.com</span>
@@ -85,22 +98,25 @@ export default function ReceiptDetailsCard({ onConfirm }: ReceiptDetailsCardProp
           <label className="text-xs font-semibold text-[#1D2939]">
             Destination Branch/Warehouse
           </label>
-          <div className="relative">
-            <select
-              value={destinationWarehouse}
-              onChange={(e) => setDestinationWarehouse(e.target.value)}
-              className="w-full h-10 pl-3 pr-8 text-xs bg-white border border-[#E4E7EC] rounded-xl text-[#1D2939] appearance-none focus:outline-none focus:border-[#0E9384] focus:ring-1 focus:ring-[#0E9384]/20 cursor-pointer shadow-xs font-medium"
-            >
-              <option value="Main Warehouse (New York)">
+          <Select
+            value={destinationWarehouse}
+            onValueChange={(val) => setDestinationWarehouse(val)}
+          >
+            <SelectTrigger className="w-full h-10 data-[size=default]:h-10 px-3 text-xs bg-white border border-[#E4E7EC] rounded-xl text-[#1D2939] focus:outline-none focus:border-[#0E9384] focus:ring-1 focus:ring-[#0E9384]/20 cursor-pointer shadow-xs font-medium">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="max-h-72">
+              <SelectItem value="Main Warehouse (New York)" className="text-xs hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">
                 Main Warehouse (New York)
-              </option>
-              <option value="Downtown Flagship">Downtown Flagship</option>
-              <option value="Westside Distribution Center">
+              </SelectItem>
+              <SelectItem value="Downtown Flagship" className="text-xs hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">
+                Downtown Flagship
+              </SelectItem>
+              <SelectItem value="Westside Distribution Center" className="text-xs hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">
                 Westside Distribution Center
-              </option>
-            </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
-          </div>
+              </SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         <button

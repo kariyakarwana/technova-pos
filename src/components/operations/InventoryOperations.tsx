@@ -6,6 +6,13 @@ import { Minus, Plus, QrCode, Repeat2, Search } from "lucide-react";
 import { useBranch } from "@/components/dashboard/BranchContext";
 import { apiGet, apiPost } from "@/lib/api/client";
 import PaginationControls, { type PageMeta } from "./PaginationControls";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type Stock = {
   id: string;
@@ -171,37 +178,59 @@ export default function InventoryOperations() {
             <button type="button" onClick={() => { setDirection("IN"); setReason(""); }} className={`flex items-center justify-center gap-2 rounded-xl border-2 px-3 py-3 text-sm font-bold transition ${direction === "IN" ? "border-emerald-500 bg-emerald-50 text-emerald-700" : "border-slate-200 text-slate-500"}`}><Plus className="h-5 w-5"/>Increase stock</button>
             <button type="button" onClick={() => { setDirection("OUT"); setReason(""); }} className={`flex items-center justify-center gap-2 rounded-xl border-2 px-3 py-3 text-sm font-bold transition ${direction === "OUT" ? "border-rose-500 bg-rose-50 text-rose-700" : "border-slate-200 text-slate-500"}`}><Minus className="h-5 w-5"/>Decrease stock</button>
           </div>
-          <label className="block text-xs font-semibold">
-            Product
-            <div className="relative mt-1"><Search className="pointer-events-none absolute left-3 top-3 h-4 w-4 text-slate-400"/>
-            <select
-              required
-              value={selected}
-              onChange={(e) => setSelected(e.target.value)}
-              className="h-10 w-full appearance-none rounded-xl border py-0 pl-9 pr-3"
-            >
-              <option value="">Select product</option>
-              {stock
-                .filter((item) => !item.product.trackSerials)
-                .map((item) => (
-                  <option key={item.product.id} value={item.product.id}>
-                    {item.product.sku} · {item.product.name}
-                  </option>
-                ))}
-            </select>
+          <div className="space-y-1">
+            <label className="block text-xs font-semibold">Product</label>
+            <div className="relative mt-1">
+              <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 z-10"/>
+              <Select
+                value={selected || "none"}
+                onValueChange={(val) => setSelected(val === "none" ? "" : val)}
+              >
+                <SelectTrigger className="h-10 data-[size=default]:h-10 w-full rounded-xl border pl-9 pr-3 text-xs bg-white">
+                  <SelectValue placeholder="Select product" />
+                </SelectTrigger>
+                <SelectContent className="max-h-72">
+                  <SelectItem value="none" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">Select product</SelectItem>
+                  {stock
+                    .filter((item) => !item.product.trackSerials)
+                    .map((item) => (
+                      <SelectItem
+                        key={item.product.id}
+                        value={item.product.id}
+                        className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer"
+                      >
+                        {item.product.sku} · {item.product.name}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
             </div>
-          </label>
+          </div>
           {selectedStock && <div className="rounded-xl border border-teal-100 bg-teal-50 p-3"><p className="text-xs text-slate-500">Selected product</p><p className="font-semibold">{selectedStock.product.name}</p><div className="mt-2 flex justify-between text-xs"><span>Current stock <b>{currentBalance}</b></span><span>Available <b>{currentBalance - Number(selectedStock.quantityReserved)}</b></span></div></div>}
           <label className="block text-xs font-semibold">Quantity to {direction === "IN" ? "add" : "remove"}<div className="mt-1 flex items-center rounded-xl border bg-white"><button type="button" onClick={() => setQuantity((value) => Math.max(0.001, value - 1))} className="h-10 w-11 border-r text-lg font-bold text-slate-500">−</button><input required type="number" min="0.001" max={direction === "OUT" ? currentBalance : undefined} step="0.001" value={quantity} onChange={(e) => setQuantity(Math.max(0, Number(e.target.value)))} className="h-10 min-w-0 flex-1 text-center font-bold outline-none"/><button type="button" onClick={() => setQuantity((value) => value + 1)} className="h-10 w-11 border-l text-lg font-bold text-slate-500">+</button></div></label>
-          <label className="block text-xs font-semibold">
-            Reason for adjustment
-            <select
-              required
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
-              className="mt-1 h-10 w-full rounded-xl border px-3 text-sm"
-            ><option value="">Select a reason</option>{reasonOptions.map((item) => <option key={item} value={item}>{item}</option>)}</select>
-          </label>
+          <div className="space-y-1">
+            <label className="block text-xs font-semibold">Reason for adjustment</label>
+            <Select
+              value={reason || "none"}
+              onValueChange={(val) => setReason(val === "none" ? "" : val)}
+            >
+              <SelectTrigger className="mt-1 h-10 data-[size=default]:h-10 w-full rounded-xl border px-3 text-sm bg-white">
+                <SelectValue placeholder="Select a reason" />
+              </SelectTrigger>
+              <SelectContent className="max-h-72">
+                <SelectItem value="none" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">Select a reason</SelectItem>
+                {reasonOptions.map((item) => (
+                  <SelectItem
+                    key={item}
+                    value={item}
+                    className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer"
+                  >
+                    {item}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           {reason === "Other" && <label className="block text-xs font-semibold">Explain the reason<textarea required value={otherReason} onChange={(event) => setOtherReason(event.target.value)} className="mt-1 min-h-20 w-full rounded-xl border p-3 text-sm" placeholder="Provide enough detail for the inventory audit trail."/></label>}
           <div className={`rounded-xl p-4 text-white ${direction === "IN" ? "bg-gradient-to-br from-[#087F6F] to-[#0E9384]" : "bg-gradient-to-br from-[#B42318] to-[#D92D20]"}`}><p className="text-[10px] uppercase tracking-wider text-white/70">Impact preview</p><div className="mt-2 flex items-end justify-between"><div><p className="text-xs text-white/70">Current</p><p className="text-xl font-bold">{currentBalance}</p></div><p className="pb-1 text-lg font-bold">{direction === "IN" ? "+" : "−"}{quantity || 0}</p><div className="text-right"><p className="text-xs text-white/70">New balance</p><p className="text-2xl font-bold">{resultingBalance}</p></div></div></div>
           {direction === "OUT" && resultingBalance < 0 && <p className="rounded-xl bg-rose-50 p-3 text-xs font-semibold text-rose-700">You cannot remove more than the current stock.</p>}

@@ -13,7 +13,6 @@ import {
   CheckCircle2,
   ChevronRight,
   CircleDollarSign,
-  Clock3,
   LoaderCircle,
   PackagePlus,
   RefreshCw,
@@ -32,6 +31,13 @@ import {
   YAxis,
 } from "recharts";
 import { apiGet, apiPost } from "@/lib/api/client";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type {
   AIOverview,
   DemandForecastHorizon,
@@ -384,33 +390,78 @@ export default function AIIntelligenceClientView() {
           <div className="flex flex-wrap items-end gap-2">
             <label className="grid gap-1 text-[11px] font-semibold text-slate-500">
               Branch
-              <select
-                value={branchId}
-                onChange={(event) => setBranchId(event.target.value)}
-                className="h-10 min-w-44 rounded-xl border border-slate-200 bg-white px-3 text-xs text-slate-800 outline-none focus:border-[var(--brand-green)]"
+              <Select
+                value={branchId || "all"}
+                onValueChange={(val) => setBranchId(val === "all" ? "" : val)}
               >
-                <option value="">All branches</option>
-                {overview?.branches.map((branch) => (
-                  <option key={branch.id} value={branch.id}>
-                    {branch.name}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger className="h-10 data-[size=default]:h-10 min-w-44 rounded-xl border border-slate-200 bg-white px-3 text-xs font-normal text-slate-800 shadow-none focus-visible:border-[var(--brand-green)] focus-visible:ring-0 cursor-pointer">
+                  <SelectValue placeholder="All branches" />
+                </SelectTrigger>
+                <SelectContent
+                  position="popper"
+                  sideOffset={4}
+                  align="end"
+                  className="w-[var(--radix-select-trigger-width)] min-w-[var(--radix-select-trigger-width)] max-h-72 rounded-xl border border-slate-200 bg-white p-1 shadow-lg ring-0"
+                >
+                  <SelectItem
+                    value="all"
+                    className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+                  >
+                    All branches
+                  </SelectItem>
+                  {overview?.branches.map((branch) => (
+                    <SelectItem
+                      key={branch.id}
+                      value={branch.id}
+                      className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+                    >
+                      {branch.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </label>
             <label className="grid gap-1 text-[11px] font-semibold text-slate-500">
               Forecast horizon
-              <select
-                value={forecastDays}
-                onChange={(event) =>
-                  setForecastDays(Number(event.target.value))
-                }
-                className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-xs text-slate-800 outline-none focus:border-[var(--brand-green)]"
+              <Select
+                value={String(forecastDays)}
+                onValueChange={(val) => setForecastDays(Number(val))}
               >
-                <option value={30}>30 days</option>
-                <option value={90}>90 days</option>
-                <option value={180}>6 months</option>
-                <option value={365}>1 year</option>
-              </select>
+                <SelectTrigger className="h-10 data-[size=default]:h-10 min-w-32 rounded-xl border border-slate-200 bg-white px-3 text-xs font-normal text-slate-800 shadow-none focus-visible:border-[var(--brand-green)] focus-visible:ring-0 cursor-pointer">
+                  <SelectValue placeholder="Forecast horizon" />
+                </SelectTrigger>
+                <SelectContent
+                  position="popper"
+                  sideOffset={4}
+                  align="end"
+                  className="w-[var(--radix-select-trigger-width)] min-w-[var(--radix-select-trigger-width)] max-h-72 rounded-xl border border-slate-200 bg-white p-1 shadow-lg ring-0"
+                >
+                  <SelectItem
+                    value="30"
+                    className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+                  >
+                    30 days
+                  </SelectItem>
+                  <SelectItem
+                    value="90"
+                    className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+                  >
+                    90 days
+                  </SelectItem>
+                  <SelectItem
+                    value="180"
+                    className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+                  >
+                    6 months
+                  </SelectItem>
+                  <SelectItem
+                    value="365"
+                    className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+                  >
+                    1 year
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </label>
             <button
               type="button"
@@ -689,21 +740,25 @@ export default function AIIntelligenceClientView() {
             <div className="flex flex-col gap-3 rounded-2xl border border-[var(--brand-stroke)] bg-white p-5 shadow-xs sm:flex-row sm:items-end">
               <label className="grid flex-1 gap-1.5 text-xs font-bold text-slate-700">
                 Customer
-                <select
-                  value={selectedCustomerId}
-                  onChange={(event) => {
-                    setSelectedCustomerId(event.target.value);
+                <Select
+                  value={selectedCustomerId || undefined}
+                  onValueChange={(val) => {
+                    setSelectedCustomerId(val);
                     setLoyalty(null);
                   }}
-                  className="h-10 rounded-xl border border-slate-200 px-3 text-sm font-medium outline-none focus:border-[var(--brand-green)]"
                 >
-                  {overview.customers.map((customer) => (
-                    <option key={customer.id} value={customer.id}>
-                      {customer.customerNumber} — {customer.firstName}{" "}
-                      {customer.lastName ?? ""}
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger className="h-10 data-[size=default]:h-10 rounded-xl border border-slate-200 px-3 text-sm font-medium outline-none focus:border-[var(--brand-green)]">
+                    <SelectValue placeholder="Select a customer" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-72">
+                    {overview.customers.map((customer) => (
+                      <SelectItem key={customer.id} value={customer.id}>
+                        {customer.customerNumber} — {customer.firstName}{" "}
+                        {customer.lastName ?? ""}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </label>
               <button
                 type="button"
@@ -830,17 +885,21 @@ function ProductForecastPanel({
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <select
-              value={selectedProductId}
-              onChange={(event) => onSelect(event.target.value)}
-              className="h-9 min-w-0 max-w-full rounded-xl border border-slate-200 bg-white px-3 text-xs font-semibold outline-none focus:border-[var(--brand-green)]"
+            <Select
+              value={selectedProductId || undefined}
+              onValueChange={(val) => onSelect(val)}
             >
-              {products.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.sku} — {item.name}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger className="h-9 data-[size=default]:h-9 min-w-0 max-w-full rounded-xl border border-slate-200 bg-white px-3 text-xs font-semibold outline-none focus:border-[var(--brand-green)]">
+                <SelectValue placeholder="Select product" />
+              </SelectTrigger>
+              <SelectContent className="max-h-72">
+                {products.map((item) => (
+                  <SelectItem key={item.id} value={item.id}>
+                    {item.sku} — {item.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             {onDemandHorizonChange && (
               <div className="flex items-center rounded-xl border border-slate-200 bg-slate-50/80 p-0.5">
                 {([7, 14, 30] as const).map((h) => (

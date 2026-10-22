@@ -1,6 +1,13 @@
 "use client";
 
-import { Calendar, ChevronDown } from "lucide-react";
+import { Calendar } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { SupplierPOStatus } from "./SupplierPurchaseOrdersMock";
 
 interface SupplierPurchaseOrdersFilterBarProps {
@@ -40,20 +47,25 @@ export default function SupplierPurchaseOrdersFilterBar({
           <label className="text-xs font-semibold text-slate-700">
             Supplier
           </label>
-          <div className="relative">
-            <select
-              value={selectedSupplier}
-              onChange={(e) => onSupplierChange(e.target.value)}
-              className="w-full h-10 pl-3.5 pr-9 text-xs bg-white border border-[var(--brand-stroke)] rounded-xl text-[var(--brand-black-font)] appearance-none focus:outline-none focus:border-[var(--brand-green)] cursor-pointer shadow-xs font-medium"
-            >
+          <Select
+            value={selectedSupplier}
+            onValueChange={(val) => onSupplierChange(val)}
+          >
+            <SelectTrigger className="w-full h-10 data-[size=default]:h-10 px-3.5 text-xs bg-white border border-[var(--brand-stroke)] rounded-xl text-[var(--brand-black-font)] shadow-xs font-medium focus:border-[var(--brand-green)]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="max-h-72">
               {supplierOptions.map((sup) => (
-                <option key={sup} value={sup}>
+                <SelectItem
+                  key={sup}
+                  value={sup}
+                  className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer"
+                >
                   {sup}
-                </option>
+                </SelectItem>
               ))}
-            </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
-          </div>
+            </SelectContent>
+          </Select>
         </div>
 
         {/* 2. Date Range Input */}
@@ -78,22 +90,27 @@ export default function SupplierPurchaseOrdersFilterBar({
           <label className="text-xs font-semibold text-slate-700">
             Status
           </label>
-          <div className="relative">
-            <select
-              value={selectedStatus}
-              onChange={(e) =>
-                onStatusChange(e.target.value as "All Statuses" | SupplierPOStatus)
-              }
-              className="w-full h-10 pl-3.5 pr-9 text-xs bg-white border border-[var(--brand-stroke)] rounded-xl text-[var(--brand-black-font)] appearance-none focus:outline-none focus:border-[var(--brand-green)] cursor-pointer shadow-xs font-medium"
-            >
+          <Select
+            value={selectedStatus}
+            onValueChange={(val) =>
+              onStatusChange(val as "All Statuses" | SupplierPOStatus)
+            }
+          >
+            <SelectTrigger className="w-full h-10 data-[size=default]:h-10 px-3.5 text-xs bg-white border border-[var(--brand-stroke)] rounded-xl text-[var(--brand-black-font)] shadow-xs font-medium focus:border-[var(--brand-green)]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="max-h-72">
               {statusOptions.map((st) => (
-                <option key={st} value={st}>
+                <SelectItem
+                  key={st}
+                  value={st}
+                  className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer"
+                >
                   {st}
-                </option>
+                </SelectItem>
               ))}
-            </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
-          </div>
+            </SelectContent>
+          </Select>
         </div>
       </div>
     </div>

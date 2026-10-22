@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useEffect, useRef, useState, useTransition } from "react";
 import {
   Bell,
-  ChevronDown,
   LogOut,
   Maximize,
   Menu,
@@ -14,6 +13,13 @@ import {
   User,
 } from "lucide-react";
 import { logoutAction } from "@/lib/auth/actions";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useBranch } from "./BranchContext";
 
 interface NavbarProps {
@@ -105,27 +111,41 @@ export default function Navbar({
       </div>
 
       <div className="flex items-center gap-2.5">
-        <div className="flex items-center gap-1.5 rounded-lg border border-[#0E9384] bg-white px-2.5 py-1">
-          <span className="text-xs font-medium text-slate-500">Branch</span>
-          <div className="relative">
-            <select
-              id="branch-selector"
-              className="cursor-pointer appearance-none bg-transparent pr-5 text-xs font-medium text-[#212B36] focus:outline-none"
-              value={branchId}
-              onChange={(event) => setBranchId(event.target.value)}
-            >
-              {branches.length === 0 && (
-                <option value="">No branch assigned</option>
-              )}
-              {branches.map((branch) => (
-                <option key={branch.id} value={branch.id}>
+        <Select value={branchId || undefined} onValueChange={setBranchId}>
+          <SelectTrigger
+            id="branch-selector"
+            aria-label="Branch"
+            className="h-8 w-[260px] gap-1.5 rounded-lg border-[#0E9384] bg-white px-2.5 py-1 text-xs font-medium text-[#212B36] shadow-none focus-visible:border-[#0E9384] focus-visible:ring-2 focus-visible:ring-[#0e9f90]/30 [&_svg]:size-3.5 [&_svg]:text-slate-400"
+          >
+            <span className="shrink-0 text-xs font-medium text-slate-500">Branch</span>
+            <SelectValue placeholder="No branch assigned" className="truncate text-left" />
+          </SelectTrigger>
+          <SelectContent
+            position="popper"
+            sideOffset={4}
+            className="min-w-[var(--radix-select-trigger-width)] w-max max-w-[340px] rounded-lg border border-slate-200 bg-white p-1 shadow-lg ring-0"
+          >
+            {branches.length === 0 ? (
+              <SelectItem
+                value="no-branch"
+                disabled
+                className="cursor-pointer whitespace-nowrap text-sm text-slate-400"
+              >
+                No branch assigned
+              </SelectItem>
+            ) : (
+              branches.map((branch) => (
+                <SelectItem
+                  key={branch.id}
+                  value={branch.id}
+                  className="cursor-pointer whitespace-nowrap text-sm text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+                >
                   {branch.name}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="pointer-events-none absolute right-0 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-400" />
-          </div>
-        </div>
+                </SelectItem>
+              ))
+            )}
+          </SelectContent>
+        </Select>
 
         {/* <Link
           id="navbar-add-btn"

@@ -14,6 +14,13 @@ import {
 import BarcodeScannerButton from "./BarcodeScannerButton";
 import ProductMediaUploadFields from "./ProductMediaUploadFields";
 import { BackButton } from "@/components/ui/back-button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type Lookup = { id: string; name: string };
 export type EditableProduct = {
@@ -245,35 +252,49 @@ export default function ProductForm({
             </label>
             <label className="text-xs font-semibold">
               Category
-              <select
-                value={form.categoryId}
-                onChange={(e) =>
-                  setForm({ ...form, categoryId: e.target.value })
+              <Select
+                value={form.categoryId || "none"}
+                onValueChange={(val) =>
+                  setForm({ ...form, categoryId: val === "none" ? "" : val })
                 }
-                className={input}
               >
-                <option value="">Uncategorized</option>
-                {categories.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.name}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger className="mt-1 h-10 data-[size=default]:h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-xs outline-none focus:border-[#0E9384] focus:ring-2 focus:ring-[#0E9384]/10">
+                  <SelectValue placeholder="Uncategorized" />
+                </SelectTrigger>
+                <SelectContent className="max-h-72">
+                  <SelectItem value="none" className="text-xs hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">
+                    Uncategorized
+                  </SelectItem>
+                  {categories.map((item) => (
+                    <SelectItem key={item.id} value={item.id} className="text-xs hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">
+                      {item.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </label>
             <label className="text-xs font-semibold">
               Brand
-              <select
-                value={form.brandId}
-                onChange={(e) => setForm({ ...form, brandId: e.target.value })}
-                className={input}
+              <Select
+                value={form.brandId || "none"}
+                onValueChange={(val) =>
+                  setForm({ ...form, brandId: val === "none" ? "" : val })
+                }
               >
-                <option value="">Unbranded</option>
-                {brands.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.name}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger className="mt-1 h-10 data-[size=default]:h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-xs outline-none focus:border-[#0E9384] focus:ring-2 focus:ring-[#0E9384]/10">
+                  <SelectValue placeholder="Unbranded" />
+                </SelectTrigger>
+                <SelectContent className="max-h-72">
+                  <SelectItem value="none" className="text-xs hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">
+                    Unbranded
+                  </SelectItem>
+                  {brands.map((item) => (
+                    <SelectItem key={item.id} value={item.id} className="text-xs hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">
+                      {item.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </label>
             <label className="text-xs font-semibold sm:col-span-2">
               Description

@@ -2,6 +2,13 @@
 
 import Link from "next/link";
 import { Calendar, ChevronRight, Filter } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface SupplierPortalHeaderProps {
   dateRange: string;
@@ -52,12 +59,21 @@ export default function SupplierPortalHeader({
           </button>
 
           <div className="relative">
-            <select
+            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--brand-green)] pointer-events-none z-10" />
+            <Select
               value={dateRange}
-              onChange={(e) => onDateRangeChange(e.target.value)}
-              className="h-9 pl-9 pr-8 text-xs bg-white border border-[var(--brand-stroke)] rounded-xl text-slate-700 font-semibold focus:outline-none focus:border-[var(--brand-green)] shadow-2xs"
-            ><option value="30">Last 30 days</option><option value="90">Last 90 days</option><option value="365">Last 12 months</option><option value="all">All orders</option></select>
-            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--brand-green)] pointer-events-none" />
+              onValueChange={(val) => onDateRangeChange(val)}
+            >
+              <SelectTrigger className="h-9 data-[size=default]:h-9 pl-9 pr-3 text-xs bg-white border border-[var(--brand-stroke)] rounded-xl text-slate-700 font-semibold focus:border-[var(--brand-green)] shadow-2xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="30" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">Last 30 days</SelectItem>
+                <SelectItem value="90" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">Last 90 days</SelectItem>
+                <SelectItem value="365" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">Last 12 months</SelectItem>
+                <SelectItem value="all" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">All orders</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </div>

@@ -1,7 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { Calendar, ChevronDown } from "lucide-react";
+import { Calendar } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface PurchaseOrderDetailsFormProps {
   supplier: string;
@@ -41,20 +48,21 @@ export default function PurchaseOrderDetailsForm({
           <label className="text-xs font-semibold text-[var(--brand-black-font)]">
             Supplier
           </label>
-          <div className="relative">
-            <select
-              value={supplier}
-              onChange={(e) => onSupplierChange(e.target.value)}
-              className="w-full h-9 pl-3 pr-8 text-xs bg-white border border-[var(--brand-stroke)] rounded-xl text-[var(--brand-black-font)] appearance-none focus:outline-none focus:border-[var(--brand-green)] cursor-pointer shadow-xs font-medium"
-            >
+          <Select
+            value={supplier || "All"}
+            onValueChange={(val) => onSupplierChange(val)}
+          >
+            <SelectTrigger className="w-full h-9 data-[size=default]:h-9 px-3 text-xs bg-white border border-[var(--brand-stroke)] rounded-xl text-[var(--brand-black-font)] focus:outline-none focus:border-[var(--brand-green)] shadow-xs font-medium">
+              <SelectValue placeholder="All" />
+            </SelectTrigger>
+            <SelectContent className="max-h-72">
               {suppliers.map((s) => (
-                <option key={s} value={s}>
+                <SelectItem key={s} value={s} className="text-xs hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">
                   {s}
-                </option>
+                </SelectItem>
               ))}
-            </select>
-            <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
-          </div>
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Expected Delivery Date */}

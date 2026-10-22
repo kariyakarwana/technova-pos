@@ -8,6 +8,13 @@ import { apiGet } from "@/lib/api/client";
 import ReportExportActions from "@/components/reports/ReportExportActions";
 import { BackButton } from "@/components/ui/back-button";
 import PaginationControls, { type PageMeta } from "./PaginationControls";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type ReturnRecord = {
   id: string; returnNumber: string; status: string; reason: string; resolution: string;
@@ -100,8 +107,37 @@ export default function ReturnHistory() {
       <div className="grid gap-3 border-b p-4 sm:grid-cols-2 xl:grid-cols-7">
         <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Return, invoice, customer or reason" className="h-10 rounded-xl border px-3 xl:col-span-2"/>
         <input type="tel" inputMode="tel" value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="Customer phone" className="h-10 rounded-xl border px-3"/>
-        <select value={resolution} onChange={(event) => setResolution(event.target.value)} className="h-10 rounded-xl border px-3"><option value="">All resolutions</option><option>ORIGINAL_METHOD</option><option>STORE_CREDIT</option><option>LOYALTY_POINTS</option><option>PRODUCT_EXCHANGE</option></select>
-        <select value={status} onChange={(event) => setStatus(event.target.value)} className="h-10 rounded-xl border px-3"><option value="">All statuses</option><option>REQUESTED</option><option>APPROVED</option><option>COMPLETED</option><option>REJECTED</option><option>CANCELLED</option></select>
+        <Select
+          value={resolution || "all"}
+          onValueChange={(val) => setResolution(val === "all" ? "" : val)}
+        >
+          <SelectTrigger className="h-10 data-[size=default]:h-10 rounded-xl border border-[var(--brand-stroke)] bg-white px-3 text-xs shadow-xs font-medium focus:border-[var(--brand-green)]">
+            <SelectValue placeholder="All resolutions" />
+          </SelectTrigger>
+          <SelectContent className="max-h-72">
+            <SelectItem value="all" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">All resolutions</SelectItem>
+            <SelectItem value="ORIGINAL_METHOD" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">ORIGINAL_METHOD</SelectItem>
+            <SelectItem value="STORE_CREDIT" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">STORE_CREDIT</SelectItem>
+            <SelectItem value="LOYALTY_POINTS" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">LOYALTY_POINTS</SelectItem>
+            <SelectItem value="PRODUCT_EXCHANGE" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">PRODUCT_EXCHANGE</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select
+          value={status || "all"}
+          onValueChange={(val) => setStatus(val === "all" ? "" : val)}
+        >
+          <SelectTrigger className="h-10 data-[size=default]:h-10 rounded-xl border border-[var(--brand-stroke)] bg-white px-3 text-xs shadow-xs font-medium focus:border-[var(--brand-green)]">
+            <SelectValue placeholder="All statuses" />
+          </SelectTrigger>
+          <SelectContent className="max-h-72">
+            <SelectItem value="all" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">All statuses</SelectItem>
+            <SelectItem value="REQUESTED" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">REQUESTED</SelectItem>
+            <SelectItem value="APPROVED" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">APPROVED</SelectItem>
+            <SelectItem value="COMPLETED" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">COMPLETED</SelectItem>
+            <SelectItem value="REJECTED" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">REJECTED</SelectItem>
+            <SelectItem value="CANCELLED" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">CANCELLED</SelectItem>
+          </SelectContent>
+        </Select>
         <label className="relative"><CalendarDays className="absolute left-3 top-3 h-4 w-4 text-slate-400"/><input aria-label="Returns from date" type="date" value={from} max={to || undefined} onChange={(event) => setFrom(event.target.value)} className="h-10 w-full rounded-xl border pl-9 pr-2"/></label>
         <input aria-label="Returns to date" type="date" value={to} min={from || undefined} onChange={(event) => setTo(event.target.value)} className="h-10 rounded-xl border px-3"/>
         <button type="button" onClick={() => { setSearch(""); setPhone(""); setResolution(""); setStatus(""); setFrom(""); setTo(""); }} className="h-10 rounded-xl border px-4 text-sm font-semibold text-slate-600">Clear filters</button>

@@ -2,6 +2,13 @@
 
 import { useState } from "react";
 import { ChevronDown, ChevronUp, SlidersHorizontal } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface AddProductCustomFieldsCardProps {
   warranties: boolean;
@@ -88,18 +95,19 @@ export default function AddProductCustomFieldsCard({
                 <label className="block text-xs font-semibold text-[var(--brand-black-font)] mb-1">
                   Warranty <span className="text-[var(--brand-red)] ml-0.5">*</span>
                 </label>
-                <div className="relative">
-                  <select
-                    value={warrantyValue}
-                    onChange={(e) => onWarrantyValueChange(e.target.value)}
-                    className="w-full h-9 rounded-lg border border-[var(--brand-stroke)] px-3 pr-8 text-xs text-[var(--brand-black-font)] bg-white focus:outline-none focus:border-[var(--brand-green)] appearance-none cursor-pointer"
-                  >
-                    <option value="1 Year">1 Year</option>
-                    <option value="2 Years">2 Years</option>
-                    <option value="No Warranty">No Warranty</option>
-                  </select>
-                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
-                </div>
+                <Select
+                  value={warrantyValue}
+                  onValueChange={(val) => onWarrantyValueChange(val)}
+                >
+                  <SelectTrigger className="w-full h-9 data-[size=default]:h-9 rounded-lg border border-[var(--brand-stroke)] px-3 text-xs text-[var(--brand-black-font)] bg-white focus:border-[var(--brand-green)] cursor-pointer">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-72">
+                    <SelectItem value="1 Year" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">1 Year</SelectItem>
+                    <SelectItem value="2 Years" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">2 Years</SelectItem>
+                    <SelectItem value="No Warranty" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">No Warranty</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             )}
             {manufacturer && (

@@ -1,6 +1,13 @@
 "use client";
 
-import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface StockAdjustmentPaginationProps {
   currentPage: number;
@@ -22,18 +29,38 @@ export default function StockAdjustmentPagination({
       {/* Rows per page selector */}
       <div className="flex items-center gap-2">
         <span>Row Per Page</span>
-        <div className="relative">
-          <select
-            value={rowsPerPage}
-            onChange={(e) => onRowsPerPageChange(Number(e.target.value))}
-            className="h-8 pl-2.5 pr-7 border border-[var(--brand-stroke)] rounded-lg bg-white text-xs text-[var(--brand-black-font)] appearance-none focus:outline-none focus:border-[var(--brand-green)] cursor-pointer shadow-xs"
+        <Select
+          value={String(rowsPerPage)}
+          onValueChange={(v) => onRowsPerPageChange(Number(v))}
+        >
+          <SelectTrigger className="h-8 data-[size=default]:h-8 w-16 rounded-lg border border-[var(--brand-stroke)] bg-white px-2.5 text-xs text-[var(--brand-black-font)] shadow-xs focus-visible:border-[var(--brand-green)] focus-visible:ring-0 cursor-pointer">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent
+            position="popper"
+            sideOffset={4}
+            className="w-16 min-w-[4rem] rounded-lg border border-slate-200 bg-white p-1 shadow-lg ring-0"
           >
-            <option value={10}>10</option>
-            <option value={20}>20</option>
-            <option value={50}>50</option>
-          </select>
-          <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
-        </div>
+            <SelectItem
+              value="10"
+              className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+            >
+              10
+            </SelectItem>
+            <SelectItem
+              value="20"
+              className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+            >
+              20
+            </SelectItem>
+            <SelectItem
+              value="50"
+              className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+            >
+              50
+            </SelectItem>
+          </SelectContent>
+        </Select>
         <span>Entries</span>
       </div>
 

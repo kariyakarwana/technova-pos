@@ -19,12 +19,18 @@ import {
   ArrowUpDown,
   ChevronLeft,
   ChevronRight,
-  ChevronDown,
   Eye,
   Filter,
   MoreVertical,
   Search,
 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { SupplierPurchaseOrder } from "./supplier-portal.mock";
 
 interface SupplierActiveOrdersTableProps {
@@ -286,22 +292,27 @@ export default function SupplierActiveOrdersTable({
         {/* Row Per Page */}
         <div className="flex items-center gap-2">
           <span>Row Per Page</span>
-          <div className="relative">
-            <select
-              value={table.getState().pagination.pageSize}
-              onChange={(e) => {
-                table.setPageSize(Number(e.target.value));
-              }}
-              className="h-8 pl-2.5 pr-7 bg-white border border-[var(--brand-stroke)] rounded-lg text-slate-700 font-semibold appearance-none focus:outline-none cursor-pointer"
-            >
+          <Select
+            value={String(table.getState().pagination.pageSize)}
+            onValueChange={(val) => {
+              table.setPageSize(Number(val));
+            }}
+          >
+            <SelectTrigger className="h-8 data-[size=default]:h-8 px-2.5 bg-white border border-[var(--brand-stroke)] rounded-lg text-slate-700 font-semibold cursor-pointer">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
               {[10, 20, 50].map((pageSize) => (
-                <option key={pageSize} value={pageSize}>
+                <SelectItem
+                  key={pageSize}
+                  value={String(pageSize)}
+                  className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer"
+                >
                   {pageSize}
-                </option>
+                </SelectItem>
               ))}
-            </select>
-            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 text-slate-400 pointer-events-none" />
-          </div>
+            </SelectContent>
+          </Select>
           <span>Entries</span>
         </div>
 

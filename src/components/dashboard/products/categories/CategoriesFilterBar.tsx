@@ -1,6 +1,13 @@
 "use client";
 
-import { ChevronDown, Search } from "lucide-react";
+import { Search } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { CATEGORY_OPTIONS } from "./CategoriesMock";
 
 interface CategoriesFilterBarProps {
@@ -31,19 +38,26 @@ export default function CategoriesFilterBar({
       </div>
 
       {/* Category Filter Dropdown */}
-      <div className="relative w-full sm:w-48">
-        <select
+      <div className="w-full sm:w-48">
+        <Select
           value={selectedCategory}
-          onChange={(e) => onCategoryChange(e.target.value)}
-          className="w-full h-9 pl-3 pr-8 text-xs bg-white border border-[var(--brand-stroke)] rounded-xl text-slate-600 appearance-none focus:outline-none focus:border-[var(--brand-green)] cursor-pointer"
+          onValueChange={(val) => onCategoryChange(val)}
         >
-          {CATEGORY_OPTIONS.map((opt) => (
-            <option key={opt} value={opt}>
-              {opt}
-            </option>
-          ))}
-        </select>
-        <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
+          <SelectTrigger className="w-full h-9 data-[size=default]:h-9 px-3 text-xs bg-white border border-[var(--brand-stroke)] rounded-xl text-slate-600 focus:border-[var(--brand-green)] cursor-pointer">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="max-h-72">
+            {CATEGORY_OPTIONS.map((opt) => (
+              <SelectItem
+                key={opt}
+                value={opt}
+                className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer"
+              >
+                {opt}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
     </div>
   );

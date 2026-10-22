@@ -1,6 +1,13 @@
 "use client";
 
 import { Calendar, ChevronDown, Info } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface DiscountConfigurationCardProps {
   discountType: string;
@@ -67,18 +74,25 @@ export default function DiscountConfigurationCard({
               <label className="text-xs font-semibold text-slate-700">
                 Discount Type <span className="text-red-500">*</span>
               </label>
-              <div className="relative">
-                <select
-                  value={discountType}
-                  onChange={(e) => onDiscountTypeChange(e.target.value)}
-                  className="w-full h-10 pl-3.5 pr-9 text-xs bg-white border border-[var(--brand-stroke)] rounded-xl text-[var(--brand-black-font)] appearance-none focus:outline-none focus:border-[var(--brand-green)] cursor-pointer shadow-xs font-medium"
-                >
-                  <option value="Percentage">Percentage</option>
-                  <option value="Fixed Amount">Fixed Amount</option>
-                  <option value="Free Shipping">Free Shipping</option>
-                </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
-              </div>
+              <Select
+                value={discountType}
+                onValueChange={(val) => onDiscountTypeChange(val)}
+              >
+                <SelectTrigger className="w-full h-10 data-[size=default]:h-10 px-3.5 text-xs bg-white border border-[var(--brand-stroke)] rounded-xl text-[var(--brand-black-font)] focus:outline-none focus:border-[var(--brand-green)] cursor-pointer shadow-xs font-medium">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="max-h-72">
+                  <SelectItem value="Percentage" className="text-xs hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">
+                    Percentage
+                  </SelectItem>
+                  <SelectItem value="Fixed Amount" className="text-xs hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">
+                    Fixed Amount
+                  </SelectItem>
+                  <SelectItem value="Free Shipping" className="text-xs hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">
+                    Free Shipping
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Discount Value */}

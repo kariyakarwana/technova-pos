@@ -4,6 +4,13 @@ import Image from "next/image";
 import { ChevronLeft, ChevronRight, Loader2, Plus } from "lucide-react";
 import Code128Barcode, { canEncodeCode128 } from "./Code128Barcode";
 import type { BarcodeProductItem } from "./BarcodeTypes";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function BarcodeProductTable({
   products,
@@ -164,15 +171,19 @@ export default function BarcodeProductTable({
       <div className="flex flex-col items-center justify-between gap-3 border-t bg-slate-50/60 p-4 text-xs text-slate-500 sm:flex-row">
         <div className="flex items-center gap-2">
           <span>{total} products</span>
-          <select
-            value={pageSize}
-            onChange={(event) => onPageSizeChange(Number(event.target.value))}
-            className="h-8 rounded-lg border bg-white px-2 text-slate-700"
+          <Select
+            value={String(pageSize)}
+            onValueChange={(val) => onPageSizeChange(Number(val))}
           >
-            <option value={10}>10 per page</option>
-            <option value={20}>20 per page</option>
-            <option value={50}>50 per page</option>
-          </select>
+            <SelectTrigger className="h-8 data-[size=default]:h-8 px-2 rounded-lg border bg-white text-slate-700 cursor-pointer">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="10" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">10 per page</SelectItem>
+              <SelectItem value="20" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">20 per page</SelectItem>
+              <SelectItem value="50" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">50 per page</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
         <div className="flex items-center gap-1">
           <button

@@ -2,6 +2,13 @@
 
 import { Search } from "lucide-react";
 import type { BarcodeLabelSettings } from "./BarcodeTypes";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function BarcodeSettingsCard({
   branchName,
@@ -44,20 +51,43 @@ export default function BarcodeSettingsCard({
         </label>
         <label className="text-xs font-semibold text-slate-700">
           Label width
-          <select
+          <Select
             value={settings.paperSize}
-            onChange={(event) =>
+            onValueChange={(value: string) =>
               onSettingsChange({
                 ...settings,
-                paperSize: event.target.value as BarcodeLabelSettings["paperSize"],
+                paperSize: value as BarcodeLabelSettings["paperSize"],
               })
             }
-            className="mt-1.5 h-10 w-full rounded-xl border border-[var(--brand-stroke)] bg-white px-3 text-sm outline-none focus:border-[var(--brand-green)]"
           >
-            <option value="36mm">36 mm</option>
-            <option value="50mm">50 mm</option>
-            <option value="70mm">70 mm</option>
-          </select>
+            <SelectTrigger className="mt-1.5 h-10 w-full rounded-xl border border-[var(--brand-stroke)] bg-white px-3 text-sm font-normal text-slate-800 shadow-none focus-visible:border-[var(--brand-green)] focus-visible:ring-0 cursor-pointer">
+              <SelectValue placeholder="Select paper size" />
+            </SelectTrigger>
+            <SelectContent
+              position="popper"
+              sideOffset={4}
+              className="w-[var(--radix-select-trigger-width)] min-w-[var(--radix-select-trigger-width)] rounded-xl border border-slate-200 bg-white p-1 shadow-lg ring-0"
+            >
+              <SelectItem
+                value="36mm"
+                className="cursor-pointer text-sm text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+              >
+                36 mm
+              </SelectItem>
+              <SelectItem
+                value="50mm"
+                className="cursor-pointer text-sm text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+              >
+                50 mm
+              </SelectItem>
+              <SelectItem
+                value="70mm"
+                className="cursor-pointer text-sm text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+              >
+                70 mm
+              </SelectItem>
+            </SelectContent>
+          </Select>
         </label>
       </div>
       <div className="flex flex-wrap gap-4 border-t border-slate-100 pt-4">
