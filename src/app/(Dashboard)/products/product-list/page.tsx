@@ -80,6 +80,8 @@ export default function ProductListPage() {
   }
 
   async function handleDelete(id: string) {
+    const product = products.find((item) => item.id === id);
+    if (!window.confirm(`Deactivate ${product?.name ?? "this product"}? It will be removed from the active product list.`)) return;
     await apiPatch(`/catalog/products/${id}`, { status: "INACTIVE" });
     setProducts((prev) => prev.filter((p) => p.id !== id));
   }

@@ -41,6 +41,7 @@ export default function CustomerOperations() {
     [form, setForm] = useState(blank),
     [editing, setEditing] = useState<Customer | null>(null),
     [open, setOpen] = useState(false),
+    [formError, setFormError] = useState<string | null>(null),
     [message, setMessage] = useState<string | null>(null);
   const load = useCallback(
     () =>
@@ -55,6 +56,7 @@ export default function CustomerOperations() {
   }, [load]);
   useEffect(() => setPage(1), [search, status, pageSize]);
   function edit(customer: Customer) {
+    setFormError(null);
     setEditing(customer);
     setForm({
       firstName: customer.firstName,
@@ -67,6 +69,7 @@ export default function CustomerOperations() {
   }
   async function save(event: React.FormEvent) {
     event.preventDefault();
+    setFormError(null);
     const payload = {
       firstName: form.firstName,
       lastName: form.lastName || undefined,
@@ -106,7 +109,7 @@ export default function CustomerOperations() {
       setForm(blank);
       await load();
     } catch (error) {
-      setMessage(
+      setFormError(
         error instanceof Error ? error.message : "Unable to save customer.",
       );
     }
@@ -133,6 +136,7 @@ export default function CustomerOperations() {
           onClick={() => {
             setEditing(null);
             setForm(blank);
+            setFormError(null);
             setOpen(true);
           }}
           className="flex items-center gap-2 rounded-xl bg-[#0E9384] px-4 py-2 text-sm font-semibold text-white"
@@ -206,10 +210,10 @@ export default function CustomerOperations() {
               {customers.map((customer) => (
                 <tr key={customer.id}>
                   <td className="px-4 py-3">
-                    <p className="font-semibold">
+                    <p className="max-w-64 truncate font-semibold" title={`${customer.firstName} ${customer.lastName ?? ""}`}>
                       {customer.firstName} {customer.lastName}
                     </p>
-                    <p className="text-xs text-slate-500">
+                    <p className="max-w-64 break-all text-xs text-slate-500">
                       {customer.customerNumber}
                     </p>
                   </td>
@@ -230,7 +234,7 @@ export default function CustomerOperations() {
                   <td className="px-4 py-3">
                     {Number(customer.loyaltyAccount?.points ?? 0)} pts
                   </td>
-                  <td className="px-4 py-3">{customer.status}</td>
+                  <td className="px-4 py-3">{customer.status === "ACTIVE" ? "Active" : customer.status === "INACTIVE" ? "Inactive" : customer.status}</td>
                   <td className="space-x-3 px-4 py-3 text-right">
                     <Link
                       href={`/customers/${customer.id}`}
@@ -267,6 +271,7 @@ export default function CustomerOperations() {
             <h2 className="text-lg font-bold">
               {editing ? "Edit customer" : "Add customer"}
             </h2>
+            {formError && <div role="alert" className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">{formError}</div>}
             <div className="grid gap-4 sm:grid-cols-2">
               {!editing && (
                 <div className="rounded-xl border border-teal-200 bg-teal-50 p-3 text-xs text-teal-800 sm:col-span-2">
@@ -280,6 +285,7 @@ export default function CustomerOperations() {
                 First name
                 <input
                   required
+                  maxLength={100}
                   value={form.firstName}
                   onChange={(e) =>
                     setForm({ ...form, firstName: e.target.value })
@@ -290,6 +296,7 @@ export default function CustomerOperations() {
               <label className="text-xs font-semibold">
                 Last name
                 <input
+                  maxLength={100}
                   value={form.lastName}
                   onChange={(e) =>
                     setForm({ ...form, lastName: e.target.value })

@@ -111,6 +111,33 @@ export default function ProductForm({
 
   async function save(event: React.FormEvent) {
     event.preventDefault();
+    if (!product && !form.sku.trim()) {
+      setMessage("SKU is required and cannot contain only spaces.");
+      return;
+    }
+    if (!form.name.trim()) {
+      setMessage("Product name is required.");
+      return;
+    }
+    if (!Number.isFinite(form.sellingPrice) || form.sellingPrice <= 0) {
+      setMessage("Selling price must be greater than zero.");
+      return;
+    }
+    if (form.sellingPrice > 99_999_999 || form.costPrice > 99_999_999) {
+      setMessage("Prices cannot exceed LKR 99,999,999.");
+      return;
+    }
+    if (form.taxRate < 0 || form.taxRate > 100 || Math.abs(Math.round(form.taxRate * 100) - form.taxRate * 100) > 1e-6) {
+      setMessage("Tax rate must be between 0 and 100 with at most two decimal places.");
+      return;
+    }
+    if (!Number.isInteger(form.reorderLevel) || form.reorderLevel < 0) {
+      setMessage("Reorder level must be a non-negative whole number.");
+      return;
+    }
+    if (form.sellingPrice < form.costPrice && !window.confirm("Selling price is lower than cost price. Save this product anyway?")) {
+      return;
+    }
     setSaving(true);
     setMessage(null);
     const { sku, ...editableFields } = form;
@@ -129,7 +156,7 @@ export default function ProductForm({
       else {
         const created = await apiPost<{ id: string }>(
           "/catalog/products",
-          { ...payload, sku },
+          { ...payload, sku: sku.trim() },
         );
         productId = created.id;
         setSavedProductId(productId);
@@ -322,6 +349,7 @@ export default function ProductForm({
                 required
                 type="number"
                 min="0"
+                max="99999999"
                 step="0.01"
                 value={form.costPrice}
                 onChange={(e) =>
@@ -335,7 +363,8 @@ export default function ProductForm({
               <input
                 required
                 type="number"
-                min="0"
+                min="0.01"
+                max="99999999"
                 step="0.01"
                 value={form.sellingPrice}
                 onChange={(e) =>
@@ -349,7 +378,8 @@ export default function ProductForm({
               <input
                 type="number"
                 min="0"
-                step="0.0001"
+                max="100"
+                step="0.01"
                 value={form.taxRate}
                 onChange={(e) =>
                   setForm({ ...form, taxRate: Number(e.target.value) })
@@ -362,7 +392,7 @@ export default function ProductForm({
               <input
                 type="number"
                 min="0"
-                step="0.001"
+                step="1"
                 value={form.reorderLevel}
                 onChange={(e) =>
                   setForm({ ...form, reorderLevel: Number(e.target.value) })
