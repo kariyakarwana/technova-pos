@@ -123,7 +123,7 @@ export default function SupplierOperations() {
                 <th className="px-4 py-3">Supplier</th>
                 <th className="px-4 py-3">Contact</th>
                 <th className="px-4 py-3 whitespace-nowrap">Status</th>
-                <th className="px-4 py-3 text-right whitespace-nowrap">Actions</th>
+                <th className="min-w-64 px-4 py-3 text-right whitespace-nowrap">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -158,26 +158,26 @@ export default function SupplierOperations() {
                     </p>
                   </td>
                   <td className="px-4 py-3">{item.status}</td>
-                  <td className="px-4 py-3 text-right">
-                    <div className="flex items-center justify-end gap-2 whitespace-nowrap">
-                    <Link
-                      href={`/suppliers/${item.id}`}
-                      className="font-semibold text-[#0E9384]"
-                    >
-                      View
-                    </Link>
-                    <Link
-                      href={`/suppliers/${item.id}/edit`}
-                      className="font-semibold text-slate-600"
-                    >
-                      Edit
-                    </Link>
-                    <button
-                      onClick={() => toggle(item)}
-                      className="font-semibold text-rose-600"
-                    >
-                      {item.status === "ACTIVE" ? "Deactivate" : "Activate"}
-                    </button>
+                  <td className="min-w-64 px-4 py-3 text-right">
+                    <div className="grid grid-cols-[48px_48px_90px] items-center justify-end gap-3">
+                      <Link
+                        href={`/suppliers/${item.id}`}
+                        className="text-center font-semibold text-[#0E9384]"
+                      >
+                        View
+                      </Link>
+                      <Link
+                        href={`/suppliers/${item.id}/edit`}
+                        className="text-center font-semibold text-slate-600"
+                      >
+                        Edit
+                      </Link>
+                      <button
+                        onClick={() => toggle(item)}
+                        className="text-center font-semibold text-rose-600"
+                      >
+                        {item.status === "ACTIVE" ? "Deactivate" : "Activate"}
+                      </button>
                     </div>
                   </td>
                 </tr>
