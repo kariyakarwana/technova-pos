@@ -83,6 +83,8 @@ export default function UpdateSupplierContactDetailsCard({
           </label>
           <input
             type="tel"
+            pattern="\+?[0-9]{8,15}"
+            title="Use 8–15 digits with an optional leading +"
             placeholder="+1 (555) 000-0000"
             value={phone}
             onChange={(e) => onPhoneChange(e.target.value)}

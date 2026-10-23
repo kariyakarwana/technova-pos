@@ -17,6 +17,9 @@ interface ProductListHeaderProps {
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
   onImport?: () => void;
+  onExportPdf?: () => void;
+  onExportCsv?: () => void;
+  exporting?: boolean;
 }
 
 export default function ProductListHeader({
@@ -24,6 +27,9 @@ export default function ProductListHeader({
   isCollapsed = false,
   onToggleCollapse,
   onImport,
+  onExportPdf,
+  onExportCsv,
+  exporting = false,
 }: ProductListHeaderProps) {
   return (
     <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-4">
@@ -56,7 +62,9 @@ export default function ProductListHeader({
         {/* PDF Badge */}
         <button
           type="button"
-          title="Export PDF"
+          onClick={onExportPdf}
+          disabled={exporting}
+          title="Open product report to print or save as PDF"
           className="h-8 w-8 rounded-lg bg-[#D32F2F] hover:bg-red-700 text-white flex items-center justify-center transition-colors shadow-xs cursor-pointer"
         >
           <FileText className="h-4 w-4" />
@@ -65,7 +73,9 @@ export default function ProductListHeader({
         {/* Excel Badge */}
         <button
           type="button"
-          title="Export Excel"
+          onClick={onExportCsv}
+          disabled={exporting}
+          title="Export CSV for Excel"
           className="h-8 w-8 rounded-lg bg-[#0E9384] hover:bg-[#0B6E63] text-white flex items-center justify-center transition-colors shadow-xs cursor-pointer"
         >
           <FileSpreadsheet className="h-4 w-4" />

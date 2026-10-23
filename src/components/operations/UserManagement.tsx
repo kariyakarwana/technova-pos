@@ -55,6 +55,7 @@ export default function UserManagement() {
   const [selected, setSelected] = useState<User | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [message, setMessage] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
   const loadUsers = useCallback(async () => {
@@ -109,6 +110,7 @@ export default function UserManagement() {
     }));
   }
   function edit(user: User) {
+    setFormError(null);
     const branchIds = user.branchAssignments.map(({ branch }) => branch.id);
     setSelected(user);
     setForm({
@@ -125,13 +127,15 @@ export default function UserManagement() {
     });
   }
   function resetForm() {
+    setFormError(null);
     setSelected(null);
     setForm(emptyForm);
   }
   async function save(event: React.FormEvent) {
     event.preventDefault();
+    setFormError(null);
     if (!form.roleIds.length || !form.branchIds.length)
-      return setMessage(
+      return setFormError(
         "Select at least one role and one branch for the employee.",
       );
     setSaving(true);
@@ -163,7 +167,7 @@ export default function UserManagement() {
       resetForm();
       await loadUsers();
     } catch (error) {
-      setMessage(
+      setFormError(
         error instanceof Error ? error.message : "Unable to save employee.",
       );
     } finally {
@@ -258,6 +262,7 @@ export default function UserManagement() {
               </button>
             )}
           </div>
+          {formError && <div role="alert" className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">{formError}</div>}
           <label className="block text-xs font-semibold">
             Full name *
             <input
@@ -291,8 +296,8 @@ export default function UserManagement() {
               type="tel"
               inputMode="tel"
               maxLength={30}
-              pattern="[+0-9][0-9 ()-]{6,29}"
-              placeholder="+94 77 123 4567"
+              pattern="\+?[0-9]{8,15}"
+              placeholder="+94771234567"
               value={form.phone}
               onChange={(event) =>
                 setForm({ ...form, phone: event.target.value })

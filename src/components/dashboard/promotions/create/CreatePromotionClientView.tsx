@@ -55,6 +55,10 @@ export default function CreatePromotionClientView() {
       setError("Enter a valid discount value and minimum quantity.");
       return;
     }
+    if (type === "PERCENTAGE" && (Number(value) > 100 || !/^\d+(?:\.\d{1,2})?$/.test(value))) {
+      setError("Discount percentage must be between 0 and 100 with at most two decimal places.");
+      return;
+    }
     if (endsAt && new Date(endsAt) <= new Date(startsAt)) {
       setError("End date must be after the start date.");
       return;
@@ -197,6 +201,7 @@ export default function CreatePromotionClientView() {
               <input
                 type="number"
                 min="0.01"
+                max={type === "PERCENTAGE" ? 100 : undefined}
                 step="0.01"
                 value={value}
                 onChange={(e) => setValue(e.target.value)}

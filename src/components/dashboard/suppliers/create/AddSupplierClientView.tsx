@@ -58,6 +58,10 @@ export default function AddSupplierClientView() {
       setMessage("Please enter a valid Email Address.");
       return;
     }
+    if (phone.trim() && !/^\+?[0-9]{8,15}$/.test(phone.trim())) {
+      setMessage("Please enter a valid phone number using digits and an optional leading +.");
+      return;
+    }
 
     setIsSubmitting(true);
     setMessage(null);

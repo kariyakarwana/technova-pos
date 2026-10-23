@@ -33,6 +33,7 @@ type Product = {
   sku: string;
   name: string;
   costPrice: number | string;
+  trackSerials: boolean;
 };
 type Line = {
   productId: string;

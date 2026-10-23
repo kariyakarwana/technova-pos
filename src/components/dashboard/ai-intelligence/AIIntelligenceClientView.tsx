@@ -394,7 +394,7 @@ export default function AIIntelligenceClientView() {
                 value={branchId || "all"}
                 onValueChange={(val) => setBranchId(val === "all" ? "" : val)}
               >
-                <SelectTrigger className="h-10 data-[size=default]:h-10 min-w-44 rounded-xl border border-slate-200 bg-white px-3 text-xs font-normal text-slate-800 shadow-none focus-visible:border-[var(--brand-green)] focus-visible:ring-0 cursor-pointer">
+                <SelectTrigger className="h-10 data-[size=default]:h-10 min-w-44 rounded-xl border border-slate-200 bg-white px-3 text-xs font-normal capitalize text-slate-800 shadow-none focus-visible:border-[var(--brand-green)] focus-visible:ring-0 cursor-pointer">
                   <SelectValue placeholder="All branches" />
                 </SelectTrigger>
                 <SelectContent
@@ -413,7 +413,7 @@ export default function AIIntelligenceClientView() {
                     <SelectItem
                       key={branch.id}
                       value={branch.id}
-                      className="cursor-pointer text-xs text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
+                      className="cursor-pointer text-xs capitalize text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
                     >
                       {branch.name}
                     </SelectItem>
@@ -524,7 +524,7 @@ export default function AIIntelligenceClientView() {
                 </div>
               </div>
               <span className="rounded-full bg-white px-3 py-1 text-[11px] font-bold text-emerald-700 shadow-xs">
-                FastAPI :8000
+                AI service connected
               </span>
             </div>
 

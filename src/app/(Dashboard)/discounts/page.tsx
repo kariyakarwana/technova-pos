@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import { apiDelete, apiGet, apiPatch, apiPost } from "@/lib/api/client";
 import {
   Select,
@@ -65,6 +65,11 @@ export default function DiscountsPage() {
     const timer = window.setInterval(() => setNow(Date.now()), 30_000);
     return () => window.clearInterval(timer);
   }, []);
+  useEffect(() => {
+    if (!message) return;
+    const timer = window.setTimeout(() => setMessage(null), 5_000);
+    return () => window.clearTimeout(timer);
+  }, [message]);
 
   function openNewRule() {
     setForm(emptyRuleForm());
@@ -102,6 +107,10 @@ export default function DiscountsPage() {
 
   async function save(event: React.FormEvent) {
     event.preventDefault();
+    if (form.type === "PERCENTAGE" && (Number(form.value) <= 0 || Number(form.value) > 100 || !/^\d+(?:\.\d{1,2})?$/.test(form.value))) {
+      setMessage("Discount percentage must be between 0 and 100 with at most two decimal places.");
+      return;
+    }
     try {
       const payload = {
         ...form,
@@ -190,8 +199,9 @@ export default function DiscountsPage() {
         </button>
       </div>
       {message && (
-        <div className="rounded-xl border border-teal-200 bg-teal-50 p-3 text-sm text-teal-800">
+        <div role="status" className="flex items-center justify-between gap-3 rounded-xl border border-teal-200 bg-teal-50 p-3 text-sm text-teal-800">
           {message}
+          <button type="button" onClick={() => setMessage(null)} aria-label="Dismiss message" className="rounded p-1 hover:bg-teal-100"><X className="h-4 w-4" /></button>
         </div>
       )}
       <div className="overflow-x-auto rounded-2xl border bg-white">
@@ -341,6 +351,7 @@ export default function DiscountsPage() {
                   required
                   type="number"
                   min="0"
+                  max={form.type === "PERCENTAGE" ? 100 : undefined}
                   step="0.01"
                   value={form.value}
                   onChange={(e) => setForm({ ...form, value: e.target.value })}
