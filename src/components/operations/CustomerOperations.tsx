@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, X } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -41,6 +41,7 @@ export default function CustomerOperations() {
     [form, setForm] = useState(blank),
     [editing, setEditing] = useState<Customer | null>(null),
     [open, setOpen] = useState(false),
+    [formError, setFormError] = useState<string | null>(null),
     [message, setMessage] = useState<string | null>(null);
   const load = useCallback(
     () =>
@@ -54,7 +55,13 @@ export default function CustomerOperations() {
     return () => clearTimeout(timer);
   }, [load]);
   useEffect(() => setPage(1), [search, status, pageSize]);
+  useEffect(() => {
+    if (!message) return;
+    const timer = window.setTimeout(() => setMessage(null), 5_000);
+    return () => window.clearTimeout(timer);
+  }, [message]);
   function edit(customer: Customer) {
+    setFormError(null);
     setEditing(customer);
     setForm({
       firstName: customer.firstName,
@@ -67,6 +74,7 @@ export default function CustomerOperations() {
   }
   async function save(event: React.FormEvent) {
     event.preventDefault();
+    setFormError(null);
     const payload = {
       firstName: form.firstName,
       lastName: form.lastName || undefined,
@@ -106,7 +114,7 @@ export default function CustomerOperations() {
       setForm(blank);
       await load();
     } catch (error) {
-      setMessage(
+      setFormError(
         error instanceof Error ? error.message : "Unable to save customer.",
       );
     }
@@ -133,6 +141,7 @@ export default function CustomerOperations() {
           onClick={() => {
             setEditing(null);
             setForm(blank);
+            setFormError(null);
             setOpen(true);
           }}
           className="flex items-center gap-2 rounded-xl bg-[#0E9384] px-4 py-2 text-sm font-semibold text-white"
@@ -142,8 +151,9 @@ export default function CustomerOperations() {
         </button>
       </div>
       {message && (
-        <div className="rounded-xl border border-teal-200 bg-teal-50 p-3 text-sm text-teal-800">
-          {message}
+        <div role="status" className="flex items-start justify-between gap-3 rounded-xl border border-teal-200 bg-teal-50 p-3 text-sm text-teal-800">
+          <span>{message}</span>
+          <button type="button" onClick={() => setMessage(null)} aria-label="Dismiss message" className="shrink-0 rounded p-1 hover:bg-teal-100"><X className="h-4 w-4" /></button>
         </div>
       )}
       <div className="rounded-2xl border bg-white p-4">
@@ -206,10 +216,10 @@ export default function CustomerOperations() {
               {customers.map((customer) => (
                 <tr key={customer.id}>
                   <td className="px-4 py-3">
-                    <p className="font-semibold">
+                    <p className="max-w-64 truncate font-semibold" title={`${customer.firstName} ${customer.lastName ?? ""}`}>
                       {customer.firstName} {customer.lastName}
                     </p>
-                    <p className="text-xs text-slate-500">
+                    <p className="max-w-64 break-all text-xs text-slate-500">
                       {customer.customerNumber}
                     </p>
                   </td>
@@ -230,26 +240,28 @@ export default function CustomerOperations() {
                   <td className="px-4 py-3">
                     {Number(customer.loyaltyAccount?.points ?? 0)} pts
                   </td>
-                  <td className="px-4 py-3">{customer.status}</td>
-                  <td className="space-x-3 px-4 py-3 text-right">
+                  <td className="px-4 py-3">{customer.status === "ACTIVE" ? "Active" : customer.status === "INACTIVE" ? "Inactive" : customer.status}</td>
+                  <td className="min-w-64 px-4 py-3 text-right">
+                    <div className="grid grid-cols-[48px_48px_90px] items-center justify-end gap-3">
                     <Link
                       href={`/customers/${customer.id}`}
-                      className="font-semibold text-[#0E9384]"
+                      className="text-center font-semibold text-[#0E9384]"
                     >
                       View
                     </Link>
                     <button
                       onClick={() => edit(customer)}
-                      className="font-semibold"
+                      className="text-center font-semibold"
                     >
                       Edit
                     </button>
                     <button
                       onClick={() => toggle(customer)}
-                      className="font-semibold text-rose-600"
+                      className="text-center font-semibold text-rose-600"
                     >
                       {customer.status === "ACTIVE" ? "Deactivate" : "Activate"}
                     </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -267,6 +279,7 @@ export default function CustomerOperations() {
             <h2 className="text-lg font-bold">
               {editing ? "Edit customer" : "Add customer"}
             </h2>
+            {formError && <div role="alert" className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">{formError}</div>}
             <div className="grid gap-4 sm:grid-cols-2">
               {!editing && (
                 <div className="rounded-xl border border-teal-200 bg-teal-50 p-3 text-xs text-teal-800 sm:col-span-2">
@@ -280,6 +293,7 @@ export default function CustomerOperations() {
                 First name
                 <input
                   required
+                  maxLength={100}
                   value={form.firstName}
                   onChange={(e) =>
                     setForm({ ...form, firstName: e.target.value })
@@ -290,6 +304,7 @@ export default function CustomerOperations() {
               <label className="text-xs font-semibold">
                 Last name
                 <input
+                  maxLength={100}
                   value={form.lastName}
                   onChange={(e) =>
                     setForm({ ...form, lastName: e.target.value })
@@ -303,6 +318,8 @@ export default function CustomerOperations() {
                   required
                   type="tel"
                   pattern="\+[1-9][0-9]{7,14}"
+                  maxLength={16}
+                  title="Use international format with a country code, for example +94771234567."
                   placeholder="+94771234567"
                   value={form.phone}
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}

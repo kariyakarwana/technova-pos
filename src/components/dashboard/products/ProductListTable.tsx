@@ -168,7 +168,7 @@ export default function ProductListTable({
                           unoptimized
                         />
                       </div>
-                      <span className="font-semibold text-[#1D2939] truncate">
+                      <span className="block min-w-0 max-w-48 truncate font-semibold text-[#1D2939]" title={product.name}>
                         {product.name}
                       </span>
                     </div>
