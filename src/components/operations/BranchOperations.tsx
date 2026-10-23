@@ -67,7 +67,16 @@ export default function BranchOperations({
     setSaving(true); setMessage(null);
     const body = { code: form.code.trim(), name: form.name.trim(), phone: form.phone.trim(), email: form.email.trim(), address: { street: form.street.trim(), city: form.city.trim(), country: form.country.trim() } };
     try {
-      if (editing) await apiPatch(`/branches/${editing.id}`, body); else await apiPost("/branches", body);
+      if (editing) {
+        await apiPatch(`/branches/${editing.id}`, {
+          name: body.name,
+          phone: body.phone,
+          email: body.email,
+          address: body.address,
+        });
+      } else {
+        await apiPost("/branches", body);
+      }
       closeForm(); setMessageKind("success"); setMessage(editing ? "Branch updated successfully." : "Branch created successfully."); await load(); router.refresh();
     } catch (error) { setMessageKind("error"); setMessage(error instanceof Error ? error.message : "Unable to save branch."); }
     finally { setSaving(false); }

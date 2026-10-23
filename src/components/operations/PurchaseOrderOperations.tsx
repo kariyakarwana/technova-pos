@@ -32,6 +32,7 @@ type Product = {
   sku: string;
   name: string;
   costPrice: number | string;
+  trackSerials: boolean;
 };
 type Line = {
   productId: string;
@@ -133,6 +134,8 @@ export default function PurchaseOrderOperations() {
       return setMessage("Select a supplier before creating an order.");
     if (lines.some((line) => !line.productId))
       return setMessage("Select a product for every order line.");
+    if (lines.some((line) => products.find((product) => product.id === line.productId)?.trackSerials && !Number.isInteger(line.quantity)))
+      return setMessage("Serialized products require a whole-number order quantity.");
     if (
       lines.some(
         (line) => line.discount > line.quantity * line.unitCost + line.tax,
@@ -474,6 +477,7 @@ export default function PurchaseOrderOperations() {
                 </div>
                 <div className="space-y-3">
                   {lines.map((line, index) => {
+                    const serialized = products.find((product) => product.id === line.productId)?.trackSerials;
                     const gross = line.quantity * line.unitCost,
                       lineTotal = gross - line.discount + line.tax;
                     return (
@@ -520,8 +524,8 @@ export default function PurchaseOrderOperations() {
                           <input
                             required
                             type="number"
-                            min=".001"
-                            step=".001"
+                            min={serialized ? 1 : 0.001}
+                            step={serialized ? 1 : 0.001}
                             value={line.quantity}
                             onChange={(e) =>
                               update(index, {
