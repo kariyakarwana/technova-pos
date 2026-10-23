@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/select";
 import { apiGet, apiPost } from "@/lib/api/client";
 import PaginationControls, { type PageMeta } from "./PaginationControls";
+import { parseWholePurchaseQuantity } from "./purchaseQuantity";
 type Order = {
   id: string;
   orderNumber: string;
@@ -64,6 +65,7 @@ export default function PurchaseOrderOperations() {
     [expectedAt, setExpectedAt] = useState(""),
     [notes, setNotes] = useState(""),
     [lines, setLines] = useState<Line[]>([blank()]),
+    [invalidQuantityLine, setInvalidQuantityLine] = useState<number | null>(null),
     [message, setMessage] = useState<string | null>(null),
     [saving, setSaving] = useState(false);
   const load = useCallback(async () => {
@@ -124,6 +126,7 @@ export default function PurchaseOrderOperations() {
     setExpectedAt("");
     setNotes("");
     setLines([blank()]);
+    setInvalidQuantityLine(null);
   }
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -133,6 +136,8 @@ export default function PurchaseOrderOperations() {
       return setMessage("Select a supplier before creating an order.");
     if (lines.some((line) => !line.productId))
       return setMessage("Select a product for every order line.");
+    if (lines.some((line) => !Number.isSafeInteger(line.quantity) || line.quantity < 1))
+      return setMessage("Purchase order quantities must be positive whole numbers.");
     if (
       lines.some(
         (line) => line.discount > line.quantity * line.unitCost + line.tax,
@@ -520,16 +525,26 @@ export default function PurchaseOrderOperations() {
                           <input
                             required
                             type="number"
-                            min=".001"
-                            step=".001"
+                            min="1"
+                            step="1"
+                            inputMode="numeric"
+                            title="Enter a whole number of at least 1"
+                            aria-invalid={invalidQuantityLine === index}
                             value={line.quantity}
-                            onChange={(e) =>
-                              update(index, {
-                                quantity: Number(e.target.value),
-                              })
-                            }
+                            onChange={(e) => {
+                              const quantity = parseWholePurchaseQuantity(e.target.value);
+                              if (quantity === null) {
+                                setInvalidQuantityLine(index);
+                                return;
+                              }
+                              setInvalidQuantityLine(quantity < 1 ? index : null);
+                              update(index, { quantity });
+                            }}
                             className={input}
                           />
+                          {invalidQuantityLine === index && (
+                            <span className="block text-[11px] text-rose-600">Enter a whole number of at least 1.</span>
+                          )}
                         </label>
                         <label className="text-[11px] font-semibold">
                           Unit cost *
@@ -584,9 +599,10 @@ export default function PurchaseOrderOperations() {
                         <button
                           type="button"
                           disabled={lines.length === 1}
-                          onClick={() =>
-                            setLines((c) => c.filter((_, i) => i !== index))
-                          }
+                          onClick={() => {
+                            setLines((c) => c.filter((_, i) => i !== index));
+                            setInvalidQuantityLine(null);
+                          }}
                           className="mt-5 text-rose-600 disabled:opacity-30"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -622,7 +638,7 @@ export default function PurchaseOrderOperations() {
                 Cancel
               </button>
               <button
-                disabled={saving || totals.total < 0}
+                disabled={saving || invalidQuantityLine !== null || lines.some((line) => !Number.isSafeInteger(line.quantity) || line.quantity < 1) || totals.total < 0}
                 className="rounded-xl bg-[#0E9384] px-5 py-2 font-semibold text-white disabled:opacity-50"
               >
                 {saving ? "Creating..." : "Create draft"}
