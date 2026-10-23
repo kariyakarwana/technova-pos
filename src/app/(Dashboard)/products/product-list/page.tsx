@@ -18,6 +18,7 @@ import ProductListTable, {
 } from "@/components/dashboard/products/ProductListTable";
 import ProductListPagination from "@/components/dashboard/products/ProductListPagination";
 import ProductImportDialog from "@/components/dashboard/products/ProductImportDialog";
+import { productCsv, productPrintHtml } from "@/components/dashboard/products/productExport";
 
 export default function ProductListPage() {
   const { branchId } = useBranch();
@@ -35,6 +36,65 @@ export default function ProductListPage() {
   const [categories, setCategories] = useState<Lookup[]>([]);
   const [brands, setBrands] = useState<Lookup[]>([]);
   const [isImportOpen, setIsImportOpen] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
+
+  async function productsForExport(): Promise<ApiProduct[]> {
+    const exported: ApiProduct[] = [];
+    for (let page = 1; ; page += 1) {
+      const params = new URLSearchParams({ page: String(page), pageSize: "100", status: "ACTIVE" });
+      if (branchId) params.set("branchId", branchId);
+      if (searchQuery.trim()) params.set("search", searchQuery.trim());
+      if (selectedCategory !== "All") params.set("categoryId", selectedCategory);
+      if (selectedBrand !== "All") params.set("brandId", selectedBrand);
+      const batch = await apiGet<ProductPage>(`/catalog/products?${params}`);
+      exported.push(...batch.data);
+      if (page >= batch.meta.pageCount || batch.data.length === 0) break;
+    }
+    return exported;
+  }
+
+  async function exportCsv() {
+    setExporting(true);
+    setExportError(null);
+    try {
+      const csv = productCsv(await productsForExport());
+      const url = URL.createObjectURL(new Blob(["\uFEFF", csv], { type: "text/csv;charset=utf-8" }));
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "technova-products.csv";
+      link.click();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1_000);
+    } catch (error) {
+      setExportError(error instanceof Error ? error.message : "Unable to export products.");
+    } finally {
+      setExporting(false);
+    }
+  }
+
+  async function exportPdf() {
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) {
+      setExportError("Allow pop-ups to print or save the product report as PDF.");
+      return;
+    }
+    printWindow.document.write("<p>Preparing product report…</p>");
+    setExporting(true);
+    setExportError(null);
+    try {
+      const html = productPrintHtml(await productsForExport());
+      printWindow.document.open();
+      printWindow.document.write(html);
+      printWindow.document.close();
+      printWindow.focus();
+      printWindow.print();
+    } catch (error) {
+      printWindow.close();
+      setExportError(error instanceof Error ? error.message : "Unable to prepare product report.");
+    } finally {
+      setExporting(false);
+    }
+  }
 
   const filteredProducts = useMemo(() => {
     const result = [...products];
@@ -117,7 +177,11 @@ export default function ProductListPage() {
         isCollapsed={isFilterCollapsed}
         onToggleCollapse={() => setIsFilterCollapsed((prev) => !prev)}
         onImport={() => setIsImportOpen(true)}
+        onExportCsv={() => void exportCsv()}
+        onExportPdf={() => void exportPdf()}
+        exporting={exporting}
       />
+      {exportError && <div role="alert" className="mb-4 rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">{exportError}</div>}
 
       {/* Main Content Card */}
       <div className="bg-white border border-[#E4E7EC] rounded-2xl p-5 shadow-xs">

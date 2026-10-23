@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, X } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -55,6 +55,11 @@ export default function CustomerOperations() {
     return () => clearTimeout(timer);
   }, [load]);
   useEffect(() => setPage(1), [search, status, pageSize]);
+  useEffect(() => {
+    if (!message) return;
+    const timer = window.setTimeout(() => setMessage(null), 5_000);
+    return () => window.clearTimeout(timer);
+  }, [message]);
   function edit(customer: Customer) {
     setFormError(null);
     setEditing(customer);
@@ -146,8 +151,9 @@ export default function CustomerOperations() {
         </button>
       </div>
       {message && (
-        <div className="rounded-xl border border-teal-200 bg-teal-50 p-3 text-sm text-teal-800">
-          {message}
+        <div role="status" className="flex items-start justify-between gap-3 rounded-xl border border-teal-200 bg-teal-50 p-3 text-sm text-teal-800">
+          <span>{message}</span>
+          <button type="button" onClick={() => setMessage(null)} aria-label="Dismiss message" className="shrink-0 rounded p-1 hover:bg-teal-100"><X className="h-4 w-4" /></button>
         </div>
       )}
       <div className="rounded-2xl border bg-white p-4">
@@ -235,25 +241,27 @@ export default function CustomerOperations() {
                     {Number(customer.loyaltyAccount?.points ?? 0)} pts
                   </td>
                   <td className="px-4 py-3">{customer.status === "ACTIVE" ? "Active" : customer.status === "INACTIVE" ? "Inactive" : customer.status}</td>
-                  <td className="space-x-3 px-4 py-3 text-right">
+                  <td className="min-w-64 px-4 py-3 text-right">
+                    <div className="grid grid-cols-[48px_48px_90px] items-center justify-end gap-3">
                     <Link
                       href={`/customers/${customer.id}`}
-                      className="font-semibold text-[#0E9384]"
+                      className="text-center font-semibold text-[#0E9384]"
                     >
                       View
                     </Link>
                     <button
                       onClick={() => edit(customer)}
-                      className="font-semibold"
+                      className="text-center font-semibold"
                     >
                       Edit
                     </button>
                     <button
                       onClick={() => toggle(customer)}
-                      className="font-semibold text-rose-600"
+                      className="text-center font-semibold text-rose-600"
                     >
                       {customer.status === "ACTIVE" ? "Deactivate" : "Activate"}
                     </button>
+                    </div>
                   </td>
                 </tr>
               ))}
