@@ -318,6 +318,8 @@ export default function CustomerOperations() {
                   required
                   type="tel"
                   pattern="\+[1-9][0-9]{7,14}"
+                  maxLength={16}
+                  title="Use international format with a country code, for example +94771234567."
                   placeholder="+94771234567"
                   value={form.phone}
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}
