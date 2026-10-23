@@ -31,7 +31,7 @@ export function PosHeader({
     <div className="flex items-center justify-between px-6 py-3.5 bg-white border-b border-[#E6EAED] shrink-0">
       <div>
         <h1 className="text-base font-bold text-[#212B36] tracking-tight">
-          Welcome, Catchier 1
+          Welcome, Cashier 1
         </h1>
         <p className="text-xs text-slate-400 mt-0.5 font-normal">{branchName ?? "Select a branch"}</p>
       </div>

@@ -36,11 +36,15 @@ export default function SupplierOperations() {
   async function submit(event: React.FormEvent) {
     event.preventDefault();
     setMessage(null);
+    if (form.phone.trim() && !/^\+?[0-9]{8,15}$/.test(form.phone.trim())) {
+      setMessage("Please enter a valid phone number using digits and an optional leading +.");
+      return;
+    }
     try {
       const payload = {
         name: form.name,
         contactName: form.contactName || undefined,
-        phone: form.phone || undefined,
+        phone: form.phone.trim() || undefined,
         email: form.email || undefined,
       };
       if (editing) await apiPatch(`/suppliers/${editing.id}`, payload);
@@ -112,7 +116,7 @@ export default function SupplierOperations() {
           </button>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
+          <table className="w-full table-fixed text-left text-sm">
             <thead className="bg-slate-50 text-xs uppercase text-slate-500">
               <tr>
                 <th className="px-4 py-3">Code</th>
@@ -134,16 +138,8 @@ export default function SupplierOperations() {
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <p
-                      className="block max-w-[220px] min-w-0 truncate font-semibold"
-                      title={item.name}
-                    >
-                      {item.name}
-                    </p>
-                    <p
-                      className="block max-w-[220px] min-w-0 truncate text-xs text-slate-500"
-                      title={item.email ?? ""}
-                    >
+                    <p className="truncate font-semibold" title={item.name}>{item.name}</p>
+                    <p className="truncate text-xs text-slate-500" title={item.email ?? undefined}>
                       {item.email ?? "No email"}
                     </p>
                   </td>
@@ -161,27 +157,27 @@ export default function SupplierOperations() {
                       {item.phone ?? "—"}
                     </p>
                   </td>
-                  <td className="px-4 py-3 whitespace-nowrap">{item.status}</td>
-                  <td className="px-4 py-3 text-right whitespace-nowrap">
-                    <div className="flex items-center justify-end gap-3 shrink-0">
-                      <Link
-                        href={`/suppliers/${item.id}`}
-                        className="font-semibold text-[#0E9384] shrink-0"
-                      >
-                        View
-                      </Link>
-                      <Link
-                        href={`/suppliers/${item.id}/edit`}
-                        className="font-semibold text-slate-600 shrink-0"
-                      >
-                        Edit
-                      </Link>
-                      <button
-                        onClick={() => toggle(item)}
-                        className="font-semibold text-rose-600 shrink-0"
-                      >
-                        {item.status === "ACTIVE" ? "Deactivate" : "Activate"}
-                      </button>
+                  <td className="px-4 py-3">{item.status}</td>
+                  <td className="px-4 py-3 text-right">
+                    <div className="flex items-center justify-end gap-2 whitespace-nowrap">
+                    <Link
+                      href={`/suppliers/${item.id}`}
+                      className="font-semibold text-[#0E9384]"
+                    >
+                      View
+                    </Link>
+                    <Link
+                      href={`/suppliers/${item.id}/edit`}
+                      className="font-semibold text-slate-600"
+                    >
+                      Edit
+                    </Link>
+                    <button
+                      onClick={() => toggle(item)}
+                      className="font-semibold text-rose-600"
+                    >
+                      {item.status === "ACTIVE" ? "Deactivate" : "Activate"}
+                    </button>
                     </div>
                   </td>
                 </tr>
@@ -238,6 +234,9 @@ export default function SupplierOperations() {
               <label className="text-xs font-semibold">
                 Phone
                 <input
+                  type="tel"
+                  pattern="\+?[0-9]{8,15}"
+                  title="Use 8–15 digits with an optional leading +"
                   value={form.phone}
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}
                   className="mt-1 h-10 w-full rounded-xl border px-3 text-sm"

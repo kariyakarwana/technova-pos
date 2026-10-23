@@ -6,6 +6,7 @@ import { Minus, Plus, QrCode, Repeat2, Search } from "lucide-react";
 import { useBranch } from "@/components/dashboard/BranchContext";
 import { apiGet, apiPost } from "@/lib/api/client";
 import PaginationControls, { type PageMeta } from "./PaginationControls";
+import { calculateBalance, formatQuantity, normalizeQuantity, stepQuantity } from "./inventory-quantity";
 import {
   Select,
   SelectContent,
@@ -27,6 +28,13 @@ type Stock = {
   };
   branch: { name: string };
 };
+type Product = {
+  id: string;
+  sku: string;
+  name: string;
+  trackSerials: boolean;
+  stockLevels: Array<{ quantityOnHand: string | number; quantityReserved: string | number }>;
+};
 type Movement = {
   id: string;
   type: string;
@@ -38,6 +46,8 @@ type Movement = {
 export default function InventoryOperations() {
   const { branchId, branch } = useBranch();
   const [stock, setStock] = useState<Stock[]>([]),
+    [products, setProducts] = useState<Product[]>([]),
+    [productsLoading, setProductsLoading] = useState(false),
     [movements, setMovements] = useState<Movement[]>([]),
     [stockMeta, setStockMeta] = useState<PageMeta>({ page: 1, pageSize: 20, total: 0, pageCount: 0 }), [movementMeta, setMovementMeta] = useState<PageMeta>({ page: 1, pageSize: 20, total: 0, pageCount: 0 }),
     [stockPage, setStockPage] = useState(1), [movementPage, setMovementPage] = useState(1), [search, setSearch] = useState(""),
@@ -58,9 +68,37 @@ export default function InventoryOperations() {
     setMovements(history.data);
     setStockMeta(levels.meta); setMovementMeta(history.meta);
   }, [branchId, movementPage, search, stockPage]);
+  const loadProducts = useCallback(async () => {
+    if (!branchId) {
+      setProducts([]);
+      return;
+    }
+    setProductsLoading(true);
+    try {
+      const all: Product[] = [];
+      let page = 1;
+      let pageCount = 1;
+      do {
+        const result = await apiGet<{ data: Product[]; meta: PageMeta }>(
+          `/catalog/products?branchId=${encodeURIComponent(branchId)}&status=ACTIVE&pageSize=100&page=${page}`,
+        );
+        all.push(...result.data);
+        pageCount = result.meta.pageCount;
+        page += 1;
+      } while (page <= pageCount);
+      setProducts(all.filter((product) => !product.trackSerials));
+    } finally {
+      setProductsLoading(false);
+    }
+  }, [branchId]);
   useEffect(() => {
     void load().catch((error) => setMessage(error.message));
   }, [load]);
+  useEffect(() => {
+    setSelected("");
+    setProducts([]);
+    void loadProducts().catch((error) => setMessage(error instanceof Error ? error.message : "Unable to load adjustment products."));
+  }, [loadProducts]);
   useEffect(() => { setStockPage(1); setMovementPage(1); }, [branchId, search]);
   async function adjust(event: React.FormEvent) {
     event.preventDefault();
@@ -73,19 +111,25 @@ export default function InventoryOperations() {
         reason: reason === "Other" ? otherReason.trim() : reason,
       });
       setMessage("Stock adjustment recorded.");
+      setSelected("");
       setQuantity(1);
       setReason("");
       setOtherReason("");
-      await load();
+      try {
+        await Promise.all([load(), loadProducts()]);
+      } catch {
+        setMessage("Stock adjustment recorded, but the inventory could not refresh. Reload the page to see the latest balance.");
+      }
     } catch (error) {
       setMessage(
         error instanceof Error ? error.message : "Unable to adjust stock.",
       );
     }
   }
-  const selectedStock = stock.find((item) => item.product.id === selected);
-  const currentBalance = Number(selectedStock?.quantityOnHand ?? 0);
-  const resultingBalance = direction === "IN" ? currentBalance + quantity : currentBalance - quantity;
+  const selectedProduct = products.find((item) => item.id === selected);
+  const currentBalance = Number(selectedProduct?.stockLevels[0]?.quantityOnHand ?? 0);
+  const reservedBalance = Number(selectedProduct?.stockLevels[0]?.quantityReserved ?? 0);
+  const resultingBalance = calculateBalance(currentBalance, quantity, direction);
   const reasonOptions = direction === "IN" ? ["Stock count correction", "Previously unrecorded stock", "Customer return restock", "Other"] : ["Damaged goods", "Expired goods", "Stock count correction", "Lost or stolen", "Internal use", "Other"];
   return (
     <main className="space-y-6 p-6">
@@ -191,23 +235,22 @@ export default function InventoryOperations() {
                 </SelectTrigger>
                 <SelectContent className="max-h-72">
                   <SelectItem value="none" className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer">Select product</SelectItem>
-                  {stock
-                    .filter((item) => !item.product.trackSerials)
-                    .map((item) => (
+                  {products.map((item) => (
                       <SelectItem
-                        key={item.product.id}
-                        value={item.product.id}
+                        key={item.id}
+                        value={item.id}
                         className="hover:bg-[var(--brand-light-green)] hover:text-[var(--brand-green)] cursor-pointer"
                       >
-                        {item.product.sku} · {item.product.name}
+                        {item.sku} · {item.name}
                       </SelectItem>
                     ))}
                 </SelectContent>
               </Select>
             </div>
+            {productsLoading ? <p className="text-xs text-slate-500">Loading products…</p> : !products.length && <p className="text-xs text-slate-500">No non-serialized products available. Manage serialized stock under Serialized units.</p>}
           </div>
-          {selectedStock && <div className="rounded-xl border border-teal-100 bg-teal-50 p-3"><p className="text-xs text-slate-500">Selected product</p><p className="font-semibold">{selectedStock.product.name}</p><div className="mt-2 flex justify-between text-xs"><span>Current stock <b>{currentBalance}</b></span><span>Available <b>{currentBalance - Number(selectedStock.quantityReserved)}</b></span></div></div>}
-          <label className="block text-xs font-semibold">Quantity to {direction === "IN" ? "add" : "remove"}<div className="mt-1 flex items-center rounded-xl border bg-white"><button type="button" onClick={() => setQuantity((value) => Math.max(0.001, value - 1))} className="h-10 w-11 border-r text-lg font-bold text-slate-500">−</button><input required type="number" min="0.001" max={direction === "OUT" ? currentBalance : undefined} step="0.001" value={quantity} onChange={(e) => setQuantity(Math.max(0, Number(e.target.value)))} className="h-10 min-w-0 flex-1 text-center font-bold outline-none"/><button type="button" onClick={() => setQuantity((value) => value + 1)} className="h-10 w-11 border-l text-lg font-bold text-slate-500">+</button></div></label>
+          {selectedProduct && <div className="rounded-xl border border-teal-100 bg-teal-50 p-3"><p className="text-xs text-slate-500">Selected product</p><p className="font-semibold">{selectedProduct.name}</p><div className="mt-2 flex justify-between text-xs"><span>Current stock <b>{formatQuantity(currentBalance)}</b></span><span>Available <b>{formatQuantity(currentBalance - reservedBalance)}</b></span></div></div>}
+          <label className="block text-xs font-semibold">Quantity to {direction === "IN" ? "add" : "remove"}<div className="mt-1 flex items-center rounded-xl border bg-white"><button type="button" onClick={() => setQuantity((value) => stepQuantity(value, -1))} className="h-10 w-11 border-r text-lg font-bold text-slate-500">−</button><input required type="number" min="0.001" max={direction === "OUT" ? currentBalance : undefined} step="0.001" value={quantity} onChange={(e) => setQuantity(normalizeQuantity(Number(e.target.value)))} className="h-10 min-w-0 flex-1 text-center font-bold outline-none"/><button type="button" onClick={() => setQuantity((value) => stepQuantity(value, 1))} className="h-10 w-11 border-l text-lg font-bold text-slate-500">+</button></div></label>
           <div className="space-y-1">
             <label className="block text-xs font-semibold">Reason for adjustment</label>
             <Select
@@ -232,10 +275,10 @@ export default function InventoryOperations() {
             </Select>
           </div>
           {reason === "Other" && <label className="block text-xs font-semibold">Explain the reason<textarea required value={otherReason} onChange={(event) => setOtherReason(event.target.value)} className="mt-1 min-h-20 w-full rounded-xl border p-3 text-sm" placeholder="Provide enough detail for the inventory audit trail."/></label>}
-          <div className={`rounded-xl p-4 text-white ${direction === "IN" ? "bg-gradient-to-br from-[#087F6F] to-[#0E9384]" : "bg-gradient-to-br from-[#B42318] to-[#D92D20]"}`}><p className="text-[10px] uppercase tracking-wider text-white/70">Impact preview</p><div className="mt-2 flex items-end justify-between"><div><p className="text-xs text-white/70">Current</p><p className="text-xl font-bold">{currentBalance}</p></div><p className="pb-1 text-lg font-bold">{direction === "IN" ? "+" : "−"}{quantity || 0}</p><div className="text-right"><p className="text-xs text-white/70">New balance</p><p className="text-2xl font-bold">{resultingBalance}</p></div></div></div>
+          <div className={`rounded-xl p-4 text-white ${direction === "IN" ? "bg-gradient-to-br from-[#087F6F] to-[#0E9384]" : "bg-gradient-to-br from-[#B42318] to-[#D92D20]"}`}><p className="text-[10px] uppercase tracking-wider text-white/70">Impact preview</p><div className="mt-2 grid grid-cols-3 items-end gap-2 tabular-nums"><div className="min-w-0"><p className="text-xs text-white/70">Current</p><p className="break-words text-lg font-bold">{formatQuantity(currentBalance)}</p></div><p className="min-w-0 break-words pb-1 text-center text-base font-bold">{direction === "IN" ? "+" : "−"}{formatQuantity(quantity)}</p><div className="min-w-0 text-right"><p className="text-xs text-white/70">New balance</p><p className="break-words text-lg font-bold">{formatQuantity(resultingBalance)}</p></div></div></div>
           {direction === "OUT" && resultingBalance < 0 && <p className="rounded-xl bg-rose-50 p-3 text-xs font-semibold text-rose-700">You cannot remove more than the current stock.</p>}
           <button disabled={!selected || !reason || (reason === "Other" && !otherReason.trim()) || quantity <= 0 || resultingBalance < 0} className={`w-full rounded-xl px-4 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40 ${direction === "IN" ? "bg-[#0E9384]" : "bg-rose-600"}`}>
-            {direction === "IN" ? `Add ${quantity || 0} to stock` : `Remove ${quantity || 0} from stock`}
+            {direction === "IN" ? `Add ${formatQuantity(quantity)} to stock` : `Remove ${formatQuantity(quantity)} from stock`}
           </button>
           </div>
         </form>

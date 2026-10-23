@@ -83,7 +83,9 @@ export default function SupplierContactDetailsCard({
           </label>
           <input
             type="tel"
-            placeholder="+1 (555) 000-0000"
+            pattern="\+?[0-9]{8,15}"
+            title="Use 8–15 digits with an optional leading +"
+            placeholder="+94771234567"
             value={phone}
             onChange={(e) => onPhoneChange(e.target.value)}
             className="w-full h-10 px-3.5 text-xs bg-white border border-[var(--brand-stroke)] rounded-xl text-[var(--brand-black-font)] placeholder:text-slate-400 focus:outline-none focus:border-[var(--brand-green)] shadow-xs font-medium"
