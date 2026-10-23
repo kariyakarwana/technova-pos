@@ -189,13 +189,13 @@ export default function CustomerOperations() {
                 value="ACTIVE"
                 className="cursor-pointer text-sm text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
               >
-                Active
+                ACTIVE
               </SelectItem>
               <SelectItem
                 value="INACTIVE"
                 className="cursor-pointer text-sm text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
               >
-                Inactive
+                INACTIVE
               </SelectItem>
             </SelectContent>
           </Select>
