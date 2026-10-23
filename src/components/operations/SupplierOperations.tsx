@@ -118,46 +118,71 @@ export default function SupplierOperations() {
                 <th className="px-4 py-3">Code</th>
                 <th className="px-4 py-3">Supplier</th>
                 <th className="px-4 py-3">Contact</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3 text-right">Actions</th>
+                <th className="px-4 py-3 whitespace-nowrap">Status</th>
+                <th className="px-4 py-3 text-right whitespace-nowrap">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {filtered.map((item) => (
                 <tr key={item.id}>
-                  <td className="px-4 py-3 font-mono text-xs">{item.code}</td>
+                  <td className="px-4 py-3 font-mono text-xs">
+                    <span
+                      className="block max-w-[140px] min-w-0 truncate"
+                      title={item.code}
+                    >
+                      {item.code}
+                    </span>
+                  </td>
                   <td className="px-4 py-3">
-                    <p className="font-semibold">{item.name}</p>
-                    <p className="text-xs text-slate-500">
+                    <p
+                      className="block max-w-[220px] min-w-0 truncate font-semibold"
+                      title={item.name}
+                    >
+                      {item.name}
+                    </p>
+                    <p
+                      className="block max-w-[220px] min-w-0 truncate text-xs text-slate-500"
+                      title={item.email ?? ""}
+                    >
                       {item.email ?? "No email"}
                     </p>
                   </td>
                   <td className="px-4 py-3">
-                    <p>{item.contactName ?? "—"}</p>
-                    <p className="text-xs text-slate-500">
+                    <p
+                      className="block max-w-[180px] min-w-0 truncate"
+                      title={item.contactName ?? ""}
+                    >
+                      {item.contactName ?? "—"}
+                    </p>
+                    <p
+                      className="block max-w-[180px] min-w-0 truncate text-xs text-slate-500"
+                      title={item.phone ?? ""}
+                    >
                       {item.phone ?? "—"}
                     </p>
                   </td>
-                  <td className="px-4 py-3">{item.status}</td>
-                  <td className="space-x-3 px-4 py-3 text-right">
-                    <Link
-                      href={`/suppliers/${item.id}`}
-                      className="font-semibold text-[#0E9384]"
-                    >
-                      View
-                    </Link>
-                    <Link
-                      href={`/suppliers/${item.id}/edit`}
-                      className="font-semibold text-slate-600"
-                    >
-                      Edit
-                    </Link>
-                    <button
-                      onClick={() => toggle(item)}
-                      className="font-semibold text-rose-600"
-                    >
-                      {item.status === "ACTIVE" ? "Deactivate" : "Activate"}
-                    </button>
+                  <td className="px-4 py-3 whitespace-nowrap">{item.status}</td>
+                  <td className="px-4 py-3 text-right whitespace-nowrap">
+                    <div className="flex items-center justify-end gap-3 shrink-0">
+                      <Link
+                        href={`/suppliers/${item.id}`}
+                        className="font-semibold text-[#0E9384] shrink-0"
+                      >
+                        View
+                      </Link>
+                      <Link
+                        href={`/suppliers/${item.id}/edit`}
+                        className="font-semibold text-slate-600 shrink-0"
+                      >
+                        Edit
+                      </Link>
+                      <button
+                        onClick={() => toggle(item)}
+                        className="font-semibold text-rose-600 shrink-0"
+                      >
+                        {item.status === "ACTIVE" ? "Deactivate" : "Activate"}
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
