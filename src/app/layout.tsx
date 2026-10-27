@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 
 import { Geist_Mono, Noto_Sans } from "next/font/google";
 
@@ -14,6 +14,11 @@ const notoSans = Noto_Sans({
   variable: "--font-noto-sans",
   subsets: ["latin"],
 });
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
 
 export const metadata: Metadata = {
   title: {

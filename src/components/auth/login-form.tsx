@@ -32,16 +32,16 @@ export function LoginForm() {
 
   return (
     <div>
-      <header className="mb-5">
-        <p className="text-[9px] font-semibold uppercase tracking-[0.18em] text-[#0e9f90]">
+      <header className="mb-4 sm:mb-4.5">
+        <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-[0.16em] text-[#0e9f90]">
           Welcome back
         </p>
 
-        <h1 className="mt-2 text-lg sm:text-xl font-bold tracking-tight text-slate-900">
+        <h1 className="mt-1 text-lg sm:text-xl font-bold tracking-tight text-slate-900">
           Sign in to your account
         </h1>
 
-        <p className="mt-1 text-xs text-slate-500">
+        <p className="mt-0.5 text-xs text-slate-500">
           Enter your credentials to access TechNova POS.
         </p>
       </header>
@@ -50,13 +50,13 @@ export function LoginForm() {
         <div
           role="alert"
           aria-live="polite"
-          className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700"
+          className="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700"
         >
           {state.message}
         </div>
       ) : null}
 
-      <form action={formAction} className="space-y-4" noValidate>
+      <form action={formAction} className="space-y-3 sm:space-y-3.5" noValidate>
         <div className="space-y-1">
           <Label
             htmlFor="login-email"

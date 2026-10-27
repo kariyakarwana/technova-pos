@@ -11,43 +11,43 @@ interface AuthLayoutProps {
  */
 export function AuthLayout({ children, footerNotice }: AuthLayoutProps) {
   return (
-    <div className="min-h-screen lg:h-screen lg:overflow-hidden w-full bg-[#eef2f6] flex items-center justify-center p-4 sm:p-6 lg:p-6">
-      <div className="w-full max-w-[820px] min-h-[560px] lg:h-[min(625px,calc(100vh-3rem))] rounded-2xl bg-white shadow-xl overflow-hidden grid grid-cols-1 lg:grid-cols-2">
+    <div className="min-h-screen min-h-dvh w-full bg-[#eef2f6] flex items-center justify-center p-3 sm:p-5 lg:p-8">
+      <div className="w-full max-w-[420px] lg:max-w-[780px] xl:max-w-[820px] rounded-2xl bg-white shadow-xl overflow-hidden grid grid-cols-1 lg:grid-cols-2 my-auto">
         {/* ── Left column: logo + form + footer ── */}
-        <section className="flex flex-col justify-between gap-3 px-6 py-6 sm:px-10 sm:py-8 lg:h-full">
-          <div className="mb-2 flex shrink-0 justify-center">
+        <section className="flex flex-col justify-between p-5 sm:p-7 lg:p-7 xl:p-8 min-h-0">
+          <div className="mb-2 sm:mb-3 flex shrink-0 justify-center">
             <Image
               src="/technova-logo.webp"
               alt="TechNova"
-              width={192}
-              height={61}
+              width={160}
+              height={51}
               priority
-              className="h-auto w-40 object-contain lg:w-32"
+              className="h-auto w-32 sm:w-36 object-contain"
               style={{ height: "auto" }}
             />
           </div>
 
-          <div className="w-full max-w-[310px] mx-auto">{children}</div>
+          <div className="w-full max-w-[320px] sm:max-w-[340px] mx-auto my-auto py-1">{children}</div>
 
-          <div className="shrink-0 mt-2 text-center">
+          <div className="shrink-0 mt-3 sm:mt-4 text-center">
             {footerNotice && (
-              <p className="text-[10px] leading-snug text-slate-400 text-center mb-2">
+              <p className="text-[11px] leading-snug text-slate-400 text-center mb-1.5">
                 {footerNotice}
               </p>
             )}
-            <p className="text-[10px] leading-snug text-slate-400 text-center">
+            <p className="text-[11px] leading-snug text-slate-400 text-center">
               {new Date().getFullYear()} © TechNova. All Rights Reserved
             </p>
           </div>
         </section>
 
         {/* ── Right column: banner image (hidden on mobile) ── */}
-        <section className="relative hidden lg:block lg:h-full w-full overflow-hidden">
+        <section className="relative hidden lg:block lg:min-h-[440px] w-full overflow-hidden">
           <Image
             src="/auth-banner.jpg"
             alt="TechNova POS retail store"
             fill
-            sizes="50vw"
+            sizes="(min-width: 1024px) 410px, 50vw"
             priority
             className="object-cover object-center"
           />
