@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import dynamic from "next/dynamic";
 import { useBranch } from "@/components/dashboard/BranchContext";
 import { DashboardLayoutRenderer } from "@/components/dashboard/dashboard/registry";
@@ -98,7 +99,6 @@ export default function AdminDashboardClientView() {
   const [isEditing, setIsEditing] = useState(false);
   const [workingLayout, setWorkingLayout] = useState<DashboardLayout>(DEFAULT_DASHBOARD_LAYOUT);
   const [isSaving, setIsSaving] = useState(false);
-  const [statusMsg, setStatusMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   // Template integration
   const [showTemplates, setShowTemplates] = useState(false);
@@ -179,7 +179,6 @@ export default function AdminDashboardClientView() {
 
   const handleEdit = useCallback(() => {
     setWorkingLayout(layout);
-    setStatusMsg(null);
     setShowTemplates(false);
     setShowThemes(false);
     setIsEditing(true);
@@ -191,7 +190,6 @@ export default function AdminDashboardClientView() {
       return;
     }
     setWorkingLayout(layout);
-    setStatusMsg(null);
     setShowTemplates(false);
     setShowThemes(false);
     setPendingTemplate(null);
@@ -201,7 +199,7 @@ export default function AdminDashboardClientView() {
   const handleConfirmDiscard = useCallback(() => {
     setShowCancelConfirm(false);
     setWorkingLayout(layout);
-    setStatusMsg({ type: "success", text: "Changes discarded." });
+    toast.success("Changes discarded.", { duration: 5000 });
     setShowTemplates(false);
     setShowThemes(false);
     setPendingTemplate(null);
@@ -214,15 +212,13 @@ export default function AdminDashboardClientView() {
 
   const handleReset = useCallback(() => {
     setWorkingLayout(DEFAULT_DASHBOARD_LAYOUT);
-    setStatusMsg({
-      type: "success",
-      text: "Reset to default layout. Click 'Save Layout' to persist.",
+    toast.success("Reset to default layout. Click 'Save Layout' to persist.", {
+      duration: 5000,
     });
   }, []);
 
   const handleSave = useCallback(async () => {
     setIsSaving(true);
-    setStatusMsg(null);
     try {
       let savedDashboard: Dashboard;
       if (dashboardId) {
@@ -240,12 +236,12 @@ export default function AdminDashboardClientView() {
       setIsEditing(false);
       setShowTemplates(false);
       setShowThemes(false);
-      setStatusMsg({ type: "success", text: "Dashboard layout saved." });
+      toast.success("Dashboard layout saved.", { duration: 5000 });
     } catch (err) {
-      setStatusMsg({
-        type: "error",
-        text: err instanceof Error ? err.message : "Failed to save layout.",
-      });
+      toast.error(
+        err instanceof Error ? err.message : "Failed to save layout.",
+        { duration: 8000 }
+      );
     } finally {
       setIsSaving(false);
     }
@@ -290,10 +286,10 @@ export default function AdminDashboardClientView() {
         }),
       }));
       setConfiguringWidget(null);
-      setStatusMsg({
-        type: "success",
-        text: `Settings updated for widget. Click 'Save Layout' to persist.`,
-      });
+      toast.success(
+        "Settings updated for widget. Click 'Save Layout' to persist.",
+        { duration: 5000 }
+      );
     },
     [configuringWidget],
   );
@@ -320,7 +316,7 @@ export default function AdminDashboardClientView() {
   const handleSaveTemplateSuccess = useCallback((templateName: string) => {
     setShowSaveTemplate(false);
     setTemplateListRefreshKey((k) => k + 1);
-    setStatusMsg({ type: "success", text: `Template "${templateName}" saved.` });
+    toast.success(`Template "${templateName}" saved.`, { duration: 5000 });
   }, []);
 
   const handleSaveTemplateClose = useCallback(() => {
@@ -331,7 +327,6 @@ export default function AdminDashboardClientView() {
     if (!pendingTemplate) return;
 
     setIsApplyingTemplate(true);
-    setStatusMsg(null);
     try {
       let targetId = dashboardId;
       if (!targetId) {
@@ -351,16 +346,15 @@ export default function AdminDashboardClientView() {
       setPendingTemplate(null);
       setShowTemplates(false);
       setIsEditing(false);
-      setStatusMsg({ type: "success", text: `Template "${pendingTemplate.name}" applied.` });
+      toast.success(`Template "${pendingTemplate.name}" applied.`, { duration: 5000 });
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Failed to apply template.";
       if (msg.includes("403") || msg.toLowerCase().includes("forbidden")) {
-        setStatusMsg({
-          type: "error",
-          text: "You do not have permission to apply dashboard templates.",
+        toast.error("You do not have permission to apply dashboard templates.", {
+          duration: 8000,
         });
       } else {
-        setStatusMsg({ type: "error", text: msg });
+        toast.error(msg, { duration: 8000 });
       }
       setPendingTemplate(null);
     } finally {
@@ -380,7 +374,7 @@ export default function AdminDashboardClientView() {
 
   const handleApplyTheme = useCallback((theme: VisualTheme) => {
     setActiveTheme(theme);
-    setStatusMsg({ type: "success", text: `Theme "${theme.name}" applied.` });
+    toast.success(`Theme "${theme.name}" applied.`, { duration: 5000 });
   }, []);
 
   const themeStyle = useMemo<React.CSSProperties>(() => {
@@ -629,19 +623,6 @@ export default function AdminDashboardClientView() {
           onSaveAsTemplate={handleOpenSaveTemplate}
         />
       </header>
-
-      {statusMsg && (
-        <div
-          role="status"
-          aria-live="polite"
-          className={`rounded-xl border px-4 py-2.5 text-sm font-medium ${statusMsg.type === "success"
-            ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-            : "border-rose-200 bg-rose-50 text-rose-700"
-            }`}
-        >
-          {statusMsg.text}
-        </div>
-      )}
 
       {isEditing ? (
         <div className="space-y-4">

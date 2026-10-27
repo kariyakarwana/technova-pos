@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import {
   INITIAL_ADD_ORDER_LINE_ITEMS,
   type AddOrderLineItem,
@@ -78,11 +79,11 @@ export default function AddOrderClientView() {
 
   // Actions
   function handleFilterClick() {
-    alert("Advanced filters toggled.");
+    toast.info("Advanced filters toggled.", { duration: 5000 });
   }
 
   function handleExport() {
-    alert("Exporting current order draft...");
+    toast.info("Exporting current order draft...", { duration: 5000 });
   }
 
   function handleUpdateItem<K extends keyof AddOrderLineItem>(
@@ -115,24 +116,24 @@ export default function AddOrderClientView() {
 
   function handleSubmitForApproval() {
     if (!supplier) {
-      alert("Please select a Supplier.");
+      toast.error("Please select a Supplier.", { duration: 8000 });
       return;
     }
     if (items.length === 0) {
-      alert("Please add at least one line item.");
+      toast.error("Please add at least one line item.", { duration: 8000 });
       return;
     }
 
     setIsSubmitting(true);
     setTimeout(() => {
       setIsSubmitting(false);
-      alert("Purchase Order created and submitted for approval!");
+      toast.success("Purchase Order created and submitted for approval!", { duration: 5000 });
       router.push("/suppliers/purchase-orders");
     }, 600);
   }
 
   function handleSaveDraft() {
-    alert("Purchase Order saved as Draft.");
+    toast.success("Purchase Order saved as Draft.", { duration: 5000 });
     router.push("/suppliers/purchase-orders");
   }
 

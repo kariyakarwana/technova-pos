@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import UpdateCustomerHeader from "./UpdateCustomerHeader";
 import UpdateCustomerFormCard from "./UpdateCustomerFormCard";
 import UpdateCustomerFormActions from "./UpdateCustomerFormActions";
@@ -57,22 +58,22 @@ export default function UpdateCustomerClientView({
 
   function handleUpdate() {
     if (!firstName.trim()) {
-      alert("Please enter First Name.");
+      toast.error("Please enter First Name.", { duration: 8000 });
       return;
     }
     if (!lastName.trim()) {
-      alert("Please enter Last Name.");
+      toast.error("Please enter Last Name.", { duration: 8000 });
       return;
     }
     if (!phone.trim()) {
-      alert("Please enter Phone Number.");
+      toast.error("Please enter Phone Number.", { duration: 8000 });
       return;
     }
 
     setIsSubmitting(true);
     setTimeout(() => {
       setIsSubmitting(false);
-      alert(`Customer ${customerId} (${firstName} ${lastName}) updated successfully!`);
+      toast.success(`Customer ${customerId} (${firstName} ${lastName}) updated successfully!`, { duration: 5000 });
       router.push("/customers");
     }, 500);
   }

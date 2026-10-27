@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { Plus, RefreshCw, Search, X } from "lucide-react";
+import { toast } from "sonner";
 import { apiGet, apiPatch, apiPost } from "@/lib/api/client";
 
 type Supplier = {
@@ -21,13 +22,12 @@ export default function SupplierOperations() {
     [query, setQuery] = useState(""),
     [form, setForm] = useState(emptyForm);
   const [editing, setEditing] = useState<Supplier | null>(null),
-    [open, setOpen] = useState(false),
-    [message, setMessage] = useState<string | null>(null);
+    [open, setOpen] = useState(false);
   const load = useCallback(
     () =>
       apiGet<{ data: Supplier[] }>("/suppliers?pageSize=100")
         .then((result) => setItems(result.data))
-        .catch((error) => setMessage(error.message)),
+        .catch((error) => toast.error(error.message, { duration: 8000 })),
     [],
   );
   useEffect(() => {
@@ -35,9 +35,8 @@ export default function SupplierOperations() {
   }, [load]);
   async function submit(event: React.FormEvent) {
     event.preventDefault();
-    setMessage(null);
     if (form.phone.trim() && !/^\+?[0-9]{8,15}$/.test(form.phone.trim())) {
-      setMessage("Please enter a valid phone number using digits and an optional leading +.");
+      toast.error("Please enter a valid phone number using digits and an optional leading +.", { duration: 8000 });
       return;
     }
     try {
@@ -52,11 +51,12 @@ export default function SupplierOperations() {
       setOpen(false);
       setEditing(null);
       setForm(emptyForm);
-      setMessage("Supplier saved successfully.");
+      toast.success("Supplier saved successfully.", { duration: 5000 });
       await load();
     } catch (error) {
-      setMessage(
+      toast.error(
         error instanceof Error ? error.message : "Unable to save supplier.",
+        { duration: 8000 },
       );
     }
   }
@@ -91,11 +91,6 @@ export default function SupplierOperations() {
           Add supplier
         </Link>
       </div>
-      {message && (
-        <div className="rounded-xl border border-teal-200 bg-teal-50 p-3 text-sm text-teal-800">
-          {message}
-        </div>
-      )}
       <div className="rounded-2xl border border-slate-200 bg-white p-4">
         <div className="mb-4 flex items-center gap-3">
           <div className="relative flex-1">

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import AddSupplierHeader from "./AddSupplierHeader";
 import SupplierInformationCard from "./SupplierInformationCard";
 import SupplierContactDetailsCard from "./SupplierContactDetailsCard";
@@ -35,36 +36,34 @@ export default function AddSupplierClientView() {
   const [allowOrderChanges, setAllowOrderChanges] = useState(true);
   const [emailNotificationsEnabled, setEmailNotificationsEnabled] = useState(true);
   const [inAppNotificationsEnabled, setInAppNotificationsEnabled] = useState(true);
-  const [message, setMessage] = useState<string | null>(null);
 
   function handleCancel() {
     router.push("/suppliers");
   }
 
   function handleSaveDraft() {
-    setMessage("Supplier drafts are not enabled. Use Save & Create when the details are ready.");
+    toast.info("Supplier drafts are not enabled. Use Save & Create when the details are ready.", { duration: 5000 });
   }
 
   async function handleSaveCreate() {
     if (!companyName.trim()) {
-      setMessage("Please enter a Company Name.");
+      toast.error("Please enter a Company Name.", { duration: 8000 });
       return;
     }
     if (!contactName.trim()) {
-      setMessage("Please enter a Primary Contact Name.");
+      toast.error("Please enter a Primary Contact Name.", { duration: 8000 });
       return;
     }
     if (!email.trim()) {
-      setMessage("Please enter a valid Email Address.");
+      toast.error("Please enter a valid Email Address.", { duration: 8000 });
       return;
     }
     if (phone.trim() && !/^\+?[0-9]{8,15}$/.test(phone.trim())) {
-      setMessage("Please enter a valid phone number using digits and an optional leading +.");
+      toast.error("Please enter a valid phone number using digits and an optional leading +.", { duration: 8000 });
       return;
     }
 
     setIsSubmitting(true);
-    setMessage(null);
     try {
       await apiPost("/suppliers", {
         code: supplierId,
@@ -92,7 +91,7 @@ export default function AddSupplierClientView() {
       router.push("/suppliers/management");
       router.refresh();
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Unable to create supplier.");
+      toast.error(error instanceof Error ? error.message : "Unable to create supplier.", { duration: 8000 });
     } finally {
       setIsSubmitting(false);
     }
@@ -108,7 +107,6 @@ export default function AddSupplierClientView() {
 
       {/* 2. Form Stack */}
       <div className="space-y-6 max-w-5xl">
-        {message && <div role="status" className="rounded-xl border border-teal-200 bg-teal-50 p-4 text-sm text-teal-800">{message}</div>}
         {/* Card 1: Supplier Information */}
         <SupplierInformationCard
           companyName={companyName}

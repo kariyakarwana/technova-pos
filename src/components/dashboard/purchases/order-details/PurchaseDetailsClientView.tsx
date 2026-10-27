@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import {
   MOCK_PO_DETAILS,
   type PurchaseOrderDetails,
@@ -26,19 +27,19 @@ export default function PurchaseDetailsClientView({
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   function handleCancel() {
-    alert("Order view closed.");
+    toast.info("Order view closed.", { duration: 5000 });
   }
 
   function handleEdit() {
-    alert(`Editing Purchase Order: ${details.poNumber}`);
+    toast.info(`Editing Purchase Order: ${details.poNumber}`, { duration: 5000 });
   }
 
   function handleReject() {
-    alert(`Purchase Order ${details.poNumber} marked as Rejected.`);
+    toast.info(`Purchase Order ${details.poNumber} marked as Rejected.`, { duration: 5000 });
   }
 
   function handleApprove() {
-    alert(`Purchase Order ${details.poNumber} Approved successfully!`);
+    toast.success(`Purchase Order ${details.poNumber} Approved successfully!`, { duration: 5000 });
   }
 
   function handleToggleSelectAll() {

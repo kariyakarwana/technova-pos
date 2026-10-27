@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Geist_Mono, Noto_Sans } from "next/font/google";
 
 import "./globals.css";
+import { Toaster } from "@/components/ui/sonner";
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -46,6 +47,7 @@ export default function RootLayout({
     >
       <body className="min-h-full overflow-x-hidden bg-white font-sans text-slate-900">
         {children}
+        <Toaster position="top-right" closeButton richColors duration={5000} offset={72} theme="light" />
       </body>
     </html>
   );

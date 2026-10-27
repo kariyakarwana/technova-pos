@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { toast } from "sonner";
 import {
   MOCK_TRANSFER_ITEMS,
   type TransferDirection,
@@ -37,11 +38,11 @@ export default function StockTransferClientView() {
   }, [items, activeTab, searchQuery]);
 
   function handleCreateTransfer() {
-    alert("New Stock Transfer wizard / modal opened");
+    toast.info("New Stock Transfer wizard / modal opened", { duration: 5000 });
   }
 
   function handleFilterClick() {
-    alert("Transfer filter dialog opened");
+    toast.info("Transfer filter dialog opened", { duration: 5000 });
   }
 
   return (

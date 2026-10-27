@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Mail, MessageCircle, Search, UserPlus } from "lucide-react";
+import { toast } from "sonner";
 import {
   Select,
   SelectContent,
@@ -54,8 +55,6 @@ export default function UserManagement() {
     [statusFilter, setStatusFilter] = useState("");
   const [selected, setSelected] = useState<User | null>(null);
   const [form, setForm] = useState(emptyForm);
-  const [message, setMessage] = useState<string | null>(null);
-  const [formError, setFormError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
   const loadUsers = useCallback(async () => {
@@ -82,17 +81,19 @@ export default function UserManagement() {
         setBranches(branchResult.data);
       })
       .catch((error) =>
-        setMessage(
+        toast.error(
           error instanceof Error
             ? error.message
             : "Unable to load employee options.",
+          { duration: 8000 },
         ),
       );
   }, []);
   useEffect(() => {
     void loadUsers().catch((error) =>
-      setMessage(
+      toast.error(
         error instanceof Error ? error.message : "Unable to load employees.",
+        { duration: 8000 },
       ),
     );
   }, [loadUsers]);
@@ -110,7 +111,6 @@ export default function UserManagement() {
     }));
   }
   function edit(user: User) {
-    setFormError(null);
     const branchIds = user.branchAssignments.map(({ branch }) => branch.id);
     setSelected(user);
     setForm({
@@ -127,17 +127,18 @@ export default function UserManagement() {
     });
   }
   function resetForm() {
-    setFormError(null);
     setSelected(null);
     setForm(emptyForm);
   }
   async function save(event: React.FormEvent) {
     event.preventDefault();
-    setFormError(null);
-    if (!form.roleIds.length || !form.branchIds.length)
-      return setFormError(
+    if (!form.roleIds.length || !form.branchIds.length) {
+      toast.error(
         "Select at least one role and one branch for the employee.",
+        { duration: 8000 },
       );
+      return;
+    }
     setSaving(true);
     try {
       if (selected) {
@@ -149,7 +150,7 @@ export default function UserManagement() {
           branchIds: form.branchIds,
           defaultBranchId: form.defaultBranchId || form.branchIds[0],
         });
-        setMessage("Employee access updated. Existing sessions were revoked.");
+        toast.success("Employee access updated. Existing sessions were revoked.", { duration: 5000 });
       } else {
         const created = await apiPost<{ whatsappQueued: boolean }>("/users", {
           name: form.name,
@@ -158,17 +159,19 @@ export default function UserManagement() {
           roleIds: form.roleIds,
           branchIds: form.branchIds,
         });
-        setMessage(
+        toast.success(
           created.whatsappQueued
             ? `Employee account created. The temporary password was emailed to ${form.email}, and a WhatsApp welcome was queued for ${form.phone}.`
             : `Employee account created and emailed to ${form.email}. The WhatsApp message could not be queued; check the WhatsApp configuration and notification template.`,
+          { duration: 5000 },
         );
       }
       resetForm();
       await loadUsers();
     } catch (error) {
-      setFormError(
+      toast.error(
         error instanceof Error ? error.message : "Unable to save employee.",
+        { duration: 8000 },
       );
     } finally {
       setSaving(false);
@@ -185,15 +188,17 @@ export default function UserManagement() {
       return;
     try {
       await apiPatch(`/users/${user.id}/access`, { status: nextStatus });
-      setMessage(
+      toast.success(
         `Employee ${nextStatus === "ACTIVE" ? "activated" : "deactivated"} successfully.`,
+        { duration: 5000 },
       );
       await loadUsers();
     } catch (error) {
-      setMessage(
+      toast.error(
         error instanceof Error
           ? error.message
           : "Unable to update employee state.",
+        { duration: 8000 },
       );
     }
   }
@@ -206,12 +211,13 @@ export default function UserManagement() {
       return;
     try {
       await apiDelete(`/users/${user.id}`);
-      setMessage("Employee deleted successfully.");
+      toast.success("Employee deleted successfully.", { duration: 5000 });
       if (selected?.id === user.id) resetForm();
       await loadUsers();
     } catch (error) {
-      setMessage(
+      toast.error(
         error instanceof Error ? error.message : "Unable to delete employee.",
+        { duration: 8000 },
       );
     }
   }
@@ -230,11 +236,6 @@ export default function UserManagement() {
           status.
         </p>
       </header>
-      {message && (
-        <div className="rounded-xl border border-teal-200 bg-teal-50 p-3 text-sm text-teal-800">
-          {message}
-        </div>
-      )}
       <div className="grid gap-6 xl:grid-cols-[400px_1fr]">
         <form
           onSubmit={save}
@@ -262,7 +263,6 @@ export default function UserManagement() {
               </button>
             )}
           </div>
-          {formError && <div role="alert" className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">{formError}</div>}
           <label className="block text-xs font-semibold">
             Full name *
             <input

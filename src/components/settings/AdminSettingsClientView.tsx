@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { BellRing, GitFork, History, Users, WifiOff } from "lucide-react";
+import { toast } from "sonner";
 import { apiDelete, apiPatch, apiPost, apiUpload } from "@/lib/api/client";
 import AdminSettingsHeader from "./AdminSettingsHeader";
 import { buildOrganizationUpdatePayload } from "./organization-payload";
@@ -52,7 +53,6 @@ export default function AdminSettingsClientView({
     ),
   );
   const [isSavingRules, setIsSavingRules] = useState(false);
-  const [notice, setNotice] = useState<string | null>(null);
   const currentRole = useMemo(
     () => roles.find((r) => r.id === selectedRoleId) || roles[0],
     [roles, selectedRoleId],
@@ -84,15 +84,15 @@ export default function AdminSettingsClientView({
   async function handleSaveRules() {
     if (!currentRole || !canEditRolePermissions(currentRole.name)) return;
     setIsSavingRules(true);
-    setNotice(null);
     try {
       await apiPatch(`/roles/${currentRole.id}`, {
         permissionIds: selectedPermissionIds,
       });
-      setNotice("Role permissions saved successfully.");
+      toast.success("Role permissions saved successfully.", { duration: 5000 });
     } catch (error) {
-      setNotice(
+      toast.error(
         error instanceof Error ? error.message : "Unable to save permissions.",
+        { duration: 8000 },
       );
     } finally {
       setIsSavingRules(false);
@@ -100,12 +100,17 @@ export default function AdminSettingsClientView({
   }
 
   async function handleSaveProfile() {
-    if (!canManageOrganization)
-      return setNotice("You have view-only access to organization settings.");
-    if (!organization.name.trim())
-      return setNotice("Organization name is required.");
+    if (!canManageOrganization) {
+      toast.error("You have view-only access to organization settings.", {
+        duration: 8000,
+      });
+      return;
+    }
+    if (!organization.name.trim()) {
+      toast.error("Organization name is required.", { duration: 8000 });
+      return;
+    }
     setIsSavingProfile(true);
-    setNotice(null);
     try {
       const updatedProfile = await apiPatch<OrganizationSettings>(
         "/organization",
@@ -122,17 +127,19 @@ export default function AdminSettingsClientView({
       setOrganization(updated);
       setLogoFile(null);
       setLogoRemoveRequested(false);
-      setNotice(
+      toast.success(
         logoFile
           ? "Organization profile and company logo saved successfully."
           : logoRemoveRequested
             ? "Organization profile saved and company logo removed."
             : "Organization profile saved successfully.",
+        { duration: 5000 },
       );
       router.refresh();
     } catch (error) {
-      setNotice(
+      toast.error(
         error instanceof Error ? error.message : "Unable to save organization.",
+        { duration: 8000 },
       );
     } finally {
       setIsSavingProfile(false);
@@ -140,8 +147,12 @@ export default function AdminSettingsClientView({
   }
 
   async function handleAddRole() {
-    if (!canManageRoles)
-      return setNotice("Role-management permission is required.");
+    if (!canManageRoles) {
+      toast.error("Role-management permission is required.", {
+        duration: 8000,
+      });
+      return;
+    }
     const roleName = prompt("Enter new role name:");
     if (roleName && roleName.trim()) {
       try {
@@ -154,22 +165,25 @@ export default function AdminSettingsClientView({
         setPermissionState((state) => ({ ...state, [role.id]: [] }));
         setSelectedRoleId(role.id);
       } catch (error) {
-        setNotice(
+        toast.error(
           error instanceof Error ? error.message : "Unable to add role.",
+          { duration: 8000 },
         );
       }
     }
   }
 
   async function handleEditRole(role: ApiRole) {
-    if (role.isSystem) return setNotice("System role names cannot be changed.");
+    if (role.isSystem) {
+      toast.error("System role names cannot be changed.", { duration: 8000 });
+      return;
+    }
     const name = prompt("Edit role name:", role.name);
     if (name === null || !name.trim()) return;
     const description =
       prompt("Edit role description:", role.description ?? "") ??
       role.description ??
       "";
-    setNotice(null);
     try {
       await apiPatch(`/roles/${role.id}`, {
         name: name.trim(),
@@ -187,10 +201,11 @@ export default function AdminSettingsClientView({
             : item,
         ),
       );
-      setNotice("Role details updated successfully.");
+      toast.success("Role details updated successfully.", { duration: 5000 });
     } catch (error) {
-      setNotice(
+      toast.error(
         error instanceof Error ? error.message : "Unable to update role.",
+        { duration: 8000 },
       );
     }
   }
@@ -216,14 +231,6 @@ export default function AdminSettingsClientView({
           Audit Log
         </Link>
       </div>
-      {notice && (
-        <div
-          role="status"
-          className="rounded-xl border border-teal-200 bg-teal-50 px-4 py-3 text-sm text-teal-800"
-        >
-          {notice}
-        </div>
-      )}
 
       <section className="rounded-2xl border border-[var(--brand-stroke)] bg-white p-5">
         <div className="mb-4">

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { X } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,7 +24,6 @@ export function SaveTemplateDialog({
   const [description, setDescription] = useState("");
   const [nameError, setNameError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [apiError, setApiError] = useState<string | null>(null);
 
   const nameInputRef = useRef<HTMLInputElement>(null);
 
@@ -61,7 +61,6 @@ export function SaveTemplateDialog({
     }
 
     setSubmitting(true);
-    setApiError(null);
     try {
       const created = await createDashboardTemplate({
         name: name.trim(),
@@ -71,11 +70,12 @@ export function SaveTemplateDialog({
       onSuccess(created.name);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Failed to save template.";
-      if (msg.includes("403") || msg.toLowerCase().includes("forbidden")) {
-        setApiError("You do not have permission to create dashboard templates.");
-      } else {
-        setApiError(msg);
-      }
+      toast.error(
+        msg.includes("403") || msg.toLowerCase().includes("forbidden")
+          ? "You do not have permission to create dashboard templates."
+          : msg,
+        { duration: 8000 }
+      );
     } finally {
       setSubmitting(false);
     }
@@ -113,15 +113,6 @@ export function SaveTemplateDialog({
         <p className="mt-1 text-xs text-slate-500">
           Save the current dashboard layout as a reusable template.
         </p>
-
-        {apiError && (
-          <div
-            role="alert"
-            className="mt-3 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-medium text-rose-700"
-          >
-            {apiError}
-          </div>
-        )}
 
         <form onSubmit={handleSubmit} noValidate className="mt-4 space-y-4">
           <div className="space-y-1.5">

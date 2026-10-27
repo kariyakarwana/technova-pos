@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import { apiGet } from "@/lib/api/client";
 import { useBranch } from "@/components/dashboard/BranchContext";
 import ReportExportActions from "./ReportExportActions";
@@ -53,8 +54,7 @@ export default function ReportTable({
 }) {
   const { branchId } = useBranch();
   const [rows, setRows] = useState<Record<string, unknown>[]>([]);
-  const [error, setError] = useState<string | null>(null),
-    [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [from, setFrom] = useState(() =>
     new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10),
   );
@@ -120,7 +120,7 @@ export default function ReportTable({
       );
     void Promise.all(loaders)
       .then((entries) => setOptions(Object.fromEntries(entries)))
-      .catch(() => setError("Some filter options could not be loaded."));
+      .catch(() => toast.error("Some filter options could not be loaded.", { duration: 8000 }));
   }, [cashierScoped, filterSet]);
 
   const params = useMemo(() => {
@@ -139,15 +139,15 @@ export default function ReportTable({
   useEffect(() => {
     let active = true;
     setLoading(true);
-    setError(null);
     apiGet<Record<string, unknown>[]>(`${endpoint}?${params}`)
       .then((result) => {
         if (active) setRows(result);
       })
       .catch((reason) => {
         if (active)
-          setError(
+          toast.error(
             reason instanceof Error ? reason.message : "Unable to load report.",
+            { duration: 8000 },
           );
       })
       .finally(() => {
@@ -323,11 +323,6 @@ export default function ReportTable({
           Clear filters
         </button>
       </section>
-      {error && (
-        <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
-          {error}
-        </div>
-      )}
       <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white">
         <table className="w-full text-left text-sm">
           <thead className="bg-slate-50">
@@ -370,7 +365,7 @@ export default function ReportTable({
             Loading report…
           </p>
         )}
-        {!loading && !rows.length && !error && (
+        {!loading && !rows.length && (
           <p className="p-8 text-center text-sm text-slate-500">
             No data matches these filters.
           </p>

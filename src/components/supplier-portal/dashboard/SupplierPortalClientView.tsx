@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import {
   type DeliveryStatus,
   type SupplierPurchaseOrder,
@@ -26,7 +27,6 @@ export default function SupplierPortalClientView() {
   const [stats, setStats] = useState<SupplierPortalStats>({ pendingOrdersCount: 0, pendingOrdersTrend: "Awaiting your response", inTransitCount: 0, inTransitSubtitle: "Active shipments", completedMtdCount: 0, completedMtdRate: "Received this month" });
   const [orders, setOrders] = useState<SupplierPurchaseOrder[]>([]);
   const [dateRange, setDateRange] = useState("30");
-  const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
     const from = dateRange === "all" ? "" : `&from=${encodeURIComponent(new Date(Date.now() - Number(dateRange) * 86400000).toISOString())}`;
@@ -50,11 +50,11 @@ export default function SupplierPortalClientView() {
         else if (response?.status === "REJECTED") deliveryStatus = "Rejected";
         return { id: order.id, poNumber: order.orderNumber, date: new Date(order.createdAt).toLocaleDateString(), totalAmount: `LKR ${Number(order.total).toLocaleString()}`, deliveryStatus, branchName: order.branch.name };
       }));
-    }).catch((error) => setMessage(error instanceof Error ? error.message : "Unable to load supplier orders."));
+    }).catch((error) => toast.error(error instanceof Error ? error.message : "Unable to load supplier orders.", { duration: 8000 }));
   }, [dateRange]);
 
   function handleFilterToggle() {
-    setMessage("Use the search box to filter by purchase order number.");
+    toast.info("Use the search box to filter by purchase order number.", { duration: 5000 });
   }
 
   return (
@@ -67,7 +67,6 @@ export default function SupplierPortalClientView() {
       />
 
       {/* 2. Top 3 KPI Stats Cards */}
-      {message && <div className="rounded-xl border border-teal-200 bg-teal-50 p-3 text-sm text-teal-800">{message}</div>}
       <SupplierPortalStatsCards stats={stats} />
 
       {/* 3. Active Purchase Orders TanStack Data Table */}

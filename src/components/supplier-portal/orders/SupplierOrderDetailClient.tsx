@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { FileUp, PackageCheck, Send, Truck } from "lucide-react";
+import { toast } from "sonner";
 import { apiPost } from "@/lib/api/client";
 import {
   Select,
@@ -57,11 +58,10 @@ export default function SupplierOrderDetailClient({ initial }: { initial: Suppli
   const [arrival, setArrival] = useState("");
   const [invoiceNumber, setInvoiceNumber] = useState("");
   const [invoiceFile, setInvoiceFile] = useState<File | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   async function submitResponse() {
-    setBusy(true); setMessage(null);
+    setBusy(true);
     try {
       const lines = responseType === "CHANGES_PROPOSED" ? order.items.map((item) => ({
         purchaseOrderItemId: item.id,
@@ -76,13 +76,13 @@ export default function SupplierOrderDetailClient({ initial }: { initial: Suppli
         lines,
       });
       setOrder((current) => ({ ...current, supplierResponses: [response, ...current.supplierResponses] }));
-      setMessage("Your response was submitted to the purchasing team.");
-    } catch (error) { setMessage(error instanceof Error ? error.message : "Unable to submit response."); }
+      toast.success("Your response was submitted to the purchasing team.", { duration: 5000 });
+    } catch (error) { toast.error(error instanceof Error ? error.message : "Unable to submit response.", { duration: 8000 }); }
     finally { setBusy(false); }
   }
 
   async function dispatch() {
-    setBusy(true); setMessage(null);
+    setBusy(true);
     try {
       const shipment = await apiPost<SupplierOrderDetail["supplierShipments"][number]>(`/supplier-portal/orders/${order.id}/dispatch`, {
         carrier: carrier.trim() || undefined,
@@ -90,15 +90,21 @@ export default function SupplierOrderDetailClient({ initial }: { initial: Suppli
         expectedArrival: arrival ? new Date(`${arrival}T12:00:00`).toISOString() : undefined,
       });
       setOrder((current) => ({ ...current, supplierShipments: [shipment, ...current.supplierShipments] }));
-      setMessage("Dispatch details were sent to the destination branch.");
-    } catch (error) { setMessage(error instanceof Error ? error.message : "Unable to mark the order dispatched."); }
+      toast.success("Dispatch details were sent to the destination branch.", { duration: 5000 });
+    } catch (error) { toast.error(error instanceof Error ? error.message : "Unable to mark the order dispatched.", { duration: 8000 }); }
     finally { setBusy(false); }
   }
 
   async function uploadInvoice() {
-    if (!invoiceNumber.trim() || !invoiceFile) return setMessage("Enter the invoice number and choose an image or PDF.");
-    if (invoiceFile.size > 5 * 1024 * 1024) return setMessage("The invoice file must be 5 MB or smaller.");
-    setBusy(true); setMessage(null);
+    if (!invoiceNumber.trim() || !invoiceFile) {
+      toast.error("Enter the invoice number and choose an image or PDF.", { duration: 8000 });
+      return;
+    }
+    if (invoiceFile.size > 5 * 1024 * 1024) {
+      toast.error("The invoice file must be 5 MB or smaller.", { duration: 8000 });
+      return;
+    }
+    setBusy(true);
     try {
       const base64Data = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
@@ -112,8 +118,8 @@ export default function SupplierOrderDetailClient({ initial }: { initial: Suppli
       });
       setOrder((current) => ({ ...current, supplierInvoices: [invoice, ...current.supplierInvoices] }));
       setInvoiceFile(null); setInvoiceNumber("");
-      setMessage("Invoice uploaded securely.");
-    } catch (error) { setMessage(error instanceof Error ? error.message : "Unable to upload invoice."); }
+      toast.success("Invoice uploaded securely.", { duration: 5000 });
+    } catch (error) { toast.error(error instanceof Error ? error.message : "Unable to upload invoice.", { duration: 8000 }); }
     finally { setBusy(false); }
   }
 
@@ -124,7 +130,6 @@ export default function SupplierOrderDetailClient({ initial }: { initial: Suppli
 
   return <main className="space-y-6 p-6 lg:p-8">
     <header className="flex flex-wrap items-end justify-between gap-3"><div><p className="text-xs font-semibold uppercase tracking-wider text-[#0E9384]">Supplier portal / Purchase order</p><h1 className="mt-1 text-2xl font-bold">{order.orderNumber}</h1><p className="text-sm text-slate-500">Deliver to {order.branch.name} · {order.status.replaceAll("_", " ")}</p></div><Link href="/supplier-dashboard" className="rounded-xl border bg-white px-4 py-2 text-sm font-semibold">Back to orders</Link></header>
-    {message && <div role="status" className="rounded-xl border border-teal-200 bg-teal-50 p-4 text-sm text-teal-800">{message}</div>}
     <section className="grid gap-4 sm:grid-cols-3">{[["Order total", `LKR ${Number(order.total).toLocaleString()}`], ["Expected delivery", order.expectedAt ? new Date(order.expectedAt).toLocaleDateString() : "Not specified"], ["Your latest response", latest ? `${latest.status.replaceAll("_", " ")} · ${latest.reviewStatus.replaceAll("_", " ")}` : "Awaiting response"]].map(([label, value]) => <article key={label} className="rounded-2xl border bg-white p-5"><p className="text-xs uppercase text-slate-500">{label}</p><p className="mt-2 font-bold">{value}</p></article>)}</section>
     <section className="overflow-x-auto rounded-2xl border bg-white"><table className="w-full min-w-[700px] text-left text-sm"><thead className="bg-slate-50 text-xs uppercase text-slate-500"><tr><th className="p-4">Product</th><th className="p-4">Quantity</th><th className="p-4">Unit cost</th><th className="p-4">Line total</th></tr></thead><tbody>{order.items.map((item) => <tr key={item.id} className="border-t"><td className="p-4"><b>{item.product.name}</b><span className="block text-xs text-slate-500">{item.product.sku}</span></td><td className="p-4">{Number(item.quantity)}</td><td className="p-4">{Number(item.unitCost).toLocaleString()}</td><td className="p-4 font-semibold">{Number(item.lineTotal).toLocaleString()}</td></tr>)}</tbody></table></section>
     {latest ? (

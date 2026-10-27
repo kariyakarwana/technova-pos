@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import {
   MOCK_BRANCH_ALERTS,
   type BranchAlertGroup,
@@ -13,23 +14,23 @@ export default function InventoryAlertsClientView() {
   const [branchGroups] = useState<BranchAlertGroup[]>(MOCK_BRANCH_ALERTS);
 
   function handleFilterBranch() {
-    alert("Branch filter opened");
+    toast.info("Branch filter opened", { duration: 5000 });
   }
 
   function handleBulkReorder() {
-    alert("Bulk reorder process initiated for all critical alerts!");
+    toast.info("Bulk reorder process initiated for all critical alerts!", { duration: 5000 });
   }
 
   function handlePrimaryAction(item: AlertItem) {
-    alert(`Review order initiated for ${item.name} (${item.sku})`);
+    toast.info(`Review order initiated for ${item.name} (${item.sku})`, { duration: 5000 });
   }
 
   function handleSecondaryAction(item: AlertItem) {
-    alert(`Stock transfer initiated for ${item.name}`);
+    toast.info(`Stock transfer initiated for ${item.name}`, { duration: 5000 });
   }
 
   function handleViewAllForBranch(branchId: string) {
-    alert(`Viewing full alert inventory for branch: ${branchId}`);
+    toast.info(`Viewing full alert inventory for branch: ${branchId}`, { duration: 5000 });
   }
 
   return (

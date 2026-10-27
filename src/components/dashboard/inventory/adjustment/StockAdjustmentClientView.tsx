@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { toast } from "sonner";
 import {
   MOCK_ADJUSTMENT_ITEMS,
   type AdjustmentItem,
@@ -36,11 +37,11 @@ export default function StockAdjustmentClientView() {
   }, [items, searchQuery]);
 
   function handleFilterClick() {
-    alert("Adjustment filters opened");
+    toast.info("Adjustment filters opened", { duration: 5000 });
   }
 
   function handleExportClick() {
-    alert("Exporting adjustment audit records to CSV/Excel...");
+    toast.info("Exporting adjustment audit records to CSV/Excel...", { duration: 5000 });
   }
 
   return (

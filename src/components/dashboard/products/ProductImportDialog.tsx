@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Download, FileSpreadsheet, UploadCloud, X } from "lucide-react";
 import { apiPost } from "@/lib/api/client";
 
@@ -88,14 +89,12 @@ export default function ProductImportDialog({
   const [importing, setImporting] = useState(false);
   const [progress, setProgress] = useState({ current: 0, total: 0 });
   const [summary, setSummary] = useState<ImportSummary | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!open) {
       setFile(null);
       setProgress({ current: 0, total: 0 });
       setSummary(null);
-      setError(null);
     }
   }, [open]);
 
@@ -103,12 +102,11 @@ export default function ProductImportDialog({
 
   async function importProducts() {
     if (!file) {
-      setError("Choose a CSV file first.");
+      toast.error("Choose a CSV file first.", { duration: 8000 });
       return;
     }
 
     setImporting(true);
-    setError(null);
     setSummary(null);
 
     try {
@@ -206,7 +204,7 @@ export default function ProductImportDialog({
       setSummary(result);
       if (result.imported > 0) await onImported();
     } catch (importError) {
-      setError(errorText(importError));
+      toast.error(errorText(importError), { duration: 8000 });
     } finally {
       setImporting(false);
     }
@@ -227,12 +225,11 @@ export default function ProductImportDialog({
 
           <label className="block rounded-xl border-2 border-dashed border-slate-300 p-6 text-center hover:border-[#0E9384]">
             <UploadCloud className="mx-auto h-8 w-8 text-[#0E9384]" /><span className="mt-2 block text-sm font-semibold text-slate-800">Choose product CSV</span><span className="mt-1 block text-xs text-slate-500">CSV files only · maximum 500 rows</span>
-            <input type="file" accept=".csv,text/csv" disabled={importing} onChange={(event) => { setFile(event.target.files?.[0] ?? null); setError(null); setSummary(null); }} className="mx-auto mt-4 block max-w-full text-xs file:mr-3 file:rounded-lg file:border-0 file:bg-[#0E9384] file:px-3 file:py-2 file:font-semibold file:text-white" />
+            <input type="file" accept=".csv,text/csv" disabled={importing} onChange={(event) => { setFile(event.target.files?.[0] ?? null); setSummary(null); }} className="mx-auto mt-4 block max-w-full text-xs file:mr-3 file:rounded-lg file:border-0 file:bg-[#0E9384] file:px-3 file:py-2 file:font-semibold file:text-white" />
             {file && <span className="mt-3 block text-xs font-medium text-slate-700">Selected: {file.name}</span>}
           </label>
 
           {importing && <div className="rounded-xl bg-slate-50 p-4 text-sm"><div className="flex justify-between"><span>Importing products…</span><span>{progress.current} / {progress.total}</span></div><div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-200"><div className="h-full rounded-full bg-[#0E9384] transition-all" style={{ width: `${progress.total ? (progress.current / progress.total) * 100 : 0}%` }} /></div></div>}
-          {error && <p className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">{error}</p>}
           {summary && <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800"><p className="font-semibold">Imported {summary.imported} product{summary.imported === 1 ? "" : "s"}. {summary.skipped} skipped.</p>{summary.errors.length > 0 && <ul className="mt-2 list-disc space-y-1 pl-5 text-xs">{summary.errors.map((message) => <li key={message}>{message}</li>)}</ul>}{summary.skipped > summary.errors.length && <p className="mt-2 text-xs">Only the first {summary.errors.length} row errors are shown.</p>}</div>}
         </div>
 

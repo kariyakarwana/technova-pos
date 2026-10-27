@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Printer, QrCode } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
+import { toast } from "sonner";
 import { apiPost } from "@/lib/api/client";
 import {
   Select,
@@ -102,7 +103,6 @@ export default function PurchaseOrderDetail({
   const [labels, setLabels] = useState<Label[]>(
     initial.receipts.flatMap((receipt) => receipt.labels ?? []),
   );
-  const [message, setMessage] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
   async function approve() {
@@ -112,10 +112,11 @@ export default function PurchaseOrderDetail({
         {},
       );
       setOrder((current) => ({ ...current, status: result.status }));
-      setMessage("Purchase order approved.");
+      toast.success("Purchase order approved.", { duration: 5000 });
     } catch (error) {
-      setMessage(
+      toast.error(
         error instanceof Error ? error.message : "Unable to approve order.",
+        { duration: 8000 },
       );
     }
   }
@@ -137,8 +138,10 @@ export default function PurchaseOrderDetail({
             : undefined,
       }))
       .filter((item) => item.quantity > 0);
-    if (!receiptNumber.trim())
-      return setMessage("Enter a goods receipt number.");
+    if (!receiptNumber.trim()) {
+      toast.error("Enter a goods receipt number.", { duration: 8000 });
+      return;
+    }
     setSaving(true);
     try {
       const result = await apiPost<{ labels: Label[] }>(
@@ -160,10 +163,11 @@ export default function PurchaseOrderDetail({
           receivedQuantity: item.quantity,
         })),
       }));
-      setMessage("Stock received. Secure QR labels are ready to print.");
+      toast.success("Stock received. Secure QR labels are ready to print.", { duration: 5000 });
     } catch (error) {
-      setMessage(
+      toast.error(
         error instanceof Error ? error.message : "Unable to receive stock.",
+        { duration: 8000 },
       );
     } finally {
       setSaving(false);
@@ -172,7 +176,6 @@ export default function PurchaseOrderDetail({
 
   async function reviewResponse(responseId: string, approved: boolean) {
     setSaving(true);
-    setMessage(null);
     try {
       const result = await apiPost<{ reviewStatus: string }>(
         `/supplier-portal/responses/${responseId}/review`,
@@ -186,16 +189,18 @@ export default function PurchaseOrderDetail({
             : response,
         ),
       }));
-      setMessage(
+      toast.success(
         approved
           ? "Supplier changes approved and applied to the order."
           : "Supplier changes rejected. The supplier has been notified.",
+        { duration: 5000 },
       );
     } catch (error) {
-      setMessage(
+      toast.error(
         error instanceof Error
           ? error.message
           : "Unable to review supplier response.",
+        { duration: 8000 },
       );
     } finally {
       setSaving(false);
@@ -207,25 +212,30 @@ export default function PurchaseOrderDetail({
   ) {
     if (receipt.labels?.length) {
       setLabels(receipt.labels);
-      setMessage(
+      toast.info(
         `${receipt.labels.length} saved label(s) loaded from ${receipt.receiptNumber}.`,
+        { duration: 5000 },
       );
       return;
     }
-    if (!receipt.hasLegacyLabels)
-      return setMessage("This receipt has no serialized QR labels.");
+    if (!receipt.hasLegacyLabels) {
+      toast.info("This receipt has no serialized QR labels.", { duration: 5000 });
+      return;
+    }
     try {
       const result = await apiPost<{ labels: Label[] }>(
         `/purchasing/orders/${order.id}/receipts/${receipt.id}/reissue-labels`,
         {},
       );
       setLabels(result.labels);
-      setMessage(
+      toast.success(
         "Legacy QR labels were securely reissued. Previously printed QR codes are now invalid.",
+        { duration: 5000 },
       );
     } catch (error) {
-      setMessage(
+      toast.error(
         error instanceof Error ? error.message : "Unable to reissue labels.",
+        { duration: 8000 },
       );
     }
   }
@@ -261,11 +271,6 @@ export default function PurchaseOrderDetail({
           )}
         </div>
       </header>
-      {message && (
-        <div className="rounded-xl border border-teal-200 bg-teal-50 p-3 text-sm text-teal-800">
-          {message}
-        </div>
-      )}
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[
           ["Status", order.status.replaceAll("_", " ")],

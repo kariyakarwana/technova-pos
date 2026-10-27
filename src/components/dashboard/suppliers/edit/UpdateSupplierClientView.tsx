@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import UpdateSupplierHeader from "./UpdateSupplierHeader";
 import UpdateSupplierInformationCard from "./UpdateSupplierInformationCard";
 import UpdateSupplierContactDetailsCard from "./UpdateSupplierContactDetailsCard";
@@ -41,7 +42,6 @@ export default function UpdateSupplierClientView({
   const [allowOrderChanges, setAllowOrderChanges] = useState(true);
   const [emailNotificationsEnabled, setEmailNotificationsEnabled] = useState(true);
   const [inAppNotificationsEnabled, setInAppNotificationsEnabled] = useState(true);
-  const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -65,7 +65,7 @@ export default function UpdateSupplierClientView({
       setAllowOrderChanges(supplier.allowOrderChanges ?? true);
       setEmailNotificationsEnabled(supplier.emailNotificationsEnabled ?? true);
       setInAppNotificationsEnabled(supplier.inAppNotificationsEnabled ?? true);
-    }).catch((error) => setMessage(error instanceof Error ? error.message : "Unable to load supplier."));
+    }).catch((error) => toast.error(error instanceof Error ? error.message : "Unable to load supplier.", { duration: 8000 }));
   }, [id]);
 
   function handleCancel() {
@@ -73,29 +73,28 @@ export default function UpdateSupplierClientView({
   }
 
   function handleSaveDraft() {
-    setMessage("Supplier drafts are not enabled. Save the updates when they are ready.");
+    toast.info("Supplier drafts are not enabled. Save the updates when they are ready.", { duration: 5000 });
   }
 
   async function handleSaveCreate() {
     if (!companyName.trim()) {
-      setMessage("Please enter a Company Name.");
+      toast.error("Please enter a Company Name.", { duration: 8000 });
       return;
     }
     if (!contactName.trim()) {
-      setMessage("Please enter a Primary Contact Name.");
+      toast.error("Please enter a Primary Contact Name.", { duration: 8000 });
       return;
     }
     if (!email.trim()) {
-      setMessage("Please enter a valid Email Address.");
+      toast.error("Please enter a valid Email Address.", { duration: 8000 });
       return;
     }
     if (phone.trim() && !/^\+?[0-9]{8,15}$/.test(phone.trim())) {
-      setMessage("Please enter a valid phone number using digits and an optional leading +.");
+      toast.error("Please enter a valid phone number using digits and an optional leading +.", { duration: 8000 });
       return;
     }
 
     setIsSubmitting(true);
-    setMessage(null);
     try {
       await apiPatch(`/suppliers/${id}`, {
         name: companyName.trim(), contactName: contactName.trim(), email: email.trim(),
@@ -105,7 +104,7 @@ export default function UpdateSupplierClientView({
       });
       router.push(`/suppliers/${id}`); router.refresh();
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Unable to update supplier.");
+      toast.error(error instanceof Error ? error.message : "Unable to update supplier.", { duration: 8000 });
     } finally {
       setIsSubmitting(false);
     }
@@ -121,7 +120,6 @@ export default function UpdateSupplierClientView({
 
       {/* 2. Form Stack */}
       <div className="space-y-6 max-w-5xl">
-        {message && <div role="status" className="rounded-xl border border-teal-200 bg-teal-50 p-4 text-sm text-teal-800">{message}</div>}
         {/* Card 1: Supplier Information */}
         <UpdateSupplierInformationCard
           companyName={companyName}

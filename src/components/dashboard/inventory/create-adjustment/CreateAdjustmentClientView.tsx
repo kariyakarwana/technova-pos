@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import CreateAdjustmentHeader from "./CreateAdjustmentHeader";
 import SelectProductCard, { type SelectedProduct } from "./SelectProductCard";
 import AdjustmentDetailsForm, { type StockAdjustmentType } from "./AdjustmentDetailsForm";
@@ -25,24 +26,25 @@ export default function CreateAdjustmentClientView() {
   const [requestApproval, setRequestApproval] = useState(true);
 
   function handleSaveDraft() {
-    alert("Draft adjustment record saved successfully!");
+    toast.success("Draft adjustment record saved successfully!", { duration: 5000 });
   }
 
   function handleSubmitAdjustment() {
     if (!selectedProduct) {
-      alert("Please select a product first.");
+      toast.error("Please select a product first.", { duration: 8000 });
       return;
     }
 
     const diff = adjustmentType === "OUT" ? -quantity : quantity;
     const newStock = Math.max(0, selectedProduct.currentStock + diff);
 
-    alert(
+    toast.success(
       `Stock Adjustment Submitted Successfully!\nProduct: ${selectedProduct.name} (${selectedProduct.sku})\nType: ${
         adjustmentType === "OUT" ? "Stock Out" : "Stock In"
       }\nAdjusted Qty: ${diff > 0 ? `+${diff}` : diff}\nReason: ${reason}\nNew Balance: ${newStock}\nApproval Routed: ${
         requestApproval ? "Yes (Sarah Manager)" : "No"
-      }`
+      }`,
+      { duration: 5000 }
     );
   }
 

@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Plus, X } from "lucide-react";
+import { Plus } from "lucide-react";
+import { toast } from "sonner";
 import { apiDelete, apiGet, apiPatch, apiPost } from "@/lib/api/client";
 import {
   Select,
@@ -43,7 +44,6 @@ export default function DiscountsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
   const [form, setForm] = useState(emptyRuleForm);
   const [now, setNow] = useState(() => Date.now());
 
@@ -65,11 +65,6 @@ export default function DiscountsPage() {
     const timer = window.setInterval(() => setNow(Date.now()), 30_000);
     return () => window.clearInterval(timer);
   }, []);
-  useEffect(() => {
-    if (!message) return;
-    const timer = window.setTimeout(() => setMessage(null), 5_000);
-    return () => window.clearTimeout(timer);
-  }, [message]);
 
   function openNewRule() {
     setForm(emptyRuleForm());
@@ -108,7 +103,7 @@ export default function DiscountsPage() {
   async function save(event: React.FormEvent) {
     event.preventDefault();
     if (form.type === "PERCENTAGE" && (Number(form.value) <= 0 || Number(form.value) > 100 || !/^\d+(?:\.\d{1,2})?$/.test(form.value))) {
-      setMessage("Discount percentage must be between 0 and 100 with at most two decimal places.");
+      toast.error("Discount percentage must be between 0 and 100 with at most two decimal places.", { duration: 8000 });
       return;
     }
     try {
@@ -129,13 +124,15 @@ export default function DiscountsPage() {
       if (editingId) await apiPatch(`/discounts/${editingId}`, payload);
       else await apiPost("/discounts", payload);
       setOpen(false);
-      setMessage(
+      toast.success(
         editingId ? "Discount rule updated." : "Discount rule created.",
+        { duration: 5000 },
       );
       await load();
     } catch (error) {
-      setMessage(
+      toast.error(
         error instanceof Error ? error.message : "Unable to create discount.",
+        { duration: 8000 },
       );
     }
   }
@@ -146,15 +143,17 @@ export default function DiscountsPage() {
       await apiPatch(`/discounts/${rule.id}`, {
         status: disabling ? "INACTIVE" : "ACTIVE",
       });
-      setMessage(
+      toast.success(
         disabling ? "Discount rule disabled." : "Discount rule enabled.",
+        { duration: 5000 },
       );
       await load();
     } catch (error) {
-      setMessage(
+      toast.error(
         error instanceof Error
           ? error.message
           : "Unable to change discount rule status.",
+        { duration: 8000 },
       );
     }
   }
@@ -167,13 +166,14 @@ export default function DiscountsPage() {
       return;
     try {
       await apiDelete(`/discounts/${rule.id}`);
-      setMessage("Discount rule deleted.");
+      toast.success("Discount rule deleted.", { duration: 5000 });
       await load();
     } catch (error) {
-      setMessage(
+      toast.error(
         error instanceof Error
           ? error.message
           : "Unable to delete discount rule.",
+        { duration: 8000 },
       );
     }
   }
@@ -198,12 +198,6 @@ export default function DiscountsPage() {
           New rule
         </button>
       </div>
-      {message && (
-        <div role="status" className="flex items-center justify-between gap-3 rounded-xl border border-teal-200 bg-teal-50 p-3 text-sm text-teal-800">
-          {message}
-          <button type="button" onClick={() => setMessage(null)} aria-label="Dismiss message" className="rounded p-1 hover:bg-teal-100"><X className="h-4 w-4" /></button>
-        </div>
-      )}
       <div className="overflow-x-auto rounded-2xl border bg-white">
         <table className="w-full text-left text-sm">
           <thead className="bg-slate-50">

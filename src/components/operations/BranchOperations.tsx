@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Building2, Pencil, Plus, Search, X } from "lucide-react";
+import { toast } from "sonner";
 import { apiGet, apiPatch, apiPost } from "@/lib/api/client";
 import { BackButton } from "@/components/ui/back-button";
 import PaginationControls, { type PageMeta } from "./PaginationControls";
@@ -26,13 +27,11 @@ export default function BranchOperations({
   const [showForm, setShowForm] = useState(initialShowForm);
   const [form, setForm] = useState<Form>(emptyForm);
   const [errors, setErrors] = useState<Partial<Record<keyof Form, string>>>({});
-  const [message, setMessage] = useState<string | null>(null);
-  const [messageKind, setMessageKind] = useState<"success" | "error">("success");
   const [saving, setSaving] = useState(false);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1), [pageSize, setPageSize] = useState(20);
 
-  async function load() { try { setBranches((await apiGet<Page<Branch>>("/branches?pageSize=100")).data); } catch (error) { setMessageKind("error"); setMessage(error instanceof Error ? error.message : "Unable to load branches."); } }
+  async function load() { try { setBranches((await apiGet<Page<Branch>>("/branches?pageSize=100")).data); } catch (error) { toast.error(error instanceof Error ? error.message : "Unable to load branches.", { duration: 8000 }); } }
   useEffect(() => { void load(); }, []);
   const visible = useMemo(() => branches.filter((branch) => `${branch.code} ${branch.name} ${branch.phone ?? ""} ${branch.email ?? ""} ${branch.address?.city ?? ""}`.toLowerCase().includes(search.toLowerCase())), [branches, search]);
   const pageCount = Math.ceil(visible.length / pageSize);
@@ -58,13 +57,13 @@ export default function BranchOperations({
     setErrors(next);
     return Object.keys(next).length === 0;
   }
-  function beginAdd() { setEditing(null); setForm(emptyForm); setErrors({}); setMessage(null); setShowForm(true); }
-  function beginEdit(branch: Branch) { setEditing(branch); setForm({ code: branch.code, name: branch.name, phone: branch.phone ?? "", email: branch.email ?? "", street: branch.address?.street ?? "", city: branch.address?.city ?? "", country: branch.address?.country ?? "Sri Lanka" }); setErrors({}); setMessage(null); setShowForm(true); }
+  function beginAdd() { setEditing(null); setForm(emptyForm); setErrors({}); setShowForm(true); }
+  function beginEdit(branch: Branch) { setEditing(branch); setForm({ code: branch.code, name: branch.name, phone: branch.phone ?? "", email: branch.email ?? "", street: branch.address?.street ?? "", city: branch.address?.city ?? "", country: branch.address?.country ?? "Sri Lanka" }); setErrors({}); setShowForm(true); }
   function closeForm() { setShowForm(false); setEditing(null); setForm(emptyForm); setErrors({}); }
   async function save(event: React.FormEvent) {
     event.preventDefault();
-    if (!validate()) { setMessageKind("error"); setMessage("Please correct the highlighted fields before saving the branch."); return; }
-    setSaving(true); setMessage(null);
+    if (!validate()) { toast.error("Please correct the highlighted fields before saving the branch.", { duration: 8000 }); return; }
+    setSaving(true);
     const body = { code: form.code.trim(), name: form.name.trim(), phone: form.phone.trim(), email: form.email.trim(), address: { street: form.street.trim(), city: form.city.trim(), country: form.country.trim() } };
     try {
       if (editing) {
@@ -77,11 +76,11 @@ export default function BranchOperations({
       } else {
         await apiPost("/branches", body);
       }
-      closeForm(); setMessageKind("success"); setMessage(editing ? "Branch updated successfully." : "Branch created successfully."); await load(); router.refresh();
-    } catch (error) { setMessageKind("error"); setMessage(error instanceof Error ? error.message : "Unable to save branch."); }
+      closeForm(); toast.success(editing ? "Branch updated successfully." : "Branch created successfully.", { duration: 5000 }); await load(); router.refresh();
+    } catch (error) { toast.error(error instanceof Error ? error.message : "Unable to save branch.", { duration: 8000 }); }
     finally { setSaving(false); }
   }
-  async function toggle(branch: Branch) { try { await apiPatch(`/branches/${branch.id}`, { status: branch.status === "ACTIVE" ? "INACTIVE" : "ACTIVE" }); await load(); router.refresh(); } catch (error) { setMessageKind("error"); setMessage(error instanceof Error ? error.message : "Unable to update branch."); } }
+  async function toggle(branch: Branch) { try { await apiPatch(`/branches/${branch.id}`, { status: branch.status === "ACTIVE" ? "INACTIVE" : "ACTIVE" }); await load(); router.refresh(); } catch (error) { toast.error(error instanceof Error ? error.message : "Unable to update branch.", { duration: 8000 }); } }
   const fieldClass = (field: keyof Form) => `mt-1 h-10 w-full rounded-xl border px-3 outline-none transition focus:ring-2 focus:ring-[#0E9384]/10 ${errors[field] ? "border-rose-400 bg-rose-50/40" : "border-slate-200 focus:border-[#0E9384]"}`;
 
   return <main className="space-y-5 bg-[#F8FAFC] p-6">
@@ -109,7 +108,6 @@ export default function BranchOperations({
         />
       )}
     </header>
-    {message && <div role="alert" className={`rounded-xl border p-3 text-sm ${messageKind === "error" ? "border-rose-200 bg-rose-50 text-rose-700" : "border-teal-200 bg-teal-50 text-teal-800"}`}>{message}</div>}
     {showForm ? <form noValidate onSubmit={save} className="overflow-hidden rounded-2xl border bg-white shadow-sm">
       <div className="flex items-center justify-between border-b px-5 py-4"><div className="flex items-center gap-3"><span className="rounded-xl bg-teal-50 p-2 text-[#0E9384]"><Building2 className="h-5 w-5"/></span><div><h2 className="font-bold">{editing ? "Update branch" : "Add new branch"}</h2><p className="text-xs text-slate-500">Fields marked with * are required.</p></div></div><button type="button" onClick={closeForm} className="rounded-lg p-2 text-slate-500 hover:bg-slate-100"><X className="h-5 w-5"/></button></div>
       <div className="grid gap-5 p-5 md:grid-cols-2">

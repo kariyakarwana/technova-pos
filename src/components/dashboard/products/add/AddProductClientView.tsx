@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import AddProductHeader from "./AddProductHeader";
 import AddProductInfoCard from "./AddProductInfoCard";
 import AddProductPricingCard from "./AddProductPricingCard";
@@ -47,18 +48,18 @@ export default function AddProductClientView() {
 
   function handleSubmit() {
     if (!productName.trim()) {
-      alert("Please enter a Product Name.");
+      toast.error("Please enter a Product Name.", { duration: 8000 });
       return;
     }
     if (!price.trim()) {
-      alert("Please enter a Price.");
+      toast.error("Please enter a Price.", { duration: 8000 });
       return;
     }
 
     setIsSubmitting(true);
     setTimeout(() => {
       setIsSubmitting(false);
-      alert(`Product "${productName}" created successfully!`);
+      toast.success(`Product "${productName}" created successfully!`, { duration: 5000 });
       router.push("/products/product-list");
     }, 500);
   }

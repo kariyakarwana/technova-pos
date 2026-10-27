@@ -12,6 +12,7 @@ import {
   ShieldCheck,
   TriangleAlert,
 } from "lucide-react";
+import { toast } from "sonner";
 import { apiPatch, apiPost } from "@/lib/api/client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -56,7 +57,6 @@ export default function WarrantyDashboardClientView({
     [editing, setEditing] = useState<WarrantyPolicy | null>(null),
     [open, setOpen] = useState(false),
     [form, setForm] = useState(empty),
-    [message, setMessage] = useState(""),
     [saving, setSaving] = useState(false);
   const visible = useMemo(
     () =>
@@ -85,9 +85,8 @@ export default function WarrantyDashboardClientView({
   }
   async function save(event: React.FormEvent) {
     event.preventDefault();
-    setMessage("");
     if (!editing && !form.productId) {
-      setMessage("Please select a product.");
+      toast.error("Please select a product.", { duration: 8000 });
       return;
     }
     setSaving(true);
@@ -126,12 +125,13 @@ export default function WarrantyDashboardClientView({
         setPolicies((rows) => [...rows, { ...created, product }]);
       }
       setOpen(false);
-      setMessage("Warranty policy saved successfully.");
+      toast.success("Warranty policy saved successfully.", { duration: 5000 });
     } catch (error) {
-      setMessage(
+      toast.error(
         error instanceof Error
           ? error.message
           : "Unable to save warranty policy.",
+        { duration: 8000 },
       );
     } finally {
       setSaving(false);
@@ -165,10 +165,10 @@ export default function WarrantyDashboardClientView({
           </Button>
         </div>
       </header>
-      {(loadError || message) && (
+      {loadError && (
         <div className="rounded-xl border border-teal-200 bg-teal-50 p-4 text-sm text-teal-800">
-          {loadError && <TriangleAlert className="mr-2 inline h-4 w-4" />}
-          {loadError || message}
+          <TriangleAlert className="mr-2 inline h-4 w-4" />
+          {loadError}
         </div>
       )}
       <section className="grid gap-4 md:grid-cols-3">

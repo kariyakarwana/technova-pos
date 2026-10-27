@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Mail, MessageCircle, PackageSearch } from "lucide-react";
 import { apiGet, apiPost } from "@/lib/api/client";
 import CreatePromotionHeader from "./CreatePromotionHeader";
@@ -36,7 +37,6 @@ export default function CreatePromotionClientView() {
   const [notifyEmail, setNotifyEmail] = useState(true);
   const [notifyWhatsapp, setNotifyWhatsapp] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState("");
 
   useEffect(() => {
     apiGet<ProductsResponse>("/catalog/products?pageSize=100&status=ACTIVE")
@@ -46,21 +46,20 @@ export default function CreatePromotionClientView() {
 
   async function submit(event: FormEvent) {
     event.preventDefault();
-    setError("");
     if (!name.trim() || !value || !startsAt) {
-      setError("Promotion name, discount value, and start date are required.");
+      toast.error("Promotion name, discount value, and start date are required.", { duration: 8000 });
       return;
     }
     if (Number(value) <= 0 || Number(minimumQuantity) < 1) {
-      setError("Enter a valid discount value and minimum quantity.");
+      toast.error("Enter a valid discount value and minimum quantity.", { duration: 8000 });
       return;
     }
     if (type === "PERCENTAGE" && (Number(value) > 100 || !/^\d+(?:\.\d{1,2})?$/.test(value))) {
-      setError("Discount percentage must be between 0 and 100 with at most two decimal places.");
+      toast.error("Discount percentage must be between 0 and 100 with at most two decimal places.", { duration: 8000 });
       return;
     }
     if (endsAt && new Date(endsAt) <= new Date(startsAt)) {
-      setError("End date must be after the start date.");
+      toast.error("End date must be after the start date.", { duration: 8000 });
       return;
     }
     setSubmitting(true);
@@ -83,10 +82,11 @@ export default function CreatePromotionClientView() {
       router.push(`/promotions/${created.id}`);
       router.refresh();
     } catch (caught) {
-      setError(
+      toast.error(
         caught instanceof Error
           ? caught.message
           : "Unable to create promotion.",
+        { duration: 8000 },
       );
     } finally {
       setSubmitting(false);
@@ -97,11 +97,6 @@ export default function CreatePromotionClientView() {
     <main className="min-h-screen space-y-6 bg-[var(--brand-app-bg)] p-6">
       <CreatePromotionHeader />
       <form onSubmit={submit} className="space-y-6">
-        {error && (
-          <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-            {error}
-          </div>
-        )}
         <section className="rounded-2xl border border-[var(--brand-stroke)] bg-white p-6 shadow-xs">
           <h2 className="text-base font-bold">Promotion information</h2>
           <p className="mt-1 text-xs text-slate-500">
@@ -207,6 +202,7 @@ export default function CreatePromotionClientView() {
                 onChange={(e) => setValue(e.target.value)}
                 className={inputClass}
               />
+
             </label>
             <label className="text-xs font-semibold">
               Minimum quantity

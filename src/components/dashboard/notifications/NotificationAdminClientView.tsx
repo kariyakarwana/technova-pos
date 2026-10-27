@@ -23,6 +23,7 @@ import PaginationControls, {
   type PageMeta,
 } from "@/components/operations/PaginationControls";
 import { apiGet, apiPatch, apiPost } from "@/lib/api/client";
+import { toast } from "sonner";
 import {
   Select,
   SelectContent,
@@ -119,7 +120,6 @@ export default function NotificationAdminClientView({
   const [tab, setTab] = useState<"templates" | "outbox" | "preferences">(
     "templates",
   );
-  const [notice, setNotice] = useState<string | null>(null);
   const [templateRows, setTemplateRows] = useState(templates);
   const [templateQuery, setTemplateQuery] = useState("");
   const [templateChannel, setTemplateChannel] = useState("ALL");
@@ -177,10 +177,11 @@ export default function NotificationAdminClientView({
       setOutboxMeta(result.meta);
       setOutboxSummary(result.summary ?? {});
     } catch (error) {
-      setNotice(
+      toast.error(
         error instanceof Error
           ? error.message
           : "Unable to load delivery history.",
+        { duration: 8000 },
       );
     } finally {
       setOutboxLoading(false);
@@ -230,7 +231,6 @@ export default function NotificationAdminClientView({
   }
 
   function openNewTemplate() {
-    setNotice(null);
     setDraft(
       suggestedDraft(catalog[0]?.eventType ?? "CUSTOMER_WELCOME", "EMAIL"),
     );
@@ -262,15 +262,15 @@ export default function NotificationAdminClientView({
     event.preventDefault();
     if (!draft) return;
     if (!draft.name.trim() || !draft.bodyTemplate.trim()) {
-      setNotice("Template name and message are required.");
+      toast.error("Template name and message are required.", { duration: 8000 });
       return;
     }
     if (draft.channel === "EMAIL" && !draft.subjectTemplate.trim()) {
-      setNotice("Email templates require a subject.");
+      toast.error("Email templates require a subject.", { duration: 8000 });
       return;
     }
     if (draft.channel === "WHATSAPP" && draft.bodyTemplate.length > 1024) {
-      setNotice("WhatsApp messages cannot exceed 1,024 characters.");
+      toast.error("WhatsApp messages cannot exceed 1,024 characters.", { duration: 8000 });
       return;
     }
     setSaving(true);
@@ -298,10 +298,11 @@ export default function NotificationAdminClientView({
         ...current.filter((item) => item.id !== row.id),
       ]);
       setDraft(null);
-      setNotice(`${row.name} saved successfully.`);
+      toast.success(`${row.name} saved successfully.`, { duration: 5000 });
     } catch (error) {
-      setNotice(
+      toast.error(
         error instanceof Error ? error.message : "Unable to save template.",
+        { duration: 8000 },
       );
     } finally {
       setSaving(false);
@@ -319,10 +320,11 @@ export default function NotificationAdminClientView({
       setTemplateRows((current) =>
         current.map((item) => (item.id === row.id ? row : item)),
       );
-      setNotice(`${row.name} is now ${row.status.toLowerCase()}.`);
+      toast.success(`${row.name} is now ${row.status.toLowerCase()}.`, { duration: 5000 });
     } catch (error) {
-      setNotice(
+      toast.error(
         error instanceof Error ? error.message : "Unable to update template.",
+        { duration: 8000 },
       );
     }
   }
@@ -333,20 +335,21 @@ export default function NotificationAdminClientView({
         "/notifications/outbox/process",
         {},
       );
-      setNotice(`${result.processed} queued notification(s) processed.`);
+      toast.success(`${result.processed} queued notification(s) processed.`, { duration: 5000 });
       await loadOutbox();
     } catch (error) {
-      setNotice(
+      toast.error(
         error instanceof Error
           ? error.message
           : "Unable to process notifications.",
+        { duration: 8000 },
       );
     }
   }
 
   async function savePreference() {
     if (!selectedCustomer) {
-      setNotice("Search for and select a customer first.");
+      toast.error("Search for and select a customer first.", { duration: 8000 });
       return;
     }
     try {
@@ -354,10 +357,11 @@ export default function NotificationAdminClientView({
         customerId: selectedCustomer.id,
         ...preference,
       });
-      setNotice(`Preference saved for ${selectedCustomer.firstName}.`);
+      toast.success(`Preference saved for ${selectedCustomer.firstName}.`, { duration: 5000 });
     } catch (error) {
-      setNotice(
+      toast.error(
         error instanceof Error ? error.message : "Unable to save preference.",
+        { duration: 8000 },
       );
     }
   }
@@ -393,9 +397,6 @@ export default function NotificationAdminClientView({
       </header>
 
       {loadError && <Alert tone="warning" text={loadError} />}
-      {notice && (
-        <Alert tone="success" text={notice} onClose={() => setNotice(null)} />
-      )}
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Metric

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import {
   type DeviceSession,
   type SettingsTabId,
@@ -30,6 +31,7 @@ export default function ProfileSettingsClientView({ user, sessions }: { user: Cu
     if (confirm("Are you sure you want to sign out this device?")) {
       await apiClient(`/auth/sessions/${id}`, { method: "DELETE" });
       setDevices((prev) => prev.filter((d) => d.id !== id));
+      toast.success("Device signed out successfully.", { duration: 5000 });
     }
   }
 
@@ -44,7 +46,7 @@ export default function ProfileSettingsClientView({ user, sessions }: { user: Cu
         <div className="lg:col-span-4 space-y-4">
           <ProfileInfoSidebarCard
             user={{ name: user.name ?? user.email, email: user.email, role: user.roles.join(", ") || "Team member", avatar: "/technova-logo.webp" }}
-            onEditProfile={() => alert("Opening Edit Profile dialog...")}
+            onEditProfile={() => toast.info("Opening Edit Profile dialog...", { duration: 5000 })}
           />
 
           <SettingsNavigationTabs
@@ -62,7 +64,7 @@ export default function ProfileSettingsClientView({ user, sessions }: { user: Cu
                 isEnabled={isTwoFactorEnabled}
                 onToggle={setIsTwoFactorEnabled}
                 onManageAuthenticator={() =>
-                  alert("Opening Authenticator App configuration...")
+                  toast.info("Opening Authenticator App configuration...", { duration: 5000 })
                 }
               />
 

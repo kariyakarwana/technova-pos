@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import { MOCK_RETURNS_DATA } from "./ReturnsManagementMock";
 import ReturnsManagementHeader from "./ReturnsManagementHeader";
 import ReturnsStatsCards from "./ReturnsStatsCards";
@@ -11,19 +12,19 @@ export default function ReturnsManagementClientView() {
   const [data] = useState(MOCK_RETURNS_DATA);
 
   function handleViewHistory() {
-    alert("Viewing complete returns audit history.");
+    toast.info("Viewing complete returns audit history.", { duration: 5000 });
   }
 
   function handleProcessReturn() {
-    alert("Process return request modal opened.");
+    toast.info("Process return request modal opened.", { duration: 5000 });
   }
 
   function handleFilter() {
-    alert("Returns table filter toggled.");
+    toast.info("Returns table filter toggled.", { duration: 5000 });
   }
 
   function handleMore() {
-    alert("More options menu toggled.");
+    toast.info("More options menu toggled.", { duration: 5000 });
   }
 
   return (

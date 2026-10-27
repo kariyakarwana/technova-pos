@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import {
   MOCK_SUPPLIER_PROFILE,
   type SupplierProfileData,
@@ -26,27 +27,27 @@ export default function SupplierProfileClientView({
   });
 
   function handleAddSupplier() {
-    alert("Add new supplier modal opened.");
+    toast.info("Add new supplier modal opened.", { duration: 5000 });
   }
 
   function handleExport() {
-    alert("Exporting supplier profile report...");
+    toast.info("Exporting supplier profile report...", { duration: 5000 });
   }
 
   function handleExportPdf() {
-    alert("Exporting profile to PDF...");
+    toast.info("Exporting profile to PDF...", { duration: 5000 });
   }
 
   function handleExportExcel() {
-    alert("Exporting profile to Excel...");
+    toast.info("Exporting profile to Excel...", { duration: 5000 });
   }
 
   function handleRefresh() {
-    alert("Refreshed supplier metrics.");
+    toast.info("Refreshed supplier metrics.", { duration: 5000 });
   }
 
   function handleEditProfile() {
-    alert(`Editing profile for: ${profile.name}`);
+    toast.info(`Editing profile for: ${profile.name}`, { duration: 5000 });
   }
 
   return (

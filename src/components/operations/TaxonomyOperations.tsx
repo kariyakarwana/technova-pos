@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Download, FileUp, Pencil, RefreshCw } from "lucide-react";
+import { toast } from "sonner";
 import { apiGet, apiPatch, apiPost } from "@/lib/api/client";
 import { BackButton } from "@/components/ui/back-button";
 import PaginationControls, { type PageMeta } from "./PaginationControls";
@@ -57,7 +58,6 @@ export default function TaxonomyOperations({
   const [parentId, setParentId] = useState("");
   const [search, setSearch] = useState("");
   const [editing, setEditing] = useState<TaxonomyItem | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [importing, setImporting] = useState(false);
@@ -67,8 +67,9 @@ export default function TaxonomyOperations({
     try {
       setItems(await apiGet<TaxonomyItem[]>(`/catalog/${kind}`));
     } catch (error) {
-      setMessage(
+      toast.error(
         error instanceof Error ? error.message : `Unable to load ${kind}.`,
+        { duration: 8000 },
       );
     }
   }, [kind]);
@@ -99,7 +100,6 @@ export default function TaxonomyOperations({
     setName(item.name);
     setDescription(item.description ?? "");
     setParentId(item.parent?.id ?? "");
-    setMessage(null);
   }
   async function save(event: React.FormEvent) {
     event.preventDefault();
@@ -112,13 +112,14 @@ export default function TaxonomyOperations({
       if (editing) await apiPatch(`/catalog/${kind}/${editing.id}`, payload);
       else await apiPost(`/catalog/${kind}`, payload);
       reset();
-      setMessage(`${label} saved.`);
+      toast.success(`${label} saved.`, { duration: 5000 });
       await load();
     } catch (error) {
-      setMessage(
+      toast.error(
         error instanceof Error
           ? error.message
           : `Unable to save ${label.toLowerCase()}.`,
+        { duration: 8000 },
       );
     }
   }
@@ -129,8 +130,9 @@ export default function TaxonomyOperations({
       });
       await load();
     } catch (error) {
-      setMessage(
+      toast.error(
         error instanceof Error ? error.message : "Unable to update status.",
+        { duration: 8000 },
       );
     }
   }
@@ -179,12 +181,14 @@ export default function TaxonomyOperations({
         }
       }
       await load();
-      setMessage(
+      toast.success(
         `${imported} ${kind} imported${skipped ? `; ${skipped} skipped (duplicate or invalid).` : "."}`,
+        { duration: 5000 },
       );
     } catch (error) {
-      setMessage(
+      toast.error(
         error instanceof Error ? error.message : "Unable to import CSV.",
+        { duration: 8000 },
       );
     } finally {
       setImporting(false);
@@ -248,11 +252,6 @@ export default function TaxonomyOperations({
           />
         </div>
       </div>
-      {message && (
-        <div className="rounded-xl border border-teal-200 bg-teal-50 p-3 text-sm text-teal-800">
-          {message}
-        </div>
-      )}
       <div className="grid gap-6 xl:grid-cols-[360px_1fr]">
         <form
           onSubmit={save}

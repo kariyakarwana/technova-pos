@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ArrowDownToLine, ArrowUpFromLine, PackageCheck, Plus, Trash2, Truck } from "lucide-react";
+import { toast } from "sonner";
 import { BackButton } from "@/components/ui/back-button";
 import { useBranch } from "@/components/dashboard/BranchContext";
 import { apiGet, apiPost } from "@/lib/api/client";
@@ -27,8 +28,7 @@ export default function TransferOperations() {
   const { isOffline, isChecking, retryConnection } = useOfflineMode();
   const [transfers, setTransfers] = useState<Transfer[]>([]), [products, setProducts] = useState<Product[]>([]), [meta, setMeta] = useState<PageMeta>(initialMeta);
   const [page, setPage] = useState(1), [pageSize, setPageSize] = useState(20), [direction, setDirection] = useState("ALL"), [status, setStatus] = useState("");
-  const [open, setOpen] = useState(false), [destination, setDestination] = useState(""), [lines, setLines] = useState<Line[]>([{ productId: "", quantity: 1 }]), [notes, setNotes] = useState(""), [message, setMessage] = useState<string | null>(null);
-  const [modalError, setModalError] = useState<string | null>(null);
+  const [open, setOpen] = useState(false), [destination, setDestination] = useState(""), [lines, setLines] = useState<Line[]>([{ productId: "", quantity: 1 }]), [notes, setNotes] = useState("");
   const [catalogLoaded, setCatalogLoaded] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const stockError = lines.some((line) => {
@@ -39,7 +39,6 @@ export default function TransferOperations() {
     setDestination("");
     setLines([{ productId: "", quantity: 1 }]);
     setNotes("");
-    setModalError(null);
   };
   const closeForm = () => {
     resetForm();
@@ -61,7 +60,7 @@ export default function TransferOperations() {
     }
     void load().catch((error) => {
       setCatalogLoaded(false);
-      setMessage(error instanceof Error ? error.message : "Unable to load transfers.");
+      toast.error(error instanceof Error ? error.message : "Unable to load transfers.", { duration: 8000 });
     });
   }, [isOffline, load]);
   useEffect(() => setPage(1), [branchId, direction, pageSize, status]);
@@ -69,15 +68,23 @@ export default function TransferOperations() {
   async function create(event: React.FormEvent) {
     event.preventDefault();
     if (!branchId || isSubmitting) return;
-    if (!destination) return setModalError("Select a destination branch.");
+    if (!destination) {
+      toast.error("Select a destination branch.", { duration: 8000 });
+      return;
+    }
     const validationError = validateTransferLines(lines, products);
-    if (validationError) return setModalError(validationError);
-    if (isOffline || !navigator.onLine || !catalogLoaded) return setModalError("Disconnected from TechNova API. Reconnect before submitting a transfer.");
+    if (validationError) {
+      toast.error(validationError, { duration: 8000 });
+      return;
+    }
+    if (isOffline || !navigator.onLine || !catalogLoaded) {
+      toast.error("Disconnected from TechNova API. Reconnect before submitting a transfer.", { duration: 8000 });
+      return;
+    }
     setIsSubmitting(true);
-    setModalError(null);
     try {
       if (!(await retryConnection())) {
-        setModalError("Disconnected from TechNova API. Reconnect before submitting a transfer.");
+        toast.error("Disconnected from TechNova API. Reconnect before submitting a transfer.", { duration: 8000 });
         return;
       }
       await apiPost("/inventory/transfers", {
@@ -87,21 +94,20 @@ export default function TransferOperations() {
         items: lines,
       });
       closeForm();
-      setMessage("Transfer submitted. Dispatch it when the goods leave the source branch.");
+      toast.success("Transfer submitted. Dispatch it when the goods leave the source branch.", { duration: 5000 });
       try {
         await load();
       } catch {
-        setMessage("Transfer submitted, but the list could not refresh. Reconnect and reload the page to see it.");
+        toast.warning("Transfer submitted, but the list could not refresh. Reconnect and reload the page to see it.", { duration: 5000 });
       }
     } catch (error) {
-      setModalError(error instanceof Error ? error.message : "Unable to create transfer.");
+      toast.error(error instanceof Error ? error.message : "Unable to create transfer.", { duration: 8000 });
     } finally {
       setIsSubmitting(false);
     }
   }
   return <main className="space-y-5 bg-[#F8FAFC] p-6">
     <div className="flex flex-wrap items-end justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-wider text-[#0E9384]">Inventory · {branch?.name ?? "Select branch"}</p><h1 className="text-2xl font-bold">Stock Transfers</h1><p className="text-sm text-slate-500">Track outgoing and incoming goods from submission through destination receipt.</p></div><div className="flex items-center gap-3"><button disabled={!branchId} onClick={() => setOpen(true)} className="flex items-center gap-2 rounded-xl bg-[#0E9384] px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"><Plus className="h-4 w-4"/>Create transfer</button><BackButton href="/inventory" label="Back to Inventory" /></div></div>
-    {message && <div className="rounded-xl border border-teal-200 bg-teal-50 p-3 text-sm text-teal-800">{message}</div>}
     <div className="grid gap-3 sm:grid-cols-3">{[["In transit", counts.transit, Truck], ["Incoming action", counts.incoming, ArrowDownToLine], ["Received on page", counts.received, PackageCheck]].map(([label, value, Icon]) => { const CardIcon = Icon as typeof Truck; return <article key={String(label)} className="rounded-2xl border bg-white p-4"><CardIcon className="h-5 w-5 text-[#0E9384]"/><p className="mt-3 text-xs text-slate-500">{String(label)}</p><p className="text-2xl font-bold">{String(value)}</p></article>; })}</div>
     <section className="overflow-hidden rounded-2xl border bg-white"><div className="flex flex-wrap items-center justify-between gap-3 border-b p-4"><div className="flex gap-2">{[["ALL", "All"], ["OUTGOING", "Outgoing"], ["INCOMING", "Incoming"]].map(([value, label]) => <button type="button" key={value} onClick={() => setDirection(value)} className={`rounded-lg px-3 py-2 text-xs font-semibold ${direction === value ? "bg-[#025148] text-white" : "border text-slate-600"}`}>{label}</button>)}</div><Select value={status || "all"} onValueChange={(val) => setStatus(val === "all" ? "" : val)}><SelectTrigger className="h-9 data-[size=default]:h-9 w-40 rounded-lg border px-3 text-xs bg-white"><SelectValue placeholder="All statuses" /></SelectTrigger><SelectContent className="max-h-72"><SelectItem value="all" className="text-xs hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">All statuses</SelectItem><SelectItem value="SUBMITTED" className="text-xs hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">Awaiting dispatch</SelectItem><SelectItem value="IN_TRANSIT" className="text-xs hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">In transit</SelectItem><SelectItem value="RECEIVED" className="text-xs hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">Received</SelectItem><SelectItem value="CANCELLED" className="text-xs hover:bg-[#F4FBF9] hover:text-[#0E9384] cursor-pointer">Cancelled</SelectItem></SelectContent></Select></div>
       <div className="overflow-x-auto"><table className="w-full text-left text-sm"><thead className="bg-slate-50 text-xs uppercase text-slate-500"><tr><th className="p-4">Transfer</th><th className="p-4">Direction</th><th className="p-4">Route</th><th className="p-4">Items</th><th className="p-4">Status</th><th className="p-4">Last update</th><th className="p-4 text-right">Action</th></tr></thead><tbody>{transfers.map((transfer) => { const incoming = transfer.destinationBranchId === branchId; const activity = transfer.receivedAt ?? transfer.dispatchedAt ?? transfer.createdAt; return <tr key={transfer.id} className="border-t hover:bg-teal-50/30"><td className="p-4 font-semibold text-[#0E9384]">{transfer.transferNumber}</td><td className="p-4"><span className={`inline-flex items-center gap-1 text-xs font-semibold ${incoming ? "text-blue-700" : "text-amber-700"}`}>{incoming ? <ArrowDownToLine className="h-4 w-4"/> : <ArrowUpFromLine className="h-4 w-4"/>}{incoming ? "Incoming" : "Outgoing"}</span></td><td className="p-4">{transfer.sourceBranch.name} → {transfer.destinationBranch.name}</td><td className="p-4">{transfer._count.items}</td><td className="p-4"><span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${statusTone[transfer.status] ?? statusTone.DRAFT}`}>{transfer.status.replaceAll("_", " ")}</span></td><td className="p-4 text-xs text-slate-500">{new Date(activity).toLocaleString()}</td><td className="p-4 text-right"><Link href={`/inventory/transfer/${transfer.id}`} className="font-semibold text-[#0E9384]">View & update</Link></td></tr>; })}</tbody></table>{!transfers.length && <p className="p-8 text-center text-sm text-slate-500">No transfers match this view.</p>}</div><PaginationControls meta={meta} onPageChange={setPage} onPageSizeChange={setPageSize}/>
@@ -113,10 +119,9 @@ export default function TransferOperations() {
           {(isOffline || !catalogLoaded) && (
             <div role="alert" className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
               Disconnected from TechNova API. Transfers require a connection. Reconnect before submitting.
-              <button type="button" className="ml-2 font-semibold underline" onClick={() => { void retryConnection().then((online) => { if (online) void load().catch(() => setModalError("Unable to load current stock. Try again.")); }); }}>Retry connection</button>
+              <button type="button" className="ml-2 font-semibold underline" onClick={() => { void retryConnection().then((online) => { if (online) void load().catch(() => toast.error("Unable to load current stock. Try again.", { duration: 8000 })); }); }}>Retry connection</button>
             </div>
           )}
-          {modalError && <div role="alert" className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800">{modalError}</div>}
           <label className="block text-sm font-semibold">Destination branch
             <Select value={destination || "none"} onValueChange={(val) => setDestination(val === "none" ? "" : val)}>
               <SelectTrigger className="mt-1 h-10 data-[size=default]:h-10 w-full rounded-xl border bg-white px-3 text-sm"><SelectValue placeholder="Select branch" /></SelectTrigger>

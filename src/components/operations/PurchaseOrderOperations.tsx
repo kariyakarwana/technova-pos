@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { CalendarDays, Plus, Trash2, X } from "lucide-react";
+import { toast } from "sonner";
 import { useBranch } from "@/components/dashboard/BranchContext";
 import {
   Select,
@@ -67,7 +68,6 @@ export default function PurchaseOrderOperations() {
     [notes, setNotes] = useState(""),
     [lines, setLines] = useState<Line[]>([blank()]),
     [invalidQuantityLine, setInvalidQuantityLine] = useState<number | null>(null),
-    [message, setMessage] = useState<string | null>(null),
     [saving, setSaving] = useState(false);
   const load = useCallback(async () => {
     const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
@@ -93,8 +93,9 @@ export default function PurchaseOrderOperations() {
   }, [branchId, filterSupplierId, from, maxAmount, minAmount, orderNumber, page, pageSize, status, to]);
   useEffect(() => {
     void load().catch((e) =>
-      setMessage(
+      toast.error(
         e instanceof Error ? e.message : "Unable to load purchasing data.",
+        { duration: 8000 },
       ),
     );
   }, [load]);
@@ -131,20 +132,30 @@ export default function PurchaseOrderOperations() {
   }
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!branchId)
-      return setMessage("Select a branch before creating an order.");
-    if (!supplierId)
-      return setMessage("Select a supplier before creating an order.");
-    if (lines.some((line) => !line.productId))
-      return setMessage("Select a product for every order line.");
-    if (lines.some((line) => !Number.isSafeInteger(line.quantity) || line.quantity < 1))
-      return setMessage("Purchase order quantities must be positive whole numbers.");
+    if (!branchId) {
+      toast.error("Select a branch before creating an order.", { duration: 8000 });
+      return;
+    }
+    if (!supplierId) {
+      toast.error("Select a supplier before creating an order.", { duration: 8000 });
+      return;
+    }
+    if (lines.some((line) => !line.productId)) {
+      toast.error("Select a product for every order line.", { duration: 8000 });
+      return;
+    }
+    if (lines.some((line) => !Number.isSafeInteger(line.quantity) || line.quantity < 1)) {
+      toast.error("Purchase order quantities must be positive whole numbers.", { duration: 8000 });
+      return;
+    }
     if (
       lines.some(
         (line) => line.discount > line.quantity * line.unitCost + line.tax,
       )
-    )
-      return setMessage("A line discount cannot make its total negative.");
+    ) {
+      toast.error("A line discount cannot make its total negative.", { duration: 8000 });
+      return;
+    }
     setSaving(true);
     try {
       await apiPost("/purchasing/orders", {
@@ -156,13 +167,14 @@ export default function PurchaseOrderOperations() {
       });
       setOpen(false);
       reset();
-      setMessage("Purchase order created as a draft.");
+      toast.success("Purchase order created as a draft.", { duration: 5000 });
       await load();
     } catch (error) {
-      setMessage(
+      toast.error(
         error instanceof Error
           ? error.message
           : "Unable to create purchase order.",
+        { duration: 8000 },
       );
     } finally {
       setSaving(false);
@@ -171,10 +183,10 @@ export default function PurchaseOrderOperations() {
   async function approve(id: string) {
     try {
       await apiPost(`/purchasing/orders/${id}/approve`, {});
-      setMessage("Purchase order approved.");
+      toast.success("Purchase order approved.", { duration: 5000 });
       await load();
     } catch (e) {
-      setMessage(e instanceof Error ? e.message : "Unable to approve order.");
+      toast.error(e instanceof Error ? e.message : "Unable to approve order.", { duration: 8000 });
     }
   }
   const input =
@@ -204,11 +216,6 @@ export default function PurchaseOrderOperations() {
       {!branchId && (
         <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
           Select a branch from the top navigation before creating an order.
-        </div>
-      )}
-      {message && (
-        <div className="rounded-xl border border-teal-200 bg-teal-50 p-3 text-sm text-teal-800">
-          {message}
         </div>
       )}
       <section className="rounded-2xl border bg-white p-4 shadow-sm">

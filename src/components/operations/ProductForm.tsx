@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ImagePlus, PackagePlus, Plus, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import {
   apiDelete,
   apiGet,
@@ -56,7 +57,6 @@ export default function ProductForm({
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [removeExistingVideo, setRemoveExistingVideo] = useState(false);
   const [savedProductId, setSavedProductId] = useState(product?.id ?? "");
-  const [message, setMessage] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
     sku: product?.sku ?? "",
@@ -82,10 +82,11 @@ export default function ProductForm({
         setBrands(brandData);
       })
       .catch((error) =>
-        setMessage(
+        toast.error(
           error instanceof Error
             ? error.message
             : "Unable to load catalog options.",
+          { duration: 8000 },
         ),
       );
   }, []);
@@ -95,51 +96,50 @@ export default function ProductForm({
     try {
       new URL(value);
     } catch {
-      setMessage(
+      toast.error(
         "Enter a complete image URL beginning with http:// or https://.",
+        { duration: 8000 },
       );
       return;
     }
     if (imageUrls.length >= 8) {
-      setMessage("A product can contain up to eight images.");
+      toast.error("A product can contain up to eight images.", { duration: 8000 });
       return;
     }
     setImageUrls((current) => [...current, value]);
     setNewImage("");
-    setMessage(null);
   }
 
   async function save(event: React.FormEvent) {
     event.preventDefault();
     if (!product && !form.sku.trim()) {
-      setMessage("SKU is required and cannot contain only spaces.");
+      toast.error("SKU is required and cannot contain only spaces.", { duration: 8000 });
       return;
     }
     if (!form.name.trim()) {
-      setMessage("Product name is required.");
+      toast.error("Product name is required.", { duration: 8000 });
       return;
     }
     if (!Number.isFinite(form.sellingPrice) || form.sellingPrice <= 0) {
-      setMessage("Selling price must be greater than zero.");
+      toast.error("Selling price must be greater than zero.", { duration: 8000 });
       return;
     }
     if (form.sellingPrice > 99_999_999 || form.costPrice > 99_999_999) {
-      setMessage("Prices cannot exceed LKR 99,999,999.");
+      toast.error("Prices cannot exceed LKR 99,999,999.", { duration: 8000 });
       return;
     }
     if (form.taxRate < 0 || form.taxRate > 100 || Math.abs(Math.round(form.taxRate * 100) - form.taxRate * 100) > 1e-6) {
-      setMessage("Tax rate must be between 0 and 100 with at most two decimal places.");
+      toast.error("Tax rate must be between 0 and 100 with at most two decimal places.", { duration: 8000 });
       return;
     }
     if (!Number.isInteger(form.reorderLevel) || form.reorderLevel < 0) {
-      setMessage("Reorder level must be a non-negative whole number.");
+      toast.error("Reorder level must be a non-negative whole number.", { duration: 8000 });
       return;
     }
     if (form.sellingPrice < form.costPrice && !window.confirm("Selling price is lower than cost price. Save this product anyway?")) {
       return;
     }
     setSaving(true);
-    setMessage(null);
     const { sku, ...editableFields } = form;
     const payload = {
       ...editableFields,
@@ -183,10 +183,11 @@ export default function ProductForm({
         setImageFiles((current) => current.slice(uploadedImages));
       const reason =
         error instanceof Error ? error.message : "Unable to save product.";
-      setMessage(
+      toast.error(
         productId && !product?.id
           ? `Product details were saved, but media upload did not finish. ${reason} Press Save again to retry.`
           : reason,
+        { duration: 8000 },
       );
     } finally {
       setSaving(false);
@@ -216,11 +217,6 @@ export default function ProductForm({
           className="self-start sm:self-auto"
         />
       </header>
-      {message && (
-        <div className="mb-5 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
-          {message}
-        </div>
-      )}
       <form onSubmit={save} className="space-y-5">
         <div className="flex items-center justify-between gap-3 rounded-2xl border border-teal-100 bg-teal-50 p-4">
           <div>
@@ -501,7 +497,9 @@ export default function ProductForm({
           removeExistingVideo={removeExistingVideo}
           onRemoveExistingVideoChange={setRemoveExistingVideo}
           currentImageCount={imageUrls.length}
-          onMessage={setMessage}
+          onMessage={(msg) => {
+            if (msg) toast.error(msg, { duration: 8000 });
+          }}
         />
         <div className="flex justify-end gap-3">
           <button

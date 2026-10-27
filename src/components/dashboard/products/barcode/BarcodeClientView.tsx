@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import { useBranch } from "@/components/dashboard/BranchContext";
 import { apiGet, apiPost } from "@/lib/api/client";
 import BarcodeHeader from "./BarcodeHeader";
@@ -97,8 +98,6 @@ export default function BarcodeClientView() {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const [generatingId, setGeneratingId] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
   const loadProducts = useCallback(async () => {
     if (!branchId) {
@@ -109,7 +108,6 @@ export default function BarcodeClientView() {
     }
 
     setLoading(true);
-    setError(null);
     try {
       const params = new URLSearchParams({
         page: String(currentPage),
@@ -124,10 +122,11 @@ export default function BarcodeClientView() {
       setTotalPages(Math.max(1, result.meta.pageCount));
     } catch (loadError) {
       setProducts([]);
-      setError(
+      toast.error(
         loadError instanceof Error
           ? loadError.message
           : "Unable to load products for barcode printing.",
+        { duration: 8000 },
       );
     } finally {
       setLoading(false);
@@ -174,8 +173,6 @@ export default function BarcodeClientView() {
 
   async function generateBarcode(product: BarcodeProductItem) {
     setGeneratingId(product.id);
-    setMessage(null);
-    setError(null);
     try {
       const result = await apiPost<GeneratedBarcode>(
         `/catalog/products/${product.id}/barcode/generate`,
@@ -188,16 +185,18 @@ export default function BarcodeClientView() {
             : item,
         ),
       );
-      setMessage(
+      toast.success(
         result.generated
           ? `Barcode ${result.barcode} was generated for ${product.name}.`
           : `${product.name} already has barcode ${result.barcode}.`,
+        { duration: 5000 },
       );
     } catch (generateError) {
-      setError(
+      toast.error(
         generateError instanceof Error
           ? generateError.message
           : "Unable to generate a barcode.",
+        { duration: 8000 },
       );
     } finally {
       setGeneratingId(null);
@@ -224,17 +223,6 @@ export default function BarcodeClientView() {
         settings={settings}
         onSettingsChange={setSettings}
       />
-
-      {message && (
-        <div className="rounded-xl border border-teal-200 bg-teal-50 px-4 py-3 text-xs font-medium text-teal-800">
-          {message}
-        </div>
-      )}
-      {error && (
-        <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-medium text-rose-800">
-          {error}
-        </div>
-      )}
 
       <BarcodeProductTable
         products={products}

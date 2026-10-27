@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { CalendarDays, RotateCcw } from "lucide-react";
+import { toast } from "sonner";
 import { useBranch } from "@/components/dashboard/BranchContext";
 import { apiGet } from "@/lib/api/client";
 import ReportExportActions from "@/components/reports/ReportExportActions";
@@ -41,7 +42,6 @@ export default function ReturnHistory() {
   const [search, setSearch] = useState(""), [phone, setPhone] = useState("");
   const [resolution, setResolution] = useState(""), [status, setStatus] = useState("");
   const [from, setFrom] = useState(""), [to, setTo] = useState("");
-  const [message, setMessage] = useState<string | null>(null);
 
   const params = useMemo(() => {
     const value = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
@@ -59,8 +59,8 @@ export default function ReturnHistory() {
     const result = await apiGet<{ data: ReturnRecord[]; meta: PageMeta }>(`/returns?${params}`);
     setRecords(result.data); setMeta(result.meta);
   }, [params]);
-  useEffect(() => { void apiGet<Summary>("/returns/summary").then(setSummary).catch((error) => setMessage(error instanceof Error ? error.message : "Unable to load return summary.")); }, []);
-  useEffect(() => { void load().catch((error) => setMessage(error instanceof Error ? error.message : "Unable to load return history.")); }, [load]);
+  useEffect(() => { void apiGet<Summary>("/returns/summary").then(setSummary).catch((error) => toast.error(error instanceof Error ? error.message : "Unable to load return summary.", { duration: 8000 })); }, []);
+  useEffect(() => { void load().catch((error) => toast.error(error instanceof Error ? error.message : "Unable to load return history.", { duration: 8000 })); }, [load]);
   useEffect(() => setPage(1), [branchId, from, pageSize, phone, resolution, search, status, to]);
 
   const exportParams = new URLSearchParams(params); exportParams.delete("page"); exportParams.delete("pageSize");
@@ -102,7 +102,6 @@ export default function ReturnHistory() {
       </div>
     </header>
     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{cards.map((card) => <article key={card.label} className="rounded-2xl bg-gradient-to-r from-[#025148] to-[#0E9384] p-5 text-white shadow"><p className="text-xs uppercase text-white/70">{card.label}</p><p className="mt-2 text-2xl font-bold">{card.value}</p></article>)}</div>
-    {message && <p className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-amber-800">{message}</p>}
     <section className="rounded-2xl border bg-white shadow-sm">
       <div className="grid gap-3 border-b p-4 sm:grid-cols-2 xl:grid-cols-7">
         <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Return, invoice, customer or reason" className="h-10 rounded-xl border px-3 xl:col-span-2"/>
