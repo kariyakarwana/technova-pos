@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { toast } from "sonner";
 import {
   MOCK_RETURNS_HISTORY,
   type ReturnHistoryItem,
@@ -29,11 +30,11 @@ export default function ReturnsHistoryClientView() {
   }, [items, status]);
 
   function handleExportPdf() {
-    alert("Exporting returns audit history to PDF...");
+    toast.info("Exporting returns audit history to PDF...", { duration: 5000 });
   }
 
   function handleExportExcel() {
-    alert("Exporting returns audit history to Excel (.xlsx)...");
+    toast.info("Exporting returns audit history to Excel (.xlsx)...", { duration: 5000 });
   }
 
   function handleRefresh() {
@@ -43,7 +44,7 @@ export default function ReturnsHistoryClientView() {
   }
 
   function handleApplyFilters() {
-    alert("Returns history filters applied successfully.");
+    toast.success("Returns history filters applied successfully.", { duration: 5000 });
   }
 
   return (

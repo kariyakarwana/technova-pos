@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import {
   MOCK_CUSTOMERS,
   type CustomerItem,
@@ -32,7 +33,7 @@ export default function CustomerManagementClientView() {
 
   function handleDeleteSelected() {
     if (selectedIds.length === 0) {
-      alert("Please select customer records to delete.");
+      toast.error("Please select customer records to delete.", { duration: 8000 });
       return;
     }
 
@@ -49,11 +50,11 @@ export default function CustomerManagementClientView() {
   }
 
   function handleView(item: CustomerItem) {
-    alert(`Viewing details for customer: ${item.firstName} ${item.lastName} (${item.customerId})`);
+    toast.info(`Viewing details for customer: ${item.firstName} ${item.lastName} (${item.customerId})`, { duration: 5000 });
   }
 
   function handleEdit(item: CustomerItem) {
-    alert(`Editing customer: ${item.firstName} ${item.lastName} (${item.customerId})`);
+    toast.info(`Editing customer: ${item.firstName} ${item.lastName} (${item.customerId})`, { duration: 5000 });
   }
 
   function handleDelete(item: CustomerItem) {

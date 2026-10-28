@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { CheckCircle2, Pencil, Plus, Star, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   getVisualThemes,
@@ -32,7 +33,6 @@ export function VisualThemePanel({ activeThemeId, onApply }: VisualThemePanelPro
   const [dialogMode, setDialogMode] = useState<DialogMode>(null);
   const [pendingDelete, setPendingDelete] = useState<DeleteState>(null);
 
-  const [actionError, setActionError] = useState<string | null>(null);
   const [settingDefaultId, setSettingDefaultId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -69,7 +69,6 @@ export function VisualThemePanel({ activeThemeId, onApply }: VisualThemePanelPro
 
   async function handleSetDefault(themeId: string) {
     setSettingDefaultId(themeId);
-    setActionError(null);
     try {
       const updated = await setDefaultVisualTheme(themeId);
       setThemes((prev) =>
@@ -77,7 +76,12 @@ export function VisualThemePanel({ activeThemeId, onApply }: VisualThemePanelPro
       );
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Failed to set default.";
-      setActionError(permissionError(msg) ? "You do not have permission to manage visual themes." : msg);
+      toast.error(
+        permissionError(msg)
+          ? "You do not have permission to manage visual themes."
+          : msg,
+        { duration: 8000 }
+      );
     } finally {
       setSettingDefaultId(null);
     }
@@ -88,13 +92,17 @@ export function VisualThemePanel({ activeThemeId, onApply }: VisualThemePanelPro
     const { themeId } = pendingDelete;
     setDeletingId(themeId);
     setPendingDelete(null);
-    setActionError(null);
     try {
       await deleteVisualTheme(themeId);
       setThemes((prev) => prev.filter((t) => t.id !== themeId));
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Failed to delete theme.";
-      setActionError(permissionError(msg) ? "You do not have permission to manage visual themes." : msg);
+      toast.error(
+        permissionError(msg)
+          ? "You do not have permission to manage visual themes."
+          : msg,
+        { duration: 8000 }
+      );
     } finally {
       setDeletingId(null);
     }
@@ -118,12 +126,6 @@ export function VisualThemePanel({ activeThemeId, onApply }: VisualThemePanelPro
           New Theme
         </Button>
       </div>
-
-      {actionError && (
-        <div role="alert" className="mb-3 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-medium text-rose-700">
-          {actionError}
-        </div>
-      )}
 
       {loading && (
         <p role="status" aria-live="polite" className="py-6 text-center text-xs text-slate-400">

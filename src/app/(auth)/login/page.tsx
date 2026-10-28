@@ -29,10 +29,10 @@ export default async function LoginPage() {
     <AuthLayout footerNotice="Access is limited to authorised TechNova employees and supplier contacts.">
       <LoginForm />
 
-      <div className="my-4 flex items-center gap-3">
+      <div className="my-3 sm:my-3.5 flex items-center gap-3">
         <div className="h-px flex-1 bg-slate-200" />
 
-        <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">
+        <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
           Or
         </span>
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { toast } from "sonner";
 import {
   MOCK_PURCHASE_ORDERS,
   type PurchaseOrderItem,
@@ -59,19 +60,19 @@ export default function PurchaseOrderClientView() {
   }
 
   function handleCreatePO() {
-    alert("Create Purchase Order form wizard opened.");
+    toast.info("Create Purchase Order form wizard opened.", { duration: 5000 });
   }
 
   function handleFilterClick() {
-    alert("Advanced Purchase Order Filter modal opened.");
+    toast.info("Advanced Purchase Order Filter modal opened.", { duration: 5000 });
   }
 
   function handleExportPdf() {
-    alert("Exporting Purchase Orders list as PDF...");
+    toast.info("Exporting Purchase Orders list as PDF...", { duration: 5000 });
   }
 
   function handleExportExcel() {
-    alert("Exporting Purchase Orders list as Excel (.xlsx)...");
+    toast.info("Exporting Purchase Orders list as Excel (.xlsx)...", { duration: 5000 });
   }
 
   function handleRefresh() {

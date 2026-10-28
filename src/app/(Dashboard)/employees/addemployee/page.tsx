@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { toast } from "sonner";
 import { 
   ArrowLeft, 
   RefreshCw, 
@@ -39,7 +40,7 @@ export default function AddEmployeePage() {
     e.preventDefault();
     console.log("Form Submitted: ", formData);
 
-    alert("Employee Added Successfully!");
+    toast.success("Employee Added Successfully!", { duration: 5000 });
   };
 
   return (

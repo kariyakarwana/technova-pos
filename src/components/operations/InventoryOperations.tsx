@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { Minus, Plus, QrCode, Repeat2, Search } from "lucide-react";
+import { toast } from "sonner";
 import { useBranch } from "@/components/dashboard/BranchContext";
 import { apiGet, apiPost } from "@/lib/api/client";
 import PaginationControls, { type PageMeta } from "./PaginationControls";
@@ -55,8 +56,7 @@ export default function InventoryOperations() {
     [direction, setDirection] = useState<"IN" | "OUT">("IN"),
     [quantity, setQuantity] = useState(1),
     [reason, setReason] = useState(""),
-    [otherReason, setOtherReason] = useState(""),
-    [message, setMessage] = useState<string | null>(null);
+    [otherReason, setOtherReason] = useState("");
   const load = useCallback(async () => {
     if (!branchId) return;
     const common = `branchId=${encodeURIComponent(branchId)}&pageSize=20${search ? `&search=${encodeURIComponent(search)}` : ""}`;
@@ -92,12 +92,12 @@ export default function InventoryOperations() {
     }
   }, [branchId]);
   useEffect(() => {
-    void load().catch((error) => setMessage(error.message));
+    void load().catch((error) => toast.error(error.message, { duration: 8000 }));
   }, [load]);
   useEffect(() => {
     setSelected("");
     setProducts([]);
-    void loadProducts().catch((error) => setMessage(error instanceof Error ? error.message : "Unable to load adjustment products."));
+    void loadProducts().catch((error) => toast.error(error instanceof Error ? error.message : "Unable to load adjustment products.", { duration: 8000 }));
   }, [loadProducts]);
   useEffect(() => { setStockPage(1); setMovementPage(1); }, [branchId, search]);
   async function adjust(event: React.FormEvent) {
@@ -110,7 +110,7 @@ export default function InventoryOperations() {
         quantityDelta: direction === "IN" ? quantity : -quantity,
         reason: reason === "Other" ? otherReason.trim() : reason,
       });
-      setMessage("Stock adjustment recorded.");
+      toast.success("Stock adjustment recorded.", { duration: 5000 });
       setSelected("");
       setQuantity(1);
       setReason("");
@@ -118,11 +118,12 @@ export default function InventoryOperations() {
       try {
         await Promise.all([load(), loadProducts()]);
       } catch {
-        setMessage("Stock adjustment recorded, but the inventory could not refresh. Reload the page to see the latest balance.");
+        toast.warning("Stock adjustment recorded, but the inventory could not refresh. Reload the page to see the latest balance.", { duration: 5000 });
       }
     } catch (error) {
-      setMessage(
+      toast.error(
         error instanceof Error ? error.message : "Unable to adjust stock.",
+        { duration: 8000 },
       );
     }
   }
@@ -160,11 +161,6 @@ export default function InventoryOperations() {
           </Link>
         </div>
       </div>
-      {message && (
-        <div className="rounded-xl border border-teal-200 bg-teal-50 p-3 text-sm text-teal-800">
-          {message}
-        </div>
-      )}
       <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Filter by product name or SKU" className="h-10 w-full rounded-xl border bg-white px-3 text-sm" />
       <div className="grid gap-6 xl:grid-cols-[1fr_360px]">
         <section className="overflow-x-auto rounded-2xl border bg-white">

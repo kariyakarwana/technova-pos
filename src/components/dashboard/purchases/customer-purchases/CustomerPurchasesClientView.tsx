@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { toast } from "sonner";
 import {
   MOCK_CUSTOMER_PURCHASES,
   type CustomerPurchaseItem,
@@ -70,17 +71,18 @@ export default function CustomerPurchasesClientView() {
   }
 
   function handleApplyFilters() {
-    alert(
-      `Filters Applied:\nDate: ${dateRange}\nCashier: ${selectedCashier}\nBranch: ${selectedBranch}`
+    toast.info(
+      `Filters Applied:\nDate: ${dateRange}\nCashier: ${selectedCashier}\nBranch: ${selectedBranch}`,
+      { duration: 5000 }
     );
   }
 
   function handleExportPdf() {
-    alert("Exporting customer purchases report as PDF...");
+    toast.info("Exporting customer purchases report as PDF...", { duration: 5000 });
   }
 
   function handleExportExcel() {
-    alert("Exporting customer purchases report as Excel (.xlsx)...");
+    toast.info("Exporting customer purchases report as Excel (.xlsx)...", { duration: 5000 });
   }
 
   return (

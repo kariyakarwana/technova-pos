@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { X } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -64,7 +65,6 @@ export function VisualThemeDialog({ theme, onSuccess, onClose }: VisualThemeDial
   const [tokens, setTokens] = useState<VisualThemeTokens>(toFormTokens(theme?.tokens));
   const [nameError, setNameError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [apiError, setApiError] = useState<string | null>(null);
 
   const nameRef = useRef<HTMLInputElement>(null);
 
@@ -103,7 +103,6 @@ export function VisualThemeDialog({ theme, onSuccess, onClose }: VisualThemeDial
     }
 
     setSubmitting(true);
-    setApiError(null);
     try {
       const payloadTokens = toPayloadTokens(tokens);
       if (description.trim()) {
@@ -121,11 +120,12 @@ export function VisualThemeDialog({ theme, onSuccess, onClose }: VisualThemeDial
       onSuccess(saved);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Failed to save theme.";
-      if (msg.includes("403") || msg.toLowerCase().includes("forbidden")) {
-        setApiError("You do not have permission to manage visual themes.");
-      } else {
-        setApiError(msg);
-      }
+      toast.error(
+        msg.includes("403") || msg.toLowerCase().includes("forbidden")
+          ? "You do not have permission to manage visual themes."
+          : msg,
+        { duration: 8000 }
+      );
     } finally {
       setSubmitting(false);
     }
@@ -163,12 +163,6 @@ export function VisualThemeDialog({ theme, onSuccess, onClose }: VisualThemeDial
 
         <form onSubmit={handleSubmit} noValidate className="flex min-h-0 flex-col">
           <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
-            {apiError && (
-              <div role="alert" className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-medium text-rose-700">
-                {apiError}
-              </div>
-            )}
-
             <div className="space-y-1.5">
               <Label htmlFor="vt-name">
                 Theme Name <span aria-hidden="true" className="text-rose-500">*</span>

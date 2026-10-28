@@ -296,3 +296,97 @@
     margin: 10mm;
   }
 }
+
+/* ── Sonner Custom Toast Colors ── */
+[data-sonner-toaster] [data-sonner-toast] {
+  font-family: var(--font-noto-sans), sans-serif;
+  border-radius: 0.75rem !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.18), 0 8px 10px -6px rgb(0 0 0 / 0.12) !important;
+}
+
+/* Success toast: green background with white letters and transparency */
+[data-sonner-toaster] [data-sonner-toast][data-type="success"],
+[data-rich-colors="true"][data-sonner-toast][data-type="success"] {
+  background-color: rgba(14, 147, 132, 0.88) !important;
+  border-color: rgba(11, 122, 109, 0.75) !important;
+  color: #FFFFFF !important;
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-type="success"] [data-title],
+[data-sonner-toaster] [data-sonner-toast][data-type="success"] [data-description],
+[data-sonner-toaster] [data-sonner-toast][data-type="success"] svg {
+  color: #FFFFFF !important;
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-type="success"] [data-close-button] {
+  background-color: rgba(14, 147, 132, 0.88) !important;
+  border-color: rgba(11, 122, 109, 0.75) !important;
+  color: #FFFFFF !important;
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-type="success"] [data-close-button]:hover {
+  background-color: rgba(11, 122, 109, 0.95) !important;
+  border-color: rgba(9, 99, 88, 0.9) !important;
+  color: #FFFFFF !important;
+}
+
+/* Warning & Error toasts: red background with white letters and transparency */
+[data-sonner-toaster] [data-sonner-toast][data-type="warning"],
+[data-rich-colors="true"][data-sonner-toast][data-type="warning"],
+[data-sonner-toaster] [data-sonner-toast][data-type="error"],
+[data-rich-colors="true"][data-sonner-toast][data-type="error"] {
+  background-color: rgba(220, 38, 38, 0.88) !important;
+  border-color: rgba(185, 28, 28, 0.75) !important;
+  color: #FFFFFF !important;
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-type="warning"] [data-title],
+[data-sonner-toaster] [data-sonner-toast][data-type="warning"] [data-description],
+[data-sonner-toaster] [data-sonner-toast][data-type="warning"] svg,
+[data-sonner-toaster] [data-sonner-toast][data-type="error"] [data-title],
+[data-sonner-toaster] [data-sonner-toast][data-type="error"] [data-description],
+[data-sonner-toaster] [data-sonner-toast][data-type="error"] svg {
+  color: #FFFFFF !important;
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-type="warning"] [data-close-button],
+[data-sonner-toaster] [data-sonner-toast][data-type="error"] [data-close-button] {
+  background-color: rgba(220, 38, 38, 0.88) !important;
+  border-color: rgba(185, 28, 28, 0.75) !important;
+  color: #FFFFFF !important;
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-type="warning"] [data-close-button]:hover,
+[data-sonner-toaster] [data-sonner-toast][data-type="error"] [data-close-button]:hover {
+  background-color: rgba(185, 28, 28, 0.95) !important;
+  border-color: rgba(153, 27, 27, 0.9) !important;
+  color: #FFFFFF !important;
+}
+
+/* Info toast: blue background with white letters and transparency */
+[data-sonner-toaster] [data-sonner-toast][data-type="info"],
+[data-rich-colors="true"][data-sonner-toast][data-type="info"] {
+  background-color: rgba(30, 109, 226, 0.88) !important;
+  border-color: rgba(24, 91, 191, 0.75) !important;
+  color: #FFFFFF !important;
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-type="info"] [data-title],
+[data-sonner-toaster] [data-sonner-toast][data-type="info"] [data-description],
+[data-sonner-toaster] [data-sonner-toast][data-type="info"] svg {
+  color: #FFFFFF !important;
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-type="info"] [data-close-button] {
+  background-color: rgba(30, 109, 226, 0.88) !important;
+  border-color: rgba(24, 91, 191, 0.75) !important;
+  color: #FFFFFF !important;
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-type="info"] [data-close-button]:hover {
+  background-color: rgba(24, 91, 191, 0.95) !important;
+  border-color: rgba(20, 73, 153, 0.9) !important;
+  color: #FFFFFF !important;
+}

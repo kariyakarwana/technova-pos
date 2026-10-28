@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import UpdateProductHeader from "./UpdateProductHeader";
 import UpdateProductInfoCard from "./UpdateProductInfoCard";
 import UpdateProductPricingCard from "./UpdateProductPricingCard";
@@ -47,14 +48,14 @@ export default function UpdateProductClientView() {
 
   function handleSubmit() {
     if (!productName.trim()) {
-      alert("Please enter a Product Name.");
+      toast.error("Please enter a Product Name.", { duration: 8000 });
       return;
     }
 
     setIsSubmitting(true);
     setTimeout(() => {
       setIsSubmitting(false);
-      alert(`Product "${productName}" updated successfully!`);
+      toast.success(`Product "${productName}" updated successfully!`, { duration: 5000 });
       router.push("/products/product-list");
     }, 500);
   }

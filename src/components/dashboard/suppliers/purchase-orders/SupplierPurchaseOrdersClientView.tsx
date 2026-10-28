@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { toast } from "sonner";
 import {
   MOCK_SUPPLIER_PO_STATUS_COUNTS,
   MOCK_SUPPLIER_PURCHASE_ORDERS,
@@ -61,11 +62,11 @@ export default function SupplierPurchaseOrdersClientView() {
   }, [orders, selectedSupplier, selectedStatus, dateRange]);
 
   function handleFilterClick() {
-    alert("Purchase Orders advanced filter drawer toggled.");
+    toast.info("Purchase Orders advanced filter drawer toggled.", { duration: 5000 });
   }
 
   function handleExport() {
-    alert("Exporting supplier purchase orders dataset...");
+    toast.info("Exporting supplier purchase orders dataset...", { duration: 5000 });
   }
 
   function handleCardStatusSelect(status: string) {

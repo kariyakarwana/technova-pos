@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import {
   type ProductItem,
 } from "@/components/dashboard/products/products.mock";
@@ -37,7 +38,6 @@ export default function ProductListPage() {
   const [brands, setBrands] = useState<Lookup[]>([]);
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [exporting, setExporting] = useState(false);
-  const [exportError, setExportError] = useState<string | null>(null);
 
   async function productsForExport(): Promise<ApiProduct[]> {
     const exported: ApiProduct[] = [];
@@ -56,7 +56,6 @@ export default function ProductListPage() {
 
   async function exportCsv() {
     setExporting(true);
-    setExportError(null);
     try {
       const csv = productCsv(await productsForExport());
       const url = URL.createObjectURL(new Blob(["\uFEFF", csv], { type: "text/csv;charset=utf-8" }));
@@ -66,7 +65,7 @@ export default function ProductListPage() {
       link.click();
       window.setTimeout(() => URL.revokeObjectURL(url), 1_000);
     } catch (error) {
-      setExportError(error instanceof Error ? error.message : "Unable to export products.");
+      toast.error(error instanceof Error ? error.message : "Unable to export products.", { duration: 8000 });
     } finally {
       setExporting(false);
     }
@@ -75,12 +74,11 @@ export default function ProductListPage() {
   async function exportPdf() {
     const printWindow = window.open("", "_blank");
     if (!printWindow) {
-      setExportError("Allow pop-ups to print or save the product report as PDF.");
+      toast.error("Allow pop-ups to print or save the product report as PDF.", { duration: 8000 });
       return;
     }
     printWindow.document.write("<p>Preparing product report…</p>");
     setExporting(true);
-    setExportError(null);
     try {
       const html = productPrintHtml(await productsForExport());
       printWindow.document.open();
@@ -90,7 +88,7 @@ export default function ProductListPage() {
       printWindow.print();
     } catch (error) {
       printWindow.close();
-      setExportError(error instanceof Error ? error.message : "Unable to prepare product report.");
+      toast.error(error instanceof Error ? error.message : "Unable to prepare product report.", { duration: 8000 });
     } finally {
       setExporting(false);
     }
@@ -142,8 +140,13 @@ export default function ProductListPage() {
   async function handleDelete(id: string) {
     const product = products.find((item) => item.id === id);
     if (!window.confirm(`Deactivate ${product?.name ?? "this product"}? It will be removed from the active product list.`)) return;
-    await apiPatch(`/catalog/products/${id}`, { status: "INACTIVE" });
-    setProducts((prev) => prev.filter((p) => p.id !== id));
+    try {
+      await apiPatch(`/catalog/products/${id}`, { status: "INACTIVE" });
+      setProducts((prev) => prev.filter((p) => p.id !== id));
+      toast.success(`${product?.name ?? "Product"} deactivated successfully.`, { duration: 5000 });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Unable to deactivate product.", { duration: 8000 });
+    }
   }
 
   const loadProducts = useCallback(async () => {
@@ -181,7 +184,6 @@ export default function ProductListPage() {
         onExportPdf={() => void exportPdf()}
         exporting={exporting}
       />
-      {exportError && <div role="alert" className="mb-4 rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">{exportError}</div>}
 
       {/* Main Content Card */}
       <div className="bg-white border border-[#E4E7EC] rounded-2xl p-5 shadow-xs">

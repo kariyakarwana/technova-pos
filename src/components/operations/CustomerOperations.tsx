@@ -1,7 +1,8 @@
 "use client";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { Plus, Search, X } from "lucide-react";
+import { Plus, Search } from "lucide-react";
+import { toast } from "sonner";
 import {
   Select,
   SelectContent,
@@ -40,9 +41,7 @@ export default function CustomerOperations() {
     [status, setStatus] = useState(""),
     [form, setForm] = useState(blank),
     [editing, setEditing] = useState<Customer | null>(null),
-    [open, setOpen] = useState(false),
-    [formError, setFormError] = useState<string | null>(null),
-    [message, setMessage] = useState<string | null>(null);
+    [open, setOpen] = useState(false);
   const load = useCallback(
     () =>
       apiGet<{ data: Customer[]; meta: PageMeta }>(
@@ -55,13 +54,7 @@ export default function CustomerOperations() {
     return () => clearTimeout(timer);
   }, [load]);
   useEffect(() => setPage(1), [search, status, pageSize]);
-  useEffect(() => {
-    if (!message) return;
-    const timer = window.setTimeout(() => setMessage(null), 5_000);
-    return () => window.clearTimeout(timer);
-  }, [message]);
   function edit(customer: Customer) {
-    setFormError(null);
     setEditing(customer);
     setForm({
       firstName: customer.firstName,
@@ -74,7 +67,6 @@ export default function CustomerOperations() {
   }
   async function save(event: React.FormEvent) {
     event.preventDefault();
-    setFormError(null);
     const payload = {
       firstName: form.firstName,
       lastName: form.lastName || undefined,
@@ -85,7 +77,7 @@ export default function CustomerOperations() {
     try {
       if (editing) {
         await apiPatch(`/customers/${editing.id}`, payload);
-        setMessage("Customer updated successfully.");
+        toast.success("Customer updated successfully.", { duration: 5000 });
       } else {
         const created = await apiPost<
           Customer & {
@@ -101,12 +93,13 @@ export default function CustomerOperations() {
           created.welcomeNotifications.emailQueued ? "email" : null,
           created.welcomeNotifications.whatsappQueued ? "WhatsApp" : null,
         ].filter(Boolean);
-        setMessage(
+        toast.success(
           `Customer ${created.customerNumber} and mobile login created successfully.${
             channels.length
               ? ` Temporary credentials queued by ${channels.join(" and ")}.`
               : " Credentials could not be queued; check notification delivery settings."
           }`,
+          { duration: 5000 },
         );
       }
       setOpen(false);
@@ -114,8 +107,9 @@ export default function CustomerOperations() {
       setForm(blank);
       await load();
     } catch (error) {
-      setFormError(
+      toast.error(
         error instanceof Error ? error.message : "Unable to save customer.",
+        { duration: 8000 },
       );
     }
   }
@@ -141,7 +135,6 @@ export default function CustomerOperations() {
           onClick={() => {
             setEditing(null);
             setForm(blank);
-            setFormError(null);
             setOpen(true);
           }}
           className="flex items-center gap-2 rounded-xl bg-[#0E9384] px-4 py-2 text-sm font-semibold text-white"
@@ -150,12 +143,6 @@ export default function CustomerOperations() {
           Add customer
         </button>
       </div>
-      {message && (
-        <div role="status" className="flex items-start justify-between gap-3 rounded-xl border border-teal-200 bg-teal-50 p-3 text-sm text-teal-800">
-          <span>{message}</span>
-          <button type="button" onClick={() => setMessage(null)} aria-label="Dismiss message" className="shrink-0 rounded p-1 hover:bg-teal-100"><X className="h-4 w-4" /></button>
-        </div>
-      )}
       <div className="rounded-2xl border bg-white p-4">
         <div className="mb-4 grid gap-3 sm:grid-cols-[1fr_180px]">
           <div className="relative">
@@ -189,13 +176,13 @@ export default function CustomerOperations() {
                 value="ACTIVE"
                 className="cursor-pointer text-sm text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
               >
-                Active
+                ACTIVE
               </SelectItem>
               <SelectItem
                 value="INACTIVE"
                 className="cursor-pointer text-sm text-slate-700 focus:bg-[#0e9f90]/10 focus:text-[#0c877a] data-[state=checked]:font-medium data-[state=checked]:text-[#0c877a] [&_svg]:text-[#0e9f90]"
               >
-                Inactive
+                INACTIVE
               </SelectItem>
             </SelectContent>
           </Select>
@@ -279,7 +266,6 @@ export default function CustomerOperations() {
             <h2 className="text-lg font-bold">
               {editing ? "Edit customer" : "Add customer"}
             </h2>
-            {formError && <div role="alert" className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">{formError}</div>}
             <div className="grid gap-4 sm:grid-cols-2">
               {!editing && (
                 <div className="rounded-xl border border-teal-200 bg-teal-50 p-3 text-xs text-teal-800 sm:col-span-2">

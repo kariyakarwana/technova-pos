@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import {
   MOCK_LOOKUP_DEFAULT,
   MOCK_RETURNABLE_ITEMS,
@@ -97,17 +98,18 @@ export default function ProcessReturnClientView() {
 
   function handleAuthorizeRefund() {
     if (selectedCount === 0) {
-      alert("Please select at least one item to return.");
+      toast.error("Please select at least one item to return.", { duration: 8000 });
       return;
     }
 
     setIsAuthorizing(true);
     setTimeout(() => {
       setIsAuthorizing(false);
-      alert(
+      toast.success(
         `Refund of $${refundableAmount.toFixed(
           2
-        )} authorized via ${selectedResolution.replace("_", " ")}!`
+        )} authorized via ${selectedResolution.replace("_", " ")}!`,
+        { duration: 5000 }
       );
       router.push("/returns-refunds");
     }, 600);

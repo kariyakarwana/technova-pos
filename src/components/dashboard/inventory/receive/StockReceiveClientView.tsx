@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { toast } from "sonner";
 import StockReceiptHeader from "./StockReceiptHeader";
 import ReceiptDetailsCard from "./ReceiptDetailsCard";
 import StockReceiveScanBar from "./StockReceiveScanBar";
@@ -107,11 +108,12 @@ export default function StockReceiveClientView() {
   }, [items]);
 
   function handleConfirmStock() {
-    alert(
+    toast.success(
       `Stock Receipt Confirmed!\nTotal Items: ${totalItems} (${totalSkus} SKUs)\nTotal Value: $${totalValue.toLocaleString(
         "en-US",
         { minimumFractionDigits: 2 }
-      )}`
+      )}`,
+      { duration: 5000 }
     );
   }
 

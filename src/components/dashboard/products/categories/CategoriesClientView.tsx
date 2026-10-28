@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { toast } from "sonner";
 import { MOCK_CATEGORIES, TOTAL_PAGES, type CategoryItem } from "./CategoriesMock";
 import CategoriesHeader from "./CategoriesHeader";
 import CategoriesFilterBar from "./CategoriesFilterBar";
@@ -59,9 +60,9 @@ export default function CategoriesClientView() {
       {/* 1. Header */}
       <CategoriesHeader
         onRefresh={() => setCategories(MOCK_CATEGORIES)}
-        onExportPdf={() => alert("Exporting Category List to PDF...")}
-        onExportExcel={() => alert("Exporting Category List to Excel...")}
-        onImport={() => alert("Importing Categories...")}
+        onExportPdf={() => toast.info("Exporting Category List to PDF...", { duration: 5000 })}
+        onExportExcel={() => toast.info("Exporting Category List to Excel...", { duration: 5000 })}
+        onImport={() => toast.info("Importing Categories...", { duration: 5000 })}
       />
 
       {/* 2. Filter Bar */}

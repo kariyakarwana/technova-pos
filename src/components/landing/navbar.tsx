@@ -2,148 +2,135 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 
 export default function Navbar() {
-    const pathname = usePathname();
-    const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
-    return (
-        <header
-            className="w-full border-b border-slate-200 bg-white sticky top-0 z-50 shadow-sm"
-            style={{ fontFamily: "var(--font-noto-sans), sans-serif" }}
+  return (
+    <header className="sticky top-0 z-50 w-full border-b border-[#E2EBE6]/80 bg-[#F4F8F6]/90 backdrop-blur-md transition-all">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3.5 sm:px-6 lg:px-8">
+        {/* Left: Logo */}
+        <Link href="/" className="flex items-center gap-2 shrink-0">
+          <Image
+            src="/technova-logo.webp"
+            alt="TechNova"
+            width={140}
+            height={44}
+            priority
+            className="h-7 w-auto object-contain sm:h-8"
+          />
+        </Link>
+
+        {/* Center: Desktop Nav Links */}
+        <nav className="hidden md:flex items-center gap-7 lg:gap-8">
+          <Link
+            href="#features"
+            className="text-xs sm:text-sm font-medium text-[#0F3B32] hover:text-[#0E9384] transition-colors"
+          >
+            Features
+          </Link>
+          <Link
+            href="#pricing"
+            className="text-xs sm:text-sm font-medium text-[#0F3B32] hover:text-[#0E9384] transition-colors"
+          >
+            Pricing
+          </Link>
+          <Link
+            href="#how-it-works"
+            className="text-xs sm:text-sm font-medium text-[#0F3B32] hover:text-[#0E9384] transition-colors"
+          >
+            How it works
+          </Link>
+          <Link
+            href="#contact"
+            className="text-xs sm:text-sm font-medium text-[#0F3B32] hover:text-[#0E9384] transition-colors"
+          >
+            Contact
+          </Link>
+        </nav>
+
+        {/* Right: Auth & CTA */}
+        <div className="hidden md:flex items-center gap-5 shrink-0">
+          <Link
+            href="/login"
+            className="text-xs sm:text-sm font-medium text-[#0F3B32] hover:text-[#0E9384] transition-colors"
+          >
+            Log in
+          </Link>
+          <Link
+            href="/login"
+            className="inline-flex items-center justify-center rounded-full bg-[#0D5C4E] hover:bg-[#0B4E42] text-white text-xs sm:text-sm font-semibold px-4 sm:px-5 py-2 sm:py-2.5 shadow-xs transition-all"
+          >
+            Request demo
+          </Link>
+        </div>
+
+        {/* Mobile Hamburger Toggle */}
+        <button
+          type="button"
+          onClick={() => setIsOpen(!isOpen)}
+          className="md:hidden p-2 text-[#0F3B32] hover:text-[#0E9384] focus:outline-none cursor-pointer"
+          aria-label="Toggle Menu"
+          aria-expanded={isOpen}
         >
-            <div className="w-full px-5 lg:px-6 flex items-center justify-between py-4">
+          {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+        </button>
+      </div>
 
+      {/* Mobile Drawer */}
+      {isOpen && (
+        <div className="md:hidden border-b border-[#E2EBE6] bg-[#F4F8F6] px-5 py-5 shadow-lg animate-in fade-in slide-in-from-top-2 duration-200">
+          <nav className="flex flex-col gap-3">
+            <Link
+              href="#features"
+              onClick={() => setIsOpen(false)}
+              className="px-3 py-2 text-sm font-medium text-[#0F3B32] hover:bg-white/60 rounded-lg transition-colors"
+            >
+              Features
+            </Link>
+            <Link
+              href="#pricing"
+              onClick={() => setIsOpen(false)}
+              className="px-3 py-2 text-sm font-medium text-[#0F3B32] hover:bg-white/60 rounded-lg transition-colors"
+            >
+              Pricing
+            </Link>
+            <Link
+              href="#how-it-works"
+              onClick={() => setIsOpen(false)}
+              className="px-3 py-2 text-sm font-medium text-[#0F3B32] hover:bg-white/60 rounded-lg transition-colors"
+            >
+              How it works
+            </Link>
+            <Link
+              href="#contact"
+              onClick={() => setIsOpen(false)}
+              className="px-3 py-2 text-sm font-medium text-[#0F3B32] hover:bg-white/60 rounded-lg transition-colors"
+            >
+              Contact
+            </Link>
 
-                <div className="flex items-center gap-8">
-
-                    <Link href="/" className="flex items-center gap-3 shrink-0">
-                        <div className="relative flex items-center">
-                            <Image
-                            src="/technova-logo.webp"
-                            alt="TechNova"
-                            width={206}
-                            height={66}
-                            sizes="(min-width: 1024px) 200px, (min-width: 640px) 192px, 144px"
-                            className="h-auto w-36 object-contain sm:w-48 lg:w-[200px]"
-                            style={{ height: "auto" }}
-                            priority
-                            />
-                        </div>
-                    </Link>
-
-
-                    <nav className="hidden md:flex items-center gap-6">
-                        <Link
-                            href="/"
-                            className={`font-semibold text-lg lg:text-xl transition px-3 py-1 ${pathname === "/"
-                                    ? "text-teal-600 hover:text-teal-700"
-                                    : "text-black hover:text-teal-600"
-                                }`}
-                        >
-                            Home
-                        </Link>
-                        <Link
-                            href="/features"
-                            className={`font-medium text-lg lg:text-xl transition px-2 py-1 ${pathname === "/features"
-                                    ? "text-teal-600 hover:text-teal-700"
-                                    : "text-black hover:text-teal-600"
-                                }`}
-                        >
-                            Features
-                        </Link>
-                    </nav>
-                </div>
-
-
-                <div className="hidden md:flex items-center gap-4 shrink-0">
-                    <Button
-                    asChild
-                    variant="outline"
-                    className="border-teal-600 px-5 py-5 text-sm font-semibold text-teal-600 hover:bg-teal-50 lg:text-base"
-                    >
-                    <Link href="/login">
-                        Login
-                    </Link>
-                    </Button>
-
-                    {/* <Button
-                    asChild
-                    className="bg-teal-600 px-7 py-5 text-sm font-semibold text-white shadow-md hover:bg-teal-700 lg:text-base"
-                    >
-                    <Link href="/register">
-                        Get Started
-                    </Link>
-                    </Button> */}
-                </div>
-
-
-                <button
-                    onClick={() => setIsOpen(!isOpen)}
-                    className="md:hidden p-2 text-slate-700 hover:text-teal-600 focus:outline-none cursor-pointer"
-                    aria-label="Toggle Menu"
-                    aria-controls="mobile-navigation"
-                    aria-expanded={isOpen}
-                >
-                    {isOpen ? <X className="w-7 h-7" /> : <Menu className="w-7 h-7" />}
-                </button>
-
+            <div className="flex flex-col gap-2.5 pt-3 border-t border-[#E2EBE6] mt-2">
+              <Link
+                href="/login"
+                onClick={() => setIsOpen(false)}
+                className="w-full text-center py-2 text-sm font-medium text-[#0F3B32] hover:text-[#0E9384]"
+              >
+                Log in
+              </Link>
+              <Link
+                href="/login"
+                onClick={() => setIsOpen(false)}
+                className="w-full text-center rounded-full bg-[#0D5C4E] hover:bg-[#0B4E42] text-white py-2.5 text-sm font-semibold shadow-xs"
+              >
+                Request demo
+              </Link>
             </div>
-
-
-            {isOpen && (
-                <div id="mobile-navigation" className="md:hidden absolute top-full left-0 w-full bg-white border-b border-slate-200 shadow-lg px-6 py-6 flex flex-col gap-4 animate-in fade-in slide-in-from-top-2 duration-200">
-                    <Link
-                        href="/"
-                        onClick={() => setIsOpen(false)}
-                        className={`font-semibold text-lg transition px-3 py-2 rounded-lg ${pathname === "/"
-                                ? "text-teal-600 bg-teal-50"
-                                : "text-black hover:bg-slate-50 hover:text-teal-600"
-                            }`}
-                    >
-                        Home
-                    </Link>
-                    <Link
-                        href="/features"
-                        onClick={() => setIsOpen(false)}
-                        className={`font-medium text-lg transition px-3 py-2 rounded-lg ${pathname === "/features"
-                                ? "text-teal-600 bg-teal-50"
-                                : "text-black hover:bg-slate-50 hover:text-teal-600"
-                            }`}
-                    >
-                        Features
-                    </Link>
-
-                    <div className="flex flex-col gap-3 pt-4 border-t border-slate-100">
-                        <Button
-                        asChild
-                        variant="outline"
-                        className="w-full border-teal-600 py-3 text-base font-semibold text-teal-600 hover:bg-teal-50"
-                        >
-                        <Link
-                            href="/login"
-                            onClick={() =>
-                            setIsOpen(false)
-                            }
-                        >
-                            Login
-                        </Link>
-                        </Button>
-
-                        <Link href="/register" onClick={() => setIsOpen(false)}>
-                            <Button
-                                className="w-full bg-teal-600 text-white hover:bg-teal-700 font-sans cursor-pointer py-3 text-base font-semibold shadow-md"
-                            >
-                                Get Started
-                            </Button>
-                        </Link>
-                    </div>
-                </div>
-            )}
-        </header>
-    );
+          </nav>
+        </div>
+      )}
+    </header>
+  );
 }

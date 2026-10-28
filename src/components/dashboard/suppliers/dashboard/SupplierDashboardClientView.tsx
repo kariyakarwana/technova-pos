@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import { MOCK_SUPPLIER_DASHBOARD } from "./SupplierDashboardMock";
 import SupplierDashboardHeader from "./SupplierDashboardHeader";
 import SupplierKPIStatsCards from "./SupplierKPIStatsCards";
@@ -13,7 +14,7 @@ export default function SupplierDashboardClientView() {
   const [dateRange, setDateRange] = useState("Last 30 days");
 
   function handleFilterClick() {
-    alert("Supplier dashboard advanced filter drawer opened.");
+    toast.info("Supplier dashboard advanced filter drawer opened.", { duration: 5000 });
   }
 
   return (

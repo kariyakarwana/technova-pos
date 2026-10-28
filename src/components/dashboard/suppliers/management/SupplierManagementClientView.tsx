@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { toast } from "sonner";
 import {
   MOCK_SUPPLIERS,
   type SupplierManagementItem,
@@ -60,19 +61,19 @@ export default function SupplierManagementClientView() {
   }, [items, searchQuery, statusFilter, categoryFilter]);
 
   function handleAddSupplier() {
-    alert("Add Supplier wizard / form modal opened.");
+    toast.info("Add Supplier wizard / form modal opened.", { duration: 5000 });
   }
 
   function handleExport() {
-    alert("Exporting supplier directory...");
+    toast.info("Exporting supplier directory...", { duration: 5000 });
   }
 
   function handleExportPdf() {
-    alert("Exporting supplier list to PDF...");
+    toast.info("Exporting supplier list to PDF...", { duration: 5000 });
   }
 
   function handleExportExcel() {
-    alert("Exporting supplier list to Excel (.xlsx)...");
+    toast.info("Exporting supplier list to Excel (.xlsx)...", { duration: 5000 });
   }
 
   function handleRefresh() {
@@ -82,11 +83,11 @@ export default function SupplierManagementClientView() {
   }
 
   function handleView(item: SupplierManagementItem) {
-    alert(`Viewing Supplier: ${item.supplierName} (${item.id})`);
+    toast.info(`Viewing Supplier: ${item.supplierName} (${item.id})`, { duration: 5000 });
   }
 
   function handleEdit(item: SupplierManagementItem) {
-    alert(`Editing Supplier: ${item.supplierName} (${item.id})`);
+    toast.info(`Editing Supplier: ${item.supplierName} (${item.id})`, { duration: 5000 });
   }
 
   function handleDelete(item: SupplierManagementItem) {

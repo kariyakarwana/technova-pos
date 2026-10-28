@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { Plus, RefreshCw, Search, X } from "lucide-react";
+import { toast } from "sonner";
 import { apiGet, apiPatch, apiPost } from "@/lib/api/client";
 
 type Supplier = {
@@ -21,13 +22,12 @@ export default function SupplierOperations() {
     [query, setQuery] = useState(""),
     [form, setForm] = useState(emptyForm);
   const [editing, setEditing] = useState<Supplier | null>(null),
-    [open, setOpen] = useState(false),
-    [message, setMessage] = useState<string | null>(null);
+    [open, setOpen] = useState(false);
   const load = useCallback(
     () =>
       apiGet<{ data: Supplier[] }>("/suppliers?pageSize=100")
         .then((result) => setItems(result.data))
-        .catch((error) => setMessage(error.message)),
+        .catch((error) => toast.error(error.message, { duration: 8000 })),
     [],
   );
   useEffect(() => {
@@ -35,9 +35,8 @@ export default function SupplierOperations() {
   }, [load]);
   async function submit(event: React.FormEvent) {
     event.preventDefault();
-    setMessage(null);
     if (form.phone.trim() && !/^\+?[0-9]{8,15}$/.test(form.phone.trim())) {
-      setMessage("Please enter a valid phone number using digits and an optional leading +.");
+      toast.error("Please enter a valid phone number using digits and an optional leading +.", { duration: 8000 });
       return;
     }
     try {
@@ -52,11 +51,12 @@ export default function SupplierOperations() {
       setOpen(false);
       setEditing(null);
       setForm(emptyForm);
-      setMessage("Supplier saved successfully.");
+      toast.success("Supplier saved successfully.", { duration: 5000 });
       await load();
     } catch (error) {
-      setMessage(
+      toast.error(
         error instanceof Error ? error.message : "Unable to save supplier.",
+        { duration: 8000 },
       );
     }
   }
@@ -91,11 +91,6 @@ export default function SupplierOperations() {
           Add supplier
         </Link>
       </div>
-      {message && (
-        <div className="rounded-xl border border-teal-200 bg-teal-50 p-3 text-sm text-teal-800">
-          {message}
-        </div>
-      )}
       <div className="rounded-2xl border border-slate-200 bg-white p-4">
         <div className="mb-4 flex items-center gap-3">
           <div className="relative flex-1">
@@ -122,14 +117,21 @@ export default function SupplierOperations() {
                 <th className="px-4 py-3">Code</th>
                 <th className="px-4 py-3">Supplier</th>
                 <th className="px-4 py-3">Contact</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3 text-right">Actions</th>
+                <th className="px-4 py-3 whitespace-nowrap">Status</th>
+                <th className="min-w-64 px-4 py-3 text-right whitespace-nowrap">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {filtered.map((item) => (
                 <tr key={item.id}>
-                  <td className="px-4 py-3 font-mono text-xs">{item.code}</td>
+                  <td className="px-4 py-3 font-mono text-xs">
+                    <span
+                      className="block max-w-[140px] min-w-0 truncate"
+                      title={item.code}
+                    >
+                      {item.code}
+                    </span>
+                  </td>
                   <td className="px-4 py-3">
                     <p className="truncate font-semibold" title={item.name}>{item.name}</p>
                     <p className="truncate text-xs text-slate-500" title={item.email ?? undefined}>
@@ -137,32 +139,40 @@ export default function SupplierOperations() {
                     </p>
                   </td>
                   <td className="px-4 py-3">
-                    <p>{item.contactName ?? "—"}</p>
-                    <p className="text-xs text-slate-500">
+                    <p
+                      className="block max-w-[180px] min-w-0 truncate"
+                      title={item.contactName ?? ""}
+                    >
+                      {item.contactName ?? "—"}
+                    </p>
+                    <p
+                      className="block max-w-[180px] min-w-0 truncate text-xs text-slate-500"
+                      title={item.phone ?? ""}
+                    >
                       {item.phone ?? "—"}
                     </p>
                   </td>
                   <td className="px-4 py-3">{item.status}</td>
-                  <td className="px-4 py-3 text-right">
-                    <div className="flex items-center justify-end gap-2 whitespace-nowrap">
-                    <Link
-                      href={`/suppliers/${item.id}`}
-                      className="font-semibold text-[#0E9384]"
-                    >
-                      View
-                    </Link>
-                    <Link
-                      href={`/suppliers/${item.id}/edit`}
-                      className="font-semibold text-slate-600"
-                    >
-                      Edit
-                    </Link>
-                    <button
-                      onClick={() => toggle(item)}
-                      className="font-semibold text-rose-600"
-                    >
-                      {item.status === "ACTIVE" ? "Deactivate" : "Activate"}
-                    </button>
+                  <td className="min-w-64 px-4 py-3 text-right">
+                    <div className="grid grid-cols-[48px_48px_90px] items-center justify-end gap-3">
+                      <Link
+                        href={`/suppliers/${item.id}`}
+                        className="text-center font-semibold text-[#0E9384]"
+                      >
+                        View
+                      </Link>
+                      <Link
+                        href={`/suppliers/${item.id}/edit`}
+                        className="text-center font-semibold text-slate-600"
+                      >
+                        Edit
+                      </Link>
+                      <button
+                        onClick={() => toggle(item)}
+                        className="text-center font-semibold text-rose-600"
+                      >
+                        {item.status === "ACTIVE" ? "Deactivate" : "Activate"}
+                      </button>
                     </div>
                   </td>
                 </tr>

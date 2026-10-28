@@ -2,6 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "sonner";
 import {
   Barcode,
   CreditCard,
@@ -71,7 +72,6 @@ export default function PosOperations() {
     [credit, setCredit] = useState(false),
     [dueDate, setDueDate] = useState(""),
     [quote, setQuote] = useState<Quote>(emptyQuote),
-    [message, setMessage] = useState<string | null>(null),
     [receipt, setReceipt] = useState<{
       invoiceNumber: string;
       receiptNumber: string;
@@ -90,7 +90,7 @@ export default function PosOperations() {
       setProducts(p.data);
       setCustomers(c.data);
     } catch (e) {
-      setMessage(e instanceof Error ? e.message : "Unable to load POS data.");
+      toast.error(e instanceof Error ? e.message : "Unable to load POS data.", { duration: 8000 });
     }
   }, [branchId]);
   useEffect(() => {
@@ -100,9 +100,10 @@ export default function PosOperations() {
     Number(p.stockLevels[0]?.quantityOnHand ?? 0) -
     Number(p.stockLevels[0]?.quantityReserved ?? 0);
   function add(product: Product) {
-    if (available(product) <= 0)
-      return setMessage(`${product.name} is out of stock.`);
-    setMessage(null);
+    if (available(product) <= 0) {
+      toast.error(`${product.name} is out of stock.`, { duration: 8000 });
+      return;
+    }
     if (product.trackSerials)
       setCart((c) => [...c, { product, quantity: 1, serialNumber: "" }]);
     else
@@ -132,7 +133,9 @@ export default function PosOperations() {
       add(product);
       setBarcode("");
       barcodeRef.current?.focus();
-    } else setMessage(`No active product matches barcode “${value}”.`);
+    } else {
+      toast.error(`No active product matches barcode “${value}”.`, { duration: 8000 });
+    }
   }
   const items = useMemo(
     () =>
@@ -156,7 +159,7 @@ export default function PosOperations() {
             setPaid(q.total);
           })
           .catch((e) =>
-            setMessage(e instanceof Error ? e.message : "Quote failed."),
+            toast.error(e instanceof Error ? e.message : "Quote failed.", { duration: 8000 }),
           ),
       200,
     );
@@ -179,16 +182,25 @@ export default function PosOperations() {
   const customer = customers.find((c) => c.id === customerId);
   async function checkout() {
     if (!branchId || !cart.length) return;
-    if (paymentMethod === "STORE_CREDIT" && !customerId)
-      return setMessage("Select a registered customer to use store credit.");
-    if (cart.some((x) => x.product.trackSerials && !x.serialNumber.trim()))
-      return setMessage(
+    if (paymentMethod === "STORE_CREDIT" && !customerId) {
+      toast.error("Select a registered customer to use store credit.", { duration: 8000 });
+      return;
+    }
+    if (cart.some((x) => x.product.trackSerials && !x.serialNumber.trim())) {
+      toast.error(
         "Enter the serial number for every serialized product.",
+        { duration: 8000 },
       );
-    if (credit && !customerId)
-      return setMessage("Select a registered customer for a credit purchase.");
-    if (credit && !dueDate)
-      return setMessage("Select the credit payment due date.");
+      return;
+    }
+    if (credit && !customerId) {
+      toast.error("Select a registered customer for a credit purchase.", { duration: 8000 });
+      return;
+    }
+    if (credit && !dueDate) {
+      toast.error("Select the credit payment due date.", { duration: 8000 });
+      return;
+    }
     const payload = {
       branchId,
       customerId: customerId || undefined,
@@ -213,7 +225,8 @@ export default function PosOperations() {
       });
       localStorage.setItem("technova_pos_queue", JSON.stringify(queue));
       setCart([]);
-      return setMessage("Sale stored locally for replay-safe synchronization.");
+      toast.info("Sale stored locally for replay-safe synchronization.", { duration: 5000 });
+      return;
     }
     try {
       const result = await apiPost<{
@@ -224,9 +237,9 @@ export default function PosOperations() {
       setReceipt(result);
       setCart([]);
       setQuote(emptyQuote);
-      setMessage("Sale completed successfully.");
+      toast.success("Sale completed successfully.", { duration: 5000 });
     } catch (e) {
-      setMessage(e instanceof Error ? e.message : "Checkout failed.");
+      toast.error(e instanceof Error ? e.message : "Checkout failed.", { duration: 8000 });
     }
   }
   const paymentOptions = [
@@ -610,11 +623,6 @@ export default function PosOperations() {
                 onChange={(e) => setDueDate(e.target.value)}
                 className="mt-2 h-8 w-full rounded-lg border px-2 text-xs"
               />
-            )}
-            {message && (
-              <p className="mt-2 rounded-lg bg-slate-50 p-2 text-[10px] text-slate-700">
-                {message}
-              </p>
             )}
             <button
               type="button"

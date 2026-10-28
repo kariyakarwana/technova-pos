@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import {
   MOCK_TRANSFER_DETAILS,
   type TransferDetails,
@@ -29,23 +30,23 @@ export default function TransferDetailsClientView({
   }
 
   function handleReceiveVerify() {
-    alert(`Receive & Verify workflow initiated for ${details.transferId}`);
+    toast.info(`Receive & Verify workflow initiated for ${details.transferId}`, { duration: 5000 });
   }
 
   function handleScanToVerify() {
-    alert("Barcode/QR scanner opened to verify received units.");
+    toast.info("Barcode/QR scanner opened to verify received units.", { duration: 5000 });
   }
 
   function handleUploadPackingSlip() {
-    alert("Upload Packing Slip dialog opened.");
+    toast.info("Upload Packing Slip dialog opened.", { duration: 5000 });
   }
 
   function handleReportDiscrepancy() {
-    alert("Report Transfer Discrepancy form opened.");
+    toast.info("Report Transfer Discrepancy form opened.", { duration: 5000 });
   }
 
   function handleViewFullHistory() {
-    alert("Showing comprehensive audit trail and timestamp records.");
+    toast.info("Showing comprehensive audit trail and timestamp records.", { duration: 5000 });
   }
 
   return (

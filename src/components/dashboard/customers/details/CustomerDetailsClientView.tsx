@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { toast } from "sonner";
 import {
   MOCK_CUSTOMER_PROFILE,
   type CustomerProfileData,
@@ -62,12 +63,12 @@ export default function CustomerDetailsClientView({
   }, [profile.pointHistory, searchQuery]);
 
   function handleDeactivate() {
-    alert(`Customer account ${profile.customerId} deactivated.`);
+    toast.info(`Customer account ${profile.customerId} deactivated.`, { duration: 5000 });
   }
 
   function handleDelete() {
     if (confirm(`Are you sure you want to delete customer ${profile.customerId}?`)) {
-      alert(`Customer ${profile.customerId} deleted.`);
+      toast.success(`Customer ${profile.customerId} deleted.`, { duration: 5000 });
     }
   }
 

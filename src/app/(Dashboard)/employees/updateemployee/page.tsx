@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { toast } from "sonner";
 import { 
   ArrowLeft, 
   RefreshCw, 
@@ -39,7 +40,7 @@ export default function UpdateEmployeePage() {
     e.preventDefault();
     console.log("Form Submitted for Update: ", formData);
    
-    alert("Employee Updated Successfully!");
+    toast.success("Employee Updated Successfully!", { duration: 5000 });
   };
 
   return (

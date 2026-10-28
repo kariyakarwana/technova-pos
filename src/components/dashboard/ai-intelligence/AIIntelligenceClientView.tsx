@@ -3,6 +3,7 @@
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import {
   AlertTriangle,
   ArrowDownRight,
@@ -159,12 +160,10 @@ export default function AIIntelligenceClientView() {
     useState<LoyaltyRuleRecommendations | null>(null);
   const [loading, setLoading] = useState(true);
   const [loyaltyLoading, setLoyaltyLoading] = useState(false);
-  const [error, setError] = useState("");
   const [lastFetchedDemandKey, setLastFetchedDemandKey] = useState<string>("");
 
   const loadOverview = useCallback(async () => {
     setLoading(true);
-    setError("");
     try {
       const query = new URLSearchParams({ forecastDays: String(forecastDays) });
       if (branchId) query.set("branchId", branchId);
@@ -184,10 +183,11 @@ export default function AIIntelligenceClientView() {
       );
       setLastFetchedDemandKey("");
     } catch (cause) {
-      setError(
+      toast.error(
         cause instanceof Error
           ? cause.message
           : "Unable to load AI intelligence.",
+        { duration: 8000 },
       );
     } finally {
       setLoading(false);
@@ -331,7 +331,6 @@ export default function AIIntelligenceClientView() {
   async function loadLoyalty() {
     if (!selectedCustomerId) return;
     setLoyaltyLoading(true);
-    setError("");
     try {
       const [customerLoyalty, rules, suggestions] = await Promise.all([
         apiGet<LoyaltyResult>(
@@ -344,10 +343,11 @@ export default function AIIntelligenceClientView() {
       setLoyaltyRules(rules);
       setLoyaltyRuleSuggestions(suggestions);
     } catch (cause) {
-      setError(
+      toast.error(
         cause instanceof Error
           ? cause.message
           : "Unable to load recommendations.",
+        { duration: 8000 },
       );
     } finally {
       setLoyaltyLoading(false);
@@ -488,15 +488,6 @@ export default function AIIntelligenceClientView() {
             </button>
           ))}
         </div>
-        {error && (
-          <div className="flex items-start gap-3 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
-            <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
-            <div>
-              <p className="font-bold">AI data could not be loaded</p>
-              <p className="mt-0.5 text-xs">{error}</p>
-            </div>
-          </div>
-        )}
         {loading && !overview ? (
           <div className="flex min-h-96 items-center justify-center rounded-2xl border border-slate-200 bg-white">
             <div className="text-center">

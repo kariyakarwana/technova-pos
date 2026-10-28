@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { PackageCheck, RefreshCw } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import { useBranch } from "@/components/dashboard/BranchContext";
 import { apiGet } from "@/lib/api/client";
 
@@ -22,7 +23,6 @@ export default function StockReceiptQueue() {
   const { branchId, branch } = useBranch();
   const [orders, setOrders] = useState<PurchaseOrder[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const pageSize = 20;
 
@@ -32,7 +32,6 @@ export default function StockReceiptQueue() {
       return;
     }
     setLoading(true);
-    setError(null);
     const common = `branchId=${encodeURIComponent(branchId)}&pageSize=100`;
     try {
       const [approved, partial] = await Promise.all([
@@ -46,10 +45,11 @@ export default function StockReceiptQueue() {
       );
       setPage(1);
     } catch (reason) {
-      setError(
+      toast.error(
         reason instanceof Error
           ? reason.message
           : "Unable to load purchase orders ready for receipt.",
+        { duration: 8000 },
       );
     } finally {
       setLoading(false);
@@ -89,11 +89,6 @@ export default function StockReceiptQueue() {
           Refresh
         </button>
       </header>
-      {error && (
-        <div className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">
-          {error}
-        </div>
-      )}
       <section className="overflow-hidden rounded-2xl border bg-white shadow-sm">
         <div className="border-b p-5">
           <h2 className="font-bold">Orders ready to receive</h2>

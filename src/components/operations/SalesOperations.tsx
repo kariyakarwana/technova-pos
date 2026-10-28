@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { FileSpreadsheet, FileText, Printer, RefreshCw, Search } from "lucide-react";
+import { toast } from "sonner";
 import { useBranch } from "@/components/dashboard/BranchContext";
 import PaginationControls, {
   type PageMeta,
@@ -52,8 +53,7 @@ export default function SalesOperations({ isSuperAdmin = false }: { isSuperAdmin
     [cashierId, setCashierId] = useState(""),
     [from, setFrom] = useState(""),
     [to, setTo] = useState("");
-  const [loading, setLoading] = useState(false),
-    [message, setMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const [cashiers, setCashiers] = useState<Cashier[]>([]);
   useEffect(() => {
     void apiGet<Cashier[]>("/sales/cashiers").then(setCashiers).catch(() => setCashiers([]));
@@ -75,10 +75,10 @@ export default function SalesOperations({ isSuperAdmin = false }: { isSuperAdmin
       setResult(
         await apiGet<{ data: Sale[]; meta: PageMeta }>(`/sales?${params}`),
       );
-      setMessage(null);
     } catch (error) {
-      setMessage(
+      toast.error(
         error instanceof Error ? error.message : "Unable to load sales.",
+        { duration: 8000 },
       );
     } finally {
       setLoading(false);
@@ -96,7 +96,10 @@ export default function SalesOperations({ isSuperAdmin = false }: { isSuperAdmin
   if (cashierId) exportParams.set("cashierId", cashierId);
   function printSales() {
     const printable = window.open("", "_blank");
-    if (!printable) return window.alert("Allow pop-ups to open the printable sales report.");
+    if (!printable) {
+      toast.error("Allow pop-ups to open the printable sales report.", { duration: 8000 });
+      return;
+    }
     const body = result.data.map((sale) => `<tr><td>${escapeHtml(sale.invoiceNumber)}</td><td>${escapeHtml(sale.customer ? `${sale.customer.firstName} ${sale.customer.lastName ?? ""}` : "Walk-in")}</td><td>${sale._count.items}</td><td>${Number(sale.subtotal).toLocaleString()}</td><td>${Number(sale.discountTotal).toLocaleString()}</td><td>${Number(sale.taxTotal).toLocaleString()}</td><td>${Number(sale.total).toLocaleString()}</td><td>${Number(sale.paidTotal).toLocaleString()}</td><td>${Number(sale.balanceDue).toLocaleString()}</td><td>${escapeHtml(sale.status.replaceAll("_", " "))}</td></tr>`).join("");
     printable.document.write(`<!doctype html><html><head><title>TechNova Sales Report</title><style>@page{size:landscape;margin:12mm}body{font-family:Arial;color:#1D2939}h1{font-size:20px}p{font-size:11px;color:#667085}table{width:100%;border-collapse:collapse;font-size:10px}th,td{border:1px solid #E4E7EC;padding:7px;text-align:left}th{background:#E9F7F5;color:#0B6E63}</style></head><body><h1>TechNova Sales Report</h1><p>Page ${result.meta.page} · ${result.data.length} displayed rows · Printed ${escapeHtml(new Date().toLocaleString())}</p><table><thead><tr><th>Invoice</th><th>Customer</th><th>Items</th><th>Original amount</th><th>Discount given</th><th>Tax</th><th>Final amount</th><th>Paid</th><th>Balance</th><th>Status</th></tr></thead><tbody>${body}</tbody></table><script>window.onload=()=>window.print()<\/script></body></html>`);
     printable.document.close();
@@ -222,11 +225,6 @@ export default function SalesOperations({ isSuperAdmin = false }: { isSuperAdmin
           Clear filters
         </button>
       </section>
-      {message && (
-        <p className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">
-          {message}
-        </p>
-      )}
       <div className="overflow-hidden rounded-2xl border border-[#E4E7EC] bg-white shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#E4E7EC] px-5 py-4"><div><h2 className="font-bold text-[#1D2939]">Sales Report</h2><p className="text-xs text-slate-400">{result.meta.total} matching transactions</p></div><div className="flex items-center gap-2"><button type="button" onClick={printSales} disabled={!result.data.length} title="Open PDF/print view" className="flex h-8 items-center gap-1 rounded-lg border border-red-200 bg-red-50 px-2.5 text-[10px] font-semibold text-red-600 hover:bg-red-100 disabled:opacity-40"><FileText className="h-4 w-4"/>PDF</button><a href={`/api/backend/reports/sales.csv${exportParams.size ? `?${exportParams}` : ""}`} title="Export complete filtered CSV" className="flex h-8 items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 text-[10px] font-semibold text-emerald-700 hover:bg-emerald-100"><FileSpreadsheet className="h-4 w-4"/>CSV</a><button type="button" onClick={printSales} disabled={!result.data.length} title="Print report" className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 disabled:opacity-40"><Printer className="h-4 w-4"/></button></div></div>
         <div className="overflow-x-auto">

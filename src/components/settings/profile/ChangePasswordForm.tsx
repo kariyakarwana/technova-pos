@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Eye, EyeOff, Lock } from "lucide-react";
+import { toast } from "sonner";
 import { apiPost } from "@/lib/api/client";
 import { useRouter } from "next/navigation";
 
@@ -16,30 +17,34 @@ export default function ChangePasswordForm({ redirectTo }: { redirectTo?: string
   const [showConfirm, setShowConfirm] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
 
-  const [message, setMessage] = useState<string | null>(null);
   async function handleUpdatePassword(e: React.FormEvent) {
     e.preventDefault();
     if (!currentPassword) {
-      return setMessage("Please enter your current password.");
+      toast.error("Please enter your current password.", { duration: 8000 });
+      return;
     }
     if (!newPassword) {
-      return setMessage("Please enter your new password.");
+      toast.error("Please enter your new password.", { duration: 8000 });
+      return;
     }
     if (newPassword !== confirmPassword) {
-      return setMessage("New password and confirmation do not match.");
+      toast.error("New password and confirmation do not match.", { duration: 8000 });
+      return;
     }
 
     setIsUpdating(true);
-    setMessage(null);
     try {
       await apiPost("/auth/change-password", { currentPassword, newPassword });
-      setMessage("Password updated. Sign in again on your other devices.");
+      toast.success("Password updated. Sign in again on your other devices.", { duration: 5000 });
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
       if (redirectTo) router.replace(redirectTo);
-    } catch (error) { setMessage(error instanceof Error ? error.message : "Unable to update password."); }
-    finally { setIsUpdating(false); }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Unable to update password.", { duration: 8000 });
+    } finally {
+      setIsUpdating(false);
+    }
   }
 
   return (
@@ -56,7 +61,6 @@ export default function ChangePasswordForm({ redirectTo }: { redirectTo?: string
 
       {/* Form Fields */}
       <form onSubmit={handleUpdatePassword} className="space-y-4">
-        {message && <p role="status" className="rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-700">{message}</p>}
         {/* Current Password */}
         <div>
           <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">

@@ -2,6 +2,7 @@
 
 import { FileSpreadsheet, FileText, Printer } from "lucide-react";
 import { BackButton } from "@/components/ui/back-button";
+import { toast } from "sonner";
 
 type Row = Record<string, unknown>;
 const label = (key: string) => key.replaceAll(/([A-Z])/g, " $1").replaceAll("_", " ").trim();
@@ -21,7 +22,10 @@ export default function ReportExportActions({ title, rows, serverCsvUrl, backToR
   }
   function printPdf() {
     const report = window.open("", "_blank");
-    if (!report) return window.alert("Allow pop-ups to open the printable report.");
+    if (!report) {
+      toast.error("Allow pop-ups to open the printable report.", { duration: 8000 });
+      return;
+    }
     report.opener = null;
     const headings = columns.map((column) => `<th>${escapeHtml(label(column))}</th>`).join("");
     const body = rows.map((row) => `<tr>${columns.map((column) => `<td>${escapeHtml(row[column])}</td>`).join("")}</tr>`).join("");

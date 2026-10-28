@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { CreditCard, History, PackageCheck, RotateCcw, Search, Star } from "lucide-react";
+import { toast } from "sonner";
 import { useBranch } from "@/components/dashboard/BranchContext";
 import { apiGet, apiPost } from "@/lib/api/client";
 import PaginationControls, { type PageMeta } from "./PaginationControls";
@@ -43,7 +44,6 @@ export default function ReturnOperations() {
   const [sale, setSale] = useState<Detail | null>(null), [saleId, setSaleId] = useState("");
   const [reason, setReason] = useState("Customer return"), [method, setMethod] = useState("CASH");
   const [resolution, setResolution] = useState("ORIGINAL_METHOD");
-  const [message, setMessage] = useState<string | null>(null);
   const [lines, setLines] = useState<Record<string, Line>>({});
 
   const loadTransactions = useCallback(async () => {
@@ -60,9 +60,9 @@ export default function ReturnOperations() {
   useEffect(() => {
     void apiGet<Summary>("/returns/summary")
       .then(setSummary)
-      .catch((error) => setMessage(error instanceof Error ? error.message : "Unable to load return summary."));
+      .catch((error) => toast.error(error instanceof Error ? error.message : "Unable to load return summary.", { duration: 8000 }));
   }, []);
-  useEffect(() => { void loadTransactions().catch((error) => setMessage(error instanceof Error ? error.message : "Unable to load transactions.")); }, [loadTransactions]);
+  useEffect(() => { void loadTransactions().catch((error) => toast.error(error instanceof Error ? error.message : "Unable to load transactions.", { duration: 8000 })); }, [loadTransactions]);
   useEffect(() => setPage(1), [branchId, customerPhone, from, invoice, pageSize, to]);
 
   const selectedTotal = useMemo(() => sale?.items.reduce((sum, item) => sum + (lines[item.id]?.selected ? Number(item.lineTotal) / Number(item.quantity) * lines[item.id].quantity : 0), 0) ?? 0, [sale, lines]);
@@ -73,20 +73,26 @@ export default function ReturnOperations() {
       const detail = await apiGet<Detail>(`/sales/${id}`);
       setSale(detail);
       setLines(Object.fromEntries(detail.items.map((item) => [item.id, { selected: false, quantity: 1, condition: "RESALABLE", restock: true }])));
-    } catch (error) { setMessage(error instanceof Error ? error.message : "Unable to load transaction items."); }
+    } catch (error) { toast.error(error instanceof Error ? error.message : "Unable to load transaction items.", { duration: 8000 }); }
   }
   async function submit(event: React.FormEvent) {
     event.preventDefault();
     const items = Object.entries(lines).filter(([, line]) => line.selected).map(([saleItemId, line]) => ({ saleItemId, quantity: line.quantity, condition: line.condition, restock: line.restock }));
-    if (!items.length) return setMessage("Select at least one item.");
-    if (resolution !== "ORIGINAL_METHOD" && !sale?.customer) return setMessage("Store credit, points and exchanges require a registered customer.");
+    if (!items.length) {
+      toast.error("Select at least one item.", { duration: 8000 });
+      return;
+    }
+    if (resolution !== "ORIGINAL_METHOD" && !sale?.customer) {
+      toast.error("Store credit, points and exchanges require a registered customer.", { duration: 8000 });
+      return;
+    }
     try {
       const result = await apiPost<{ returnNumber: string }>("/returns", { saleId, reason, resolution, refundMethod: resolution === "ORIGINAL_METHOD" ? method : undefined, refundReference: `UI-${Date.now()}`, items });
-      setMessage(`${result.returnNumber} completed using ${resolution.replaceAll("_", " ").toLowerCase()}.`);
+      toast.success(`${result.returnNumber} completed using ${resolution.replaceAll("_", " ").toLowerCase()}.`, { duration: 5000 });
       setSale(null); setSaleId(""); setLines({});
       const latestSummary = await apiGet<Summary>("/returns/summary"); setSummary(latestSummary);
       await loadTransactions();
-    } catch (error) { setMessage(error instanceof Error ? error.message : "Return failed."); }
+    } catch (error) { toast.error(error instanceof Error ? error.message : "Return failed.", { duration: 8000 }); }
   }
 
   const storeOrExchange = summary?.byResolution.filter((item) => ["STORE_CREDIT", "PRODUCT_EXCHANGE"].includes(item.resolution)).reduce((sum, item) => sum + item.count, 0) ?? 0;
@@ -99,7 +105,6 @@ export default function ReturnOperations() {
       { label: "Store credit / exchanges", value: storeOrExchange },
       { label: "Points refunds", value: pointsReturns },
     ].map((card) => <div key={card.label} className="rounded-2xl bg-gradient-to-r from-[#025148] to-[#0E9384] p-5 text-white shadow"><p className="text-xs uppercase text-white/70">{card.label}</p><p className="mt-2 text-2xl font-bold">{card.value}</p></div>)}</div>
-    {message && <div className="rounded-xl border border-teal-200 bg-teal-50 p-3 text-sm text-teal-800">{message}</div>}
 
     <section className="rounded-2xl border bg-white shadow-sm">
       <div className="border-b p-5"><h2 className="font-bold">1. Select transaction</h2><p className="text-xs text-slate-500">{meta.total} eligible transactions match the filters.</p>

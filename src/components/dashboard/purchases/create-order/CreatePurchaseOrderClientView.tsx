@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { toast } from "sonner";
 import {
   INITIAL_PO_ITEMS,
   type PurchaseOrderItemEntry,
@@ -68,14 +69,15 @@ export default function CreatePurchaseOrderClientView() {
   }
 
   function handleSaveDraft() {
-    alert("Purchase Order saved as draft successfully!");
+    toast.success("Purchase Order saved as draft successfully!", { duration: 5000 });
   }
 
   function handleSubmitApproval() {
-    alert(
+    toast.success(
       `Purchase Order Submitted for Approval!\nSupplier: ${supplier}\nExpected Delivery: ${deliveryDate}\nRef: ${
         referenceNumber || "N/A"
-      }\nTotal Items: ${totalItems}\nTotal Amount: $${totalAmount.toFixed(2)}`
+      }\nTotal Items: ${totalItems}\nTotal Amount: $${totalAmount.toFixed(2)}`,
+      { duration: 5000 }
     );
   }
 
