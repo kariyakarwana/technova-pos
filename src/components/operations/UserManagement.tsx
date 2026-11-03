@@ -553,65 +553,97 @@ export default function UserManagement() {
                   <th className="p-4">Employee</th>
                   <th className="p-4">Roles</th>
                   <th className="p-4">Branches</th>
-                  <th className="p-4">Status</th>
-                  <th className="p-4">Last login</th>
-                  <th className="p-4">Actions</th>
+                  <th className="p-4 whitespace-nowrap">Status</th>
+                  <th className="p-4 whitespace-nowrap">Last login</th>
+                  <th className="p-4 whitespace-nowrap">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {users.map((user) => (
                   <tr key={user.id} className="border-t hover:bg-teal-50/30">
                     <td className="p-4">
-                      <p className="font-semibold">
+                      <p
+                        className="block max-w-[260px] truncate min-w-0 font-semibold"
+                        title={user.name || "Unnamed employee"}
+                      >
                         {user.name || "Unnamed employee"}
                       </p>
-                      <p className="text-xs text-slate-500">{user.email}</p>
-                      <p className="text-xs text-slate-500">
+                      <p
+                        className="block max-w-[260px] truncate min-w-0 text-xs text-slate-500"
+                        title={user.email}
+                      >
+                        {user.email}
+                      </p>
+                      <p
+                        className="block max-w-[260px] truncate min-w-0 text-xs text-slate-500"
+                        title={user.phone || "No phone number"}
+                      >
                         {user.phone || "No phone number"}
                       </p>
                     </td>
                     <td className="p-4">
-                      {user.roles
-                        .map(({ role }) => role.name.replaceAll("_", " "))
-                        .join(", ") || "—"}
+                      <span
+                        className="block max-w-[200px] truncate min-w-0"
+                        title={
+                          user.roles
+                            .map(({ role }) => role.name.replaceAll("_", " "))
+                            .join(", ") || "—"
+                        }
+                      >
+                        {user.roles
+                          .map(({ role }) => role.name.replaceAll("_", " "))
+                          .join(", ") || "—"}
+                      </span>
                     </td>
                     <td className="p-4">
-                      {user.branchAssignments
-                        .map(
-                          ({ branch, isDefault }) =>
-                            `${branch.code}${isDefault ? " ★" : ""}`,
-                        )
-                        .join(", ") || "—"}
+                      <span
+                        className="block max-w-[200px] truncate min-w-0"
+                        title={
+                          user.branchAssignments
+                            .map(
+                              ({ branch, isDefault }) =>
+                                `${branch.code}${isDefault ? " ★" : ""}`,
+                            )
+                            .join(", ") || "—"
+                        }
+                      >
+                        {user.branchAssignments
+                          .map(
+                            ({ branch, isDefault }) =>
+                              `${branch.code}${isDefault ? " ★" : ""}`,
+                          )
+                          .join(", ") || "—"}
+                      </span>
                     </td>
-                    <td className="p-4">
+                    <td className="p-4 whitespace-nowrap">
                       <span
                         className={`rounded-full px-2.5 py-1 text-xs font-semibold ${user.status === "ACTIVE" ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-600"}`}
                       >
                         {user.status}
                       </span>
                     </td>
-                    <td className="p-4 text-xs">
+                    <td className="p-4 text-xs whitespace-nowrap">
                       {user.lastLoginAt
                         ? new Date(user.lastLoginAt).toLocaleString()
                         : "Never"}
                     </td>
-                    <td className="p-4">
-                      <div className="flex flex-wrap gap-2">
+                    <td className="p-4 whitespace-nowrap">
+                      <div className="flex items-center gap-3 shrink-0">
                         <button
                           onClick={() => edit(user)}
-                          className="font-semibold text-[#0E9384]"
+                          className="font-semibold text-[#0E9384] shrink-0"
                         >
                           Manage
                         </button>
                         <button
                           onClick={() => void changeState(user)}
-                          className={`font-semibold ${user.status === "ACTIVE" ? "text-amber-600" : "text-emerald-600"}`}
+                          className={`font-semibold shrink-0 ${user.status === "ACTIVE" ? "text-amber-600" : "text-emerald-600"}`}
                         >
                           {user.status === "ACTIVE" ? "Deactivate" : "Activate"}
                         </button>
                         <button
                           onClick={() => void remove(user)}
-                          className="font-semibold text-rose-600"
+                          className="font-semibold text-rose-600 shrink-0"
                         >
                           Delete
                         </button>
