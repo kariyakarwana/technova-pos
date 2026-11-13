@@ -139,7 +139,9 @@ export default async function PublicReceiptPage({
                   <div className="font-bold text-gray-900">{item.productName || item.name || "Item"}</div>
                   <div className="text-gray-400 text-[11px]">
                     {item.quantity} x {currency} {Number(item.unitPrice || 0).toFixed(2)}
-                    {item.discountAmount > 0 && ` (-${currency} ${Number(item.discountAmount).toFixed(2)})`}
+                    {typeof item.discountAmount === "number" && item.discountAmount > 0
+                      ? ` (-${currency} ${item.discountAmount.toFixed(2)})`
+                      : null}
                   </div>
                 </div>
                 <div className="font-mono font-bold text-gray-900">
