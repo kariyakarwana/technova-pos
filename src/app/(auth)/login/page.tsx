@@ -20,6 +20,7 @@ export default async function LoginPage() {
 
   if (user) {
     if (user.mustChangePassword) redirect("/change-temporary-password");
+    if (user.roles.includes("PLATFORM_SUPER_ADMIN")) redirect("/platform-admin");
     redirect(
       user.roles.includes("SUPPLIER") ? "/supplier-dashboard" : "/dashboard",
     );

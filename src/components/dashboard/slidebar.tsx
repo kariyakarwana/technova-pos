@@ -23,9 +23,12 @@ import {
   History,
   Settings,
   WifiOff,
+  CreditCard,
+  ShieldCheck,
 } from "lucide-react";
 
 const navItems = [
+  { name: "Platform Admin", icon: ShieldCheck, href: "/platform-admin", role: "PLATFORM_SUPER_ADMIN" },
   { name: "Dashboard", icon: LayoutDashboard, href: "/dashboard", permission: "dashboard:view" },
   { name: "Point of Sale", icon: Tag, href: "/pos", permission: "sales:manage" },
   { name: "Sales", icon: ReceiptText, href: "/sales", permission: "sales:view" },
@@ -46,6 +49,7 @@ const navItems = [
   { name: "Reports", icon: BarChart3, href: "/reports", permission: "reports:view" },
   { name: "Offline Sync", icon: WifiOff, href: "/offline-sync", permission: "sales:manage" },
   { name: "Audit Log", icon: History, href: "/audit-log", permission: "audit:view" },
+  { name: "Billing & Plans", icon: CreditCard, href: "/dashboard/billing", permission: "settings:view" },
   { name: "Settings", icon: Settings, href: "/settings", permission: "settings:view" },
 ] as const;
 
@@ -66,7 +70,10 @@ export default function Sidebar({
       aria-label="Dashboard navigation"
       className={`flex w-full flex-col gap-2 py-3 transition-[padding] duration-200 ${collapsed ? "px-2" : "px-4"}`}
     >
-      {navItems.filter((item) => !("permission" in item) || isSuperAdmin || permissions.includes(item.permission)).map((item) => {
+      {navItems.filter((item) => {
+        if ("role" in item && (item as any).role) return roles.includes((item as any).role);
+        return !("permission" in item) || isSuperAdmin || permissions.includes((item as any).permission);
+      }).map((item) => {
         const Icon = item.icon;
         const isActive =
           item.href === "/dashboard" || ("exact" in item && item.exact)

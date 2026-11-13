@@ -141,6 +141,8 @@ const PAGE_PERMISSION_RULES: ReadonlyArray<readonly [string, Permission]> = [
   ["/branches", PERMISSIONS.BRANCHES_VIEW],
   ["/audit-log", PERMISSIONS.AUDIT_VIEW],
   ["/reports", PERMISSIONS.REPORTS_VIEW],
+  ["/dashboard/billing", PERMISSIONS.SETTINGS_VIEW],
+  ["/billing", PERMISSIONS.SETTINGS_VIEW],
   ["/settings", PERMISSIONS.SETTINGS_VIEW],
   ["/credit", PERMISSIONS.CREDIT_MANAGE],
   ["/sales", PERMISSIONS.SALES_VIEW],
@@ -167,6 +169,7 @@ export function hasPageAccess(
 }
 
 export const SYSTEM_ROLES = {
+  PLATFORM_SUPER_ADMIN: "PLATFORM_SUPER_ADMIN",
   SUPER_ADMIN: "SUPER_ADMIN",
   ADMIN: "ADMIN",
   MANAGER: "MANAGER",
