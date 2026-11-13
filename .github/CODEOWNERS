@@ -18,3 +18,5 @@
 /src/modules/auth/ @kariyakarwana
 /src/lib/auth/ @kariyakarwana
 /src/lib/security/ @kariyakarwana
+/deploy/ @kariyakarwana
+/VERSION @kariyakarwana
