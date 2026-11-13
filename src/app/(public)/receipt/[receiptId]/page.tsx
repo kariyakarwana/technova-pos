@@ -2,13 +2,8 @@ import React from "react";
 import type { Metadata } from "next";
 import {
   ShieldAlert,
-  Receipt,
   Store,
   Phone,
-  Mail,
-  Calendar,
-  CheckCircle2,
-  Printer,
   ShieldCheck,
 } from "lucide-react";
 
@@ -21,6 +16,16 @@ const API_URL =
   process.env.INTERNAL_API_URL ??
   process.env.NEXT_PUBLIC_API_URL ??
   "http://localhost:4000/api/v1";
+
+interface ReceiptItem {
+  productName?: string;
+  name?: string;
+  quantity: number;
+  unitPrice: number;
+  discountAmount?: number;
+  total?: number;
+  totalPrice?: number;
+}
 
 interface PageProps {
   params: Promise<{ receiptId: string }>;
@@ -128,7 +133,7 @@ export default async function PublicReceiptPage({
             <span>Total ({currency})</span>
           </div>
           <div className="divide-y divide-gray-100">
-            {items.map((item: any, idx: number) => (
+            {(items as ReceiptItem[]).map((item, idx: number) => (
               <div key={idx} className="py-3 flex justify-between items-start text-xs">
                 <div>
                   <div className="font-bold text-gray-900">{item.productName || item.name || "Item"}</div>

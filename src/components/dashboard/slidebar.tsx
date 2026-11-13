@@ -71,8 +71,9 @@ export default function Sidebar({
       className={`flex w-full flex-col gap-2 py-3 transition-[padding] duration-200 ${collapsed ? "px-2" : "px-4"}`}
     >
       {navItems.filter((item) => {
-        if ("role" in item && (item as any).role) return roles.includes((item as any).role);
-        return !("permission" in item) || isSuperAdmin || permissions.includes((item as any).permission);
+        const itemRecord = item as { role?: string; permission?: string };
+        if (itemRecord.role) return roles.includes(itemRecord.role);
+        return !itemRecord.permission || isSuperAdmin || permissions.includes(itemRecord.permission);
       }).map((item) => {
         const Icon = item.icon;
         const isActive =

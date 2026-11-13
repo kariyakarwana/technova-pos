@@ -533,12 +533,6 @@ export function SubscriptionsView({
     features: [] as PackageFeatureItem[],
   });
 
-  useEffect(() => {
-    if (createSignal > 0) {
-      openCreateModal();
-    }
-  }, [createSignal]);
-
   const openCreateModal = () => {
     setEditingPlan(null);
     setIsCreating(true);
@@ -565,6 +559,12 @@ export function SubscriptionsView({
       features: [],
     });
   };
+
+  useEffect(() => {
+    if (createSignal > 0) {
+      openCreateModal();
+    }
+  }, [createSignal]);
 
   const openEditModal = (plan: PlatformPlan) => {
     setIsCreating(false);
@@ -605,7 +605,8 @@ export function SubscriptionsView({
         toast.success(res.message, { duration: 5000 });
         setIsCreating(false);
       } else if (editingPlan) {
-        const { code: _omitCode, ...updatePayload } = planForm;
+        const { code: _, ...updatePayload } = planForm;
+        void _;
         const res = await apiClient<{ message: string }>(
           `/platform-admin/plans/${editingPlan.id}`,
           {
@@ -1111,12 +1112,6 @@ export function AddonsView({
     features: [] as PackageFeatureItem[],
   });
 
-  useEffect(() => {
-    if (createSignal > 0) {
-      openCreateModal();
-    }
-  }, [createSignal]);
-
   const openCreateModal = () => {
     setEditingPack(null);
     setIsCreating(true);
@@ -1132,6 +1127,12 @@ export function AddonsView({
       features: [],
     });
   };
+
+  useEffect(() => {
+    if (createSignal > 0) {
+      openCreateModal();
+    }
+  }, [createSignal]);
 
   const openEditModal = (pack: PlatformAddonPack) => {
     setIsCreating(false);
@@ -1161,7 +1162,8 @@ export function AddonsView({
         toast.success(res.message, { duration: 5000 });
         setIsCreating(false);
       } else if (editingPack) {
-        const { code: _omitCode, ...updatePayload } = packForm;
+        const { code: _, ...updatePayload } = packForm;
+        void _;
         const res = await apiClient<{ message: string }>(
           `/platform-admin/addon-packs/${editingPack.id}`,
           {

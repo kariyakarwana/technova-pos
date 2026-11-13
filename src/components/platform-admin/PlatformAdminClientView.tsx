@@ -9,10 +9,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Cloud,
-  Code2,
   CreditCard,
   Download,
-  FileText,
   GripVertical,
   History,
   LayoutDashboard,
@@ -596,6 +594,7 @@ export function PlatformAdminClientView({
       <div>
         {/* Brand Block */}
         <div className="h-16 px-4 border-b border-[#E4E7EC] bg-gradient-to-r from-white to-[#F4FBF9] flex items-center justify-center">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/technova-logo.svg"
             alt="TechNova POS"
