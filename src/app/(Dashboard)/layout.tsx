@@ -16,6 +16,7 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
   const user = await requireAuthenticatedUser("/dashboard");
+  if (user?.roles.includes("PLATFORM_SUPER_ADMIN")) redirect("/platform-admin");
   if (user?.roles.includes("SUPPLIER")) redirect("/supplier-dashboard");
   if (user?.mustChangePassword) redirect("/change-temporary-password");
   const branches = await serverApi<{

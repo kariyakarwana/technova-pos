@@ -61,6 +61,7 @@ export async function loginAction(_state: AuthActionState, formData: FormData): 
   const refreshToken = response.headers.get("set-cookie")?.match(/technova_refresh=([^;]+)/)?.[1];
   if (refreshToken) store.set(REFRESH_COOKIE, refreshToken, { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", maxAge: 8 * 60 * 60 });
   if (result.user.mustChangePassword) redirect("/change-temporary-password");
+  if (result.user.roles.includes("PLATFORM_SUPER_ADMIN")) redirect("/platform-admin");
   redirect(result.user.roles.includes("SUPPLIER") ? "/supplier-dashboard" : "/dashboard");
 }
 
