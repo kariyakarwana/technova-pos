@@ -83,9 +83,9 @@ export function WeeklyActivityChartCard({ weeklyActivity }: WeeklyActivityProps)
           <div className="pt-2 border-t border-slate-100">
             <div className="text-[11px] font-medium text-slate-500">Active Sync Rails</div>
             <div className="text-lg font-extrabold text-[#0E9384] font-mono mt-0.5">
-              99.98%
+              Not monitored
             </div>
-            <div className="text-[11px] text-slate-400 font-mono">0 gateway drops</div>
+            <div className="text-[11px] text-slate-400 font-mono">Monitoring not configured</div>
           </div>
         </div>
 
@@ -181,7 +181,7 @@ export function PlanDistributionDonutCard({ analytics }: PlanDonutProps) {
       ? [
           {
             code: "NONE",
-            label: "No Plan Assigned",
+            label: "Inactive or unassigned",
             count: unassignedCount,
             color: PLAN_COLORS.NONE,
           },
@@ -285,7 +285,7 @@ export function PlanDistributionDonutCard({ analytics }: PlanDonutProps) {
 
       {/* Footer */}
       <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between gap-2 text-xs">
-        <span className="text-slate-500">Active paid subscriptions:</span>
+        <span className="text-slate-500">Active subscriptions:</span>
         <span className="px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-[#EEFFFD] text-[#0E9384] border border-[#0E9384]/20 font-mono">
           {analytics.financials.activeSubscriptionsCount} / {totalOrgs} Active
         </span>

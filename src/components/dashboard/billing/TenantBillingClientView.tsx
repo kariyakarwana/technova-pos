@@ -19,7 +19,6 @@ import {
   Landmark,
   ArrowUpRight,
   Sparkles,
-  Lock,
 } from "lucide-react";
 import { apiClient } from "@/lib/api/client";
 import { toast } from "sonner";
@@ -33,6 +32,7 @@ export interface MetricUsage {
 }
 
 export interface BillingDetails {
+  invoicePagination: { page: number; pageSize: number; total: number };
   subscription: {
     id: string;
     organizationId: string;
@@ -168,9 +168,16 @@ const EMPTY_METRIC: MetricUsage = {
 
 interface Props {
   initialData: BillingDetails;
+  canManage: boolean;
 }
 
-export function TenantBillingClientView({ initialData }: Props) {
+export function TenantBillingClientView({ initialData, canManage }: Props) {
+  const loadInvoicePage = async (page: number) => {
+    try {
+      const result = await apiClient<{ data: BillingDetails['subscription']['invoices']; meta: BillingDetails['invoicePagination'] }>('/subscription/invoices?page=' + page);
+      setData(old => ({ ...old, subscription: { ...old.subscription, invoices: result.data }, invoicePagination: result.meta }));
+    } catch (e) { toast.error(e instanceof Error ? e.message : 'Unable to load invoices'); }
+  };
   const [data, setData] = useState<BillingDetails>(initialData);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [showAddonModal, setShowAddonModal] = useState(false);
@@ -186,53 +193,11 @@ export function TenantBillingClientView({ initialData }: Props) {
   const [addonReqPaymentRef, setAddonReqPaymentRef] = useState("");
   const [submittingAddonReq, setSubmittingAddonReq] = useState(false);
 
-  // Online Payment Gateway Modal state
+  // Payment instructions Modal state
   const [showPayOnlineModal, setShowPayOnlineModal] = useState(false);
   const [selectedPayInvoice, setSelectedPayInvoice] = useState<
     BillingDetails["subscription"]["invoices"][0] | null
   >(null);
-  const [payGatewayMethod, setPayGatewayMethod] = useState<"CREDIT_CARD" | "PAYHERE_ONLINE">(
-    "CREDIT_CARD"
-  );
-  const [cardHolder, setCardHolder] = useState("Demo Business Account");
-  const [cardNumber, setCardNumber] = useState("4242 4242 4242 4242");
-  const [cardExpiry, setCardExpiry] = useState("12/28");
-  const [cardCvv, setCardCvv] = useState("789");
-  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
-
-  const handlePayInvoiceOnline = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedPayInvoice || isProcessingPayment) return;
-    setIsProcessingPayment(true);
-    try {
-      const res = await apiClient<{
-        message: string;
-        transactionReference: string;
-      }>(`/subscription/invoices/${selectedPayInvoice.id}/pay-online`, {
-        method: "POST",
-        body: JSON.stringify({
-          paymentMethod: payGatewayMethod,
-          cardBrand: payGatewayMethod === "CREDIT_CARD" ? "Visa" : "PayHere",
-          cardLast4: "4242",
-          cardHolderName: cardHolder,
-        }),
-      });
-
-      toast.success(
-        `Payment successful! Invoice ${selectedPayInvoice.invoiceNumber} marked as PAID. (Ref: ${res.transactionReference})`,
-        { duration: 7000 }
-      );
-      setShowPayOnlineModal(false);
-      setSelectedPayInvoice(null);
-      await refreshData();
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to process online payment.";
-      toast.error(msg, { duration: 6000 });
-    } finally {
-      setIsProcessingPayment(false);
-    }
-  };
-
   const sub = data.subscription;
   const plan = sub.plan;
   const rawUsage = data.usageOverview;
@@ -466,6 +431,7 @@ export function TenantBillingClientView({ initialData }: Props) {
             Refresh
           </button>
           <button
+            disabled={!canManage}
             onClick={() => setShowUpgradeModal(true)}
             className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition shadow-sm"
           >
@@ -528,6 +494,7 @@ export function TenantBillingClientView({ initialData }: Props) {
               </strong>
             </div>
             <button
+              disabled={!canManage}
               onClick={() => setShowAddonModal(true)}
               className="mt-4 inline-flex items-center justify-center gap-1.5 w-full px-3 py-2 text-xs font-semibold text-indigo-900 bg-white rounded-lg hover:bg-indigo-50 transition shadow-sm"
             >
@@ -544,7 +511,7 @@ export function TenantBillingClientView({ initialData }: Props) {
           <div>
             <h3 className="text-lg font-bold text-gray-900">Current Monthly Consumption</h3>
             <p className="text-xs text-gray-500">
-              Billing Period: <span className="font-semibold text-gray-700">{billingPeriodLabel}</span>. Quotas reset automatically at the start of each calendar month.
+              Billing Period: <span className="font-semibold text-gray-700">{billingPeriodLabel}</span>. Quotas reset at the start of your subscription period. Unused add-on allowances expire at period end.
             </p>
           </div>
         </div>
@@ -698,20 +665,20 @@ export function TenantBillingClientView({ initialData }: Props) {
               </h3>
             </div>
             <p className="text-xs text-gray-600 leading-relaxed">
-              To settle any pending subscription invoice or order top-up add-on packs, transfer the exact invoice total to our official corporate settlement account. Your payment is verified and cleared by the Platform Administrator within 2-4 business hours.
+              To settle any pending subscription invoice or order top-up add-on packs, transfer the exact invoice total to our official corporate settlement account. Your payment is verified and cleared by the Platform Administrator after verification.
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs">
               <div className="bg-white p-3 rounded-lg border border-slate-200 space-y-0.5">
                 <span className="text-gray-400 block font-medium">Beneficiary Name</span>
-                <span className="font-bold text-gray-900">TechNova Cloud Technologies (Pvt) Ltd</span>
+                <span className="font-bold text-gray-900">Confirm with NxCodeWorks</span>
               </div>
               <div className="bg-white p-3 rounded-lg border border-slate-200 space-y-0.5">
                 <span className="text-gray-400 block font-medium">Bank & Branch</span>
-                <span className="font-bold text-gray-900">Commercial Bank of Ceylon (City Branch)</span>
+                <span className="font-bold text-gray-900">Obtain verified bank instructions</span>
               </div>
               <div className="bg-white p-3 rounded-lg border border-slate-200 space-y-0.5">
                 <span className="text-gray-400 block font-medium">Account Number</span>
-                <span className="font-bold text-gray-900 font-mono">1000 4589 2241</span>
+                <span className="font-bold text-gray-900 font-mono">Not configured</span>
               </div>
               <div className="bg-white p-3 rounded-lg border border-slate-200 space-y-0.5">
                 <span className="text-gray-400 block font-medium">Payment Reference</span>
@@ -726,12 +693,7 @@ export function TenantBillingClientView({ initialData }: Props) {
             <p className="text-[11px] text-gray-500">
               Email your bank deposit slip or transaction reference receipt to:
             </p>
-            <a
-              href="mailto:billing@technovapos.com"
-              className="inline-block text-xs font-semibold text-indigo-600 hover:underline"
-            >
-              billing@technovapos.com
-            </a>
+            <span className="text-xs font-semibold text-indigo-600">Contact your NxCodeWorks account administrator.</span>
           </div>
         </div>
       </div>
@@ -745,7 +707,7 @@ export function TenantBillingClientView({ initialData }: Props) {
               Invoices & Payment History
             </h3>
             <p className="text-xs text-gray-500 mt-0.5">
-              Historical ledger of generated monthly subscription invoices and verified receipts.
+              Issued subscription invoices. Only invoices marked paid represent recorded settlement.
             </p>
           </div>
         </div>
@@ -819,7 +781,7 @@ export function TenantBillingClientView({ initialData }: Props) {
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg bg-[#0E9384] text-white hover:bg-[#004532] transition shadow-xs"
                           >
                             <CreditCard className="w-3.5 h-3.5" />
-                            Pay Online
+                            Payment instructions
                           </button>
                         )}
                       </td>
@@ -891,6 +853,11 @@ export function TenantBillingClientView({ initialData }: Props) {
         </div>
       )}
 
+      <nav aria-label="Invoice pages" className="flex justify-end items-center gap-3 text-sm">
+        <span>Invoice page {data.invoicePagination.page}</span>
+        <button disabled={data.invoicePagination.page <= 1} onClick={() => void loadInvoicePage(data.invoicePagination.page - 1)}>Previous invoices</button>
+        <button disabled={data.invoicePagination.page * data.invoicePagination.pageSize >= data.invoicePagination.total} onClick={() => void loadInvoicePage(data.invoicePagination.page + 1)}>Next invoices</button>
+      </nav>
       {/* Plan Change Request Modal */}
       {showUpgradeModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
@@ -1150,10 +1117,10 @@ export function TenantBillingClientView({ initialData }: Props) {
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-gray-900">
-                    Online Payment Gateway
+                    Payment instructions
                   </h3>
                   <p className="text-xs text-gray-500">
-                    Instant 256-bit SSL encrypted invoice settlement
+                    Manual payment verified by NxCodeWorks
                   </p>
                 </div>
               </div>
@@ -1181,7 +1148,7 @@ export function TenantBillingClientView({ initialData }: Props) {
                 </span>
               </div>
               <div className="flex justify-between text-xs text-gray-500">
-                <span>VAT (18%)</span>
+                <span>VAT</span>
                 <span className="font-mono text-gray-700">
                   ${Number(selectedPayInvoice.vatAmountUsd ?? 0).toFixed(2)} USD
                 </span>
@@ -1194,140 +1161,9 @@ export function TenantBillingClientView({ initialData }: Props) {
               </div>
             </div>
 
-            {/* Payment Method Selector */}
-            <div className="space-y-1.5">
-              <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider">
-                Select Online Gateway
-              </label>
-              <div className="grid grid-cols-2 gap-2.5">
-                <button
-                  type="button"
-                  onClick={() => setPayGatewayMethod("CREDIT_CARD")}
-                  className={`p-3 rounded-xl border text-left flex items-center gap-2.5 transition ${
-                    payGatewayMethod === "CREDIT_CARD"
-                      ? "border-[#0E9384] bg-[#EEFFFD]/40 text-[#004532] shadow-xs"
-                      : "border-gray-200 hover:bg-gray-50 text-gray-700"
-                  }`}
-                >
-                  <CreditCard className="w-5 h-5 text-[#0E9384]" />
-                  <div>
-                    <div className="text-xs font-bold leading-tight">Card Checkout</div>
-                    <div className="text-[10px] text-gray-400">Visa, Master, Amex</div>
-                  </div>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPayGatewayMethod("PAYHERE_ONLINE")}
-                  className={`p-3 rounded-xl border text-left flex items-center gap-2.5 transition ${
-                    payGatewayMethod === "PAYHERE_ONLINE"
-                      ? "border-[#0E9384] bg-[#EEFFFD]/40 text-[#004532] shadow-xs"
-                      : "border-gray-200 hover:bg-gray-50 text-gray-700"
-                  }`}
-                >
-                  <Landmark className="w-5 h-5 text-indigo-600" />
-                  <div>
-                    <div className="text-xs font-bold leading-tight">PayHere Gateway</div>
-                    <div className="text-[10px] text-gray-400">Online Web Portal</div>
-                  </div>
-                </button>
-              </div>
-            </div>
+            <p className="text-sm text-gray-700">Contact NxCodeWorks to arrange a bank transfer. Your invoice will be marked paid only after the platform administrator verifies receipt of payment. Online card payments are not available.</p>
+            <button type="button" onClick={() => setShowPayOnlineModal(false)} className="rounded-lg bg-teal-700 px-4 py-2 text-white">Close</button>
 
-            {/* Card Inputs Form */}
-            <form onSubmit={handlePayInvoiceOnline} className="space-y-3.5 text-xs">
-              <div>
-                <label className="block font-semibold text-gray-700 mb-1">
-                  Cardholder Name
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={cardHolder}
-                  onChange={(e) => setCardHolder(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0E9384]"
-                />
-              </div>
-
-              <div>
-                <div className="flex justify-between items-center mb-1">
-                  <label className="font-semibold text-gray-700">Card Number</label>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setCardNumber("4242 4242 4242 4242");
-                      setCardExpiry("12/28");
-                      setCardCvv("789");
-                    }}
-                    className="text-[11px] text-[#0E9384] hover:underline font-semibold"
-                  >
-                    Quick-Fill Test Card
-                  </button>
-                </div>
-                <div className="relative">
-                  <input
-                    type="text"
-                    required
-                    value={cardNumber}
-                    onChange={(e) => setCardNumber(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 font-mono tracking-wider focus:outline-none focus:ring-2 focus:ring-[#0E9384]"
-                  />
-                  <CreditCard className="w-4 h-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2" />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-semibold text-gray-700 mb-1">Expiry Date</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="MM/YY"
-                    value={cardExpiry}
-                    onChange={(e) => setCardExpiry(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 font-mono focus:outline-none focus:ring-2 focus:ring-[#0E9384]"
-                  />
-                </div>
-                <div>
-                  <label className="block font-semibold text-gray-700 mb-1">CVV / CVC</label>
-                  <input
-                    type="password"
-                    required
-                    maxLength={4}
-                    placeholder="•••"
-                    value={cardCvv}
-                    onChange={(e) => setCardCvv(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 font-mono focus:outline-none focus:ring-2 focus:ring-[#0E9384]"
-                  />
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between pt-3 border-t text-[11px] text-gray-400">
-                <span className="flex items-center gap-1">
-                  <Lock className="w-3.5 h-3.5 text-emerald-600" />
-                  SSL Encrypted &amp; PCI-DSS Ready
-                </span>
-                <span className="font-medium text-gray-500">Instant Activation</span>
-              </div>
-
-              <div className="flex justify-end gap-2.5 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowPayOnlineModal(false)}
-                  className="px-4 py-2 font-semibold text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isProcessingPayment}
-                  className="px-5 py-2 font-bold text-white bg-[#0E9384] rounded-lg hover:bg-[#004532] transition shadow-xs disabled:opacity-50 flex items-center gap-2"
-                >
-                  {isProcessingPayment
-                    ? "Processing Payment..."
-                    : `Pay $${Number(selectedPayInvoice.totalAmountUsd ?? 0).toFixed(2)} USD Now`}
-                </button>
-              </div>
-            </form>
           </div>
         </div>
       )}

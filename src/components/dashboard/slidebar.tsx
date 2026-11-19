@@ -49,7 +49,7 @@ const navItems = [
   { name: "Reports", icon: BarChart3, href: "/reports", permission: "reports:view" },
   { name: "Offline Sync", icon: WifiOff, href: "/offline-sync", permission: "sales:manage" },
   { name: "Audit Log", icon: History, href: "/audit-log", permission: "audit:view" },
-  { name: "Billing & Plans", icon: CreditCard, href: "/dashboard/billing", permission: "settings:view" },
+  { name: "Billing & Plans", icon: CreditCard, href: "/dashboard/billing", permission: "billing:view" },
   { name: "Settings", icon: Settings, href: "/settings", permission: "settings:view" },
 ] as const;
 

@@ -1,4 +1,5 @@
 "use client";
+import type { PageResult } from "./types";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -57,7 +58,9 @@ import type {
 
 export type { PlatformAnalytics, TenantBranch, TenantSummary } from "./types";
 
+type PageKey = "organizations" | "invoices" | "audit" | "requests";
 interface Props {
+  initialPages: Record<PageKey, PageResult<unknown>["meta"]>;
   initialAnalytics: PlatformAnalytics;
   initialOrganizations: TenantSummary[];
   initialInvoices?: PlatformInvoice[];
@@ -110,6 +113,7 @@ const FLEET_NAV: Array<{
 ];
 
 export function PlatformAdminClientView({
+  initialPages,
   initialAnalytics,
   initialOrganizations,
   initialInvoices = [],
@@ -120,6 +124,21 @@ export function PlatformAdminClientView({
   initialNotifications = [],
   adminEmail,
 }: Props) {
+  const [pages, setPages] = useState(initialPages);
+  const [loadingPage, setLoadingPage] = useState(false);
+  const loadPage = async (key: PageKey, page: number) => {
+    setLoadingPage(true);
+    try {
+      const endpoint = { organizations: 'organizations', invoices: 'invoices', audit: 'audit-logs', requests: 'subscription-requests' }[key];
+      const result = await apiClient<PageResult<TenantSummary | PlatformInvoice | PlatformAuditEvent | PlatformSubscriptionRequest>>('/platform-admin/' + endpoint + '?page=' + page);
+      if (key === 'organizations') { setOrganizations(result.data as TenantSummary[]); setCurrentPage(1); }
+      if (key === 'invoices') setInvoices(result.data as PlatformInvoice[]);
+      if (key === 'audit') setAuditLogs(result.data as PlatformAuditEvent[]);
+      if (key === 'requests') setSubscriptionRequests(result.data as PlatformSubscriptionRequest[]);
+      setPages(p => ({ ...p, [key]: result.meta }));
+    } catch (e) { toast.error(e instanceof Error ? e.message : 'Unable to load page'); }
+    finally { setLoadingPage(false); }
+  };
   const [activeTab, setActiveTab] = useState<PlatformTabId>("dashboard");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showInfraBanner, setShowInfraBanner] = useState(true);
@@ -227,23 +246,23 @@ export function PlatformAdminClientView({
         newNotifs,
       ] = await Promise.all([
         apiClient<PlatformAnalytics>("/platform-admin/analytics"),
-        apiClient<TenantSummary[]>("/platform-admin/organizations"),
-        apiClient<PlatformInvoice[]>("/platform-admin/invoices").catch(() => []),
-        apiClient<PlatformAuditEvent[]>("/platform-admin/audit-logs").catch(() => []),
-        apiClient<PlatformPlan[]>("/platform-admin/plans").catch(() => []),
-        apiClient<PlatformAddonPack[]>("/platform-admin/addon-packs").catch(() => []),
-        apiClient<PlatformSubscriptionRequest[]>("/platform-admin/subscription-requests").catch(
-          () => []
-        ),
-        apiClient<PlatformNotificationItem[]>("/platform-admin/notifications").catch(() => []),
+        apiClient<PageResult<TenantSummary>>("/platform-admin/organizations"),
+        apiClient<PageResult<PlatformInvoice>>("/platform-admin/invoices"),
+        apiClient<PageResult<PlatformAuditEvent>>("/platform-admin/audit-logs"),
+        apiClient<PlatformPlan[]>("/platform-admin/plans"),
+        apiClient<PlatformAddonPack[]>("/platform-admin/addon-packs"),
+        apiClient<PageResult<PlatformSubscriptionRequest>>("/platform-admin/subscription-requests"),
+        apiClient<PlatformNotificationItem[]>("/platform-admin/notifications"),
       ]);
+      setPages({ organizations: newOrgs.meta, invoices: newInvoices.meta, audit: newAuditLogs.meta, requests: newRequests.meta });
+      setCurrentPage(1);
       setAnalytics(newAnalytics);
-      setOrganizations(newOrgs);
-      setInvoices(newInvoices);
-      setAuditLogs(newAuditLogs);
+      setOrganizations(newOrgs.data);
+      setInvoices(newInvoices.data);
+      setAuditLogs(newAuditLogs.data);
       if (newPlans.length > 0) setPlans(newPlans);
       if (newAddons.length > 0) setAddonPacks(newAddons);
-      setSubscriptionRequests(newRequests);
+      setSubscriptionRequests(newRequests.data);
       setNotifications(newNotifs);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "Failed to refresh platform telemetry.";
@@ -299,7 +318,7 @@ export function PlatformAdminClientView({
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    toast.success("Platform fleet report exported to CSV.", { duration: 4000 });
+    toast.success("Current page exported to CSV.", { duration: 4000 });
   };
 
   const handleCreateTenant = async (e: React.FormEvent) => {
@@ -573,7 +592,7 @@ export function PlatformAdminClientView({
     },
     financials: {
       title: "Financials & Invoicing",
-      subtitle: `Platform MRR tracking, B2B tax invoices (+18% VAT), and manual bank wire settlement ledger.`,
+      subtitle: `Platform MRR tracking, B2B tax invoices (VAT included), and manual bank wire settlement ledger.`,
     },
     notifications: {
       title: "Notifications",
@@ -1088,6 +1107,13 @@ export function PlatformAdminClientView({
     </div>
   );
 
+  const pageKey: PageKey | null = activeTab === 'organizations' ? 'organizations' : activeTab === 'financials' ? 'invoices' : activeTab === 'audit' ? 'audit' : activeTab === 'subscriptions' ? 'requests' : null;
+  const pageInfo = pageKey ? pages[pageKey] : null;
+  const serverPager = pageKey && pageInfo ? <nav aria-label="Server result pages" className="flex items-center justify-end gap-3 p-3 bg-white border rounded-xl mb-4 text-sm">
+    <span>{pageInfo.total} records · page {pageInfo.page} of {Math.max(1, pageInfo.pageCount)}</span>
+    <button className="border rounded px-3 py-1 disabled:opacity-40" disabled={loadingPage || pageInfo.page <= 1} onClick={() => void loadPage(pageKey, pageInfo.page - 1)}>Previous</button>
+    <button className="border rounded px-3 py-1 disabled:opacity-40" disabled={loadingPage || pageInfo.page >= pageInfo.pageCount} onClick={() => void loadPage(pageKey, pageInfo.page + 1)}>Next</button>
+  </nav> : null;
   return (
     <div className="min-h-screen flex bg-[#F8FAFC] text-[#1D2939] font-sans">
       {/* Desktop Left Sidebar */}
@@ -1227,6 +1253,8 @@ export function PlatformAdminClientView({
 
         {/* Workspace Main Content */}
         <main className="flex-1 max-w-[1440px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-7 space-y-6">
+          {serverPager}
+
           {/* Page Hero Heading + Action Buttons (Financials renders its own Billing & Treasury hero) */}
           {activeTab !== "financials" && (
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -1332,7 +1360,7 @@ export function PlatformAdminClientView({
                   </div>
 
                   <div className="pt-1 text-xs text-slate-500">
-                    Gross (+18% VAT):{" "}
+                    Gross (VAT included):{" "}
                     <strong className="text-[#1D2939] font-mono">
                       ${(analytics.financials.totalMrrUsd * 1.18).toFixed(2)} USD
                     </strong>
@@ -1416,8 +1444,7 @@ export function PlatformAdminClientView({
                     <div className="text-xs">
                       <div className="font-bold text-[#1D2939]">Infrastructure Status:</div>
                       <div className="text-slate-500 mt-0.5">
-                        TechNova Cloud cluster running optimal (99.98% uptime). All WhatsApp
-                        gateways and Gemini AI forecasting endpoints operational.
+                        Infrastructure health monitoring is not connected. Verify external messaging and AI services separately.
                       </div>
                     </div>
                   </div>

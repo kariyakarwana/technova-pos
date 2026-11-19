@@ -1,3 +1,4 @@
+import type { PageResult } from "@/components/platform-admin/types";
 import React from "react";
 import { redirect } from "next/navigation";
 import { requireAuthenticatedUser } from "@/lib/auth/session";
@@ -35,48 +36,27 @@ export default async function PlatformAdminPage() {
     subscriptionRequests,
     notifications,
   ] = await Promise.all([
-    serverApi<PlatformAnalytics>("/platform-admin/analytics").catch(() => ({
-      tenants: { total: 0, active: 0, suspended: 0, newThisMonth: 0 },
-      financials: {
-        totalMrrUsd: 0,
-        activeSubscriptionsCount: 0,
-        planDistribution: [],
-      },
-      currentMonthConsumption: {
-        period: new Date().toISOString().substring(0, 7),
-        totalWhatsAppBillsSent: 0,
-        totalWhatsAppMarketingSent: 0,
-        totalEmailsSent: 0,
-        totalAiRequestsUsed: 0,
-      },
-      weeklyActivity: {
-        totalWeeklyTxns: 0,
-        prevWeekTxns: 0,
-        avgDailyTxns: 0,
-        days: [],
-      },
-    })),
-    serverApi<TenantSummary[]>("/platform-admin/organizations").catch(() => []),
-    serverApi<PlatformInvoice[]>("/platform-admin/invoices").catch(() => []),
-    serverApi<PlatformAuditEvent[]>("/platform-admin/audit-logs").catch(() => []),
-    serverApi<PlatformPlan[]>("/platform-admin/plans").catch(() => []),
-    serverApi<PlatformAddonPack[]>("/platform-admin/addon-packs").catch(() => []),
-    serverApi<PlatformSubscriptionRequest[]>("/platform-admin/subscription-requests").catch(
-      () => []
-    ),
-    serverApi<PlatformNotificationItem[]>("/platform-admin/notifications").catch(() => []),
+    serverApi<PlatformAnalytics>("/platform-admin/analytics"),
+    serverApi<PageResult<TenantSummary>>("/platform-admin/organizations"),
+    serverApi<PageResult<PlatformInvoice>>("/platform-admin/invoices"),
+    serverApi<PageResult<PlatformAuditEvent>>("/platform-admin/audit-logs"),
+    serverApi<PlatformPlan[]>("/platform-admin/plans"),
+    serverApi<PlatformAddonPack[]>("/platform-admin/addon-packs"),
+    serverApi<PageResult<PlatformSubscriptionRequest>>("/platform-admin/subscription-requests"),
+    serverApi<PlatformNotificationItem[]>("/platform-admin/notifications"),
   ]);
 
   return (
     <PlatformAdminClientView
       initialAnalytics={analytics}
-      initialOrganizations={organizations}
-      initialInvoices={invoices}
-      initialAuditLogs={auditLogs}
+      initialOrganizations={organizations.data}
+      initialInvoices={invoices.data}
+      initialAuditLogs={auditLogs.data}
       initialPlans={plans}
       initialAddonPacks={addonPacks}
-      initialRequests={subscriptionRequests}
+      initialRequests={subscriptionRequests.data}
       initialNotifications={notifications}
+      initialPages={{ organizations: organizations.meta, invoices: invoices.meta, audit: auditLogs.meta, requests: subscriptionRequests.meta }}
       adminEmail={user.email}
     />
   );

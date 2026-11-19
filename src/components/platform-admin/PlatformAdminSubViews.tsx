@@ -740,7 +740,7 @@ export function SubscriptionsView({
               <tr>
                 <th className="py-3 px-5">Organization</th>
                 <th className="py-3 px-4">Active Plan</th>
-                <th className="py-3 px-4">Monthly Base / +18% VAT</th>
+                <th className="py-3 px-4">Monthly Base / VAT included</th>
                 <th className="py-3 px-4">Extra Capacity</th>
                 <th className="py-3 px-5 text-right">Action</th>
               </tr>
@@ -886,7 +886,7 @@ export function SubscriptionsView({
                     className="w-full px-3 py-2 bg-slate-50 border border-[#E4E7EC] rounded-xl text-[#1D2939]"
                   >
                     <option value="MONTHLY">MONTHLY</option>
-                    <option value="ANNUAL">ANNUAL</option>
+                    
                   </select>
                 </div>
                 <div className="flex items-end pb-2">

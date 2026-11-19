@@ -9,7 +9,9 @@ import {
 
 export const metadata: Metadata = {
   title: "Digital Receipt | TechNova POS",
-  description: "Cryptographically verified digital sale receipt.",
+  description: "Digital sale receipt.",
+  robots: { index: false, follow: false },
+  referrer: "no-referrer",
 };
 
 const API_URL =
@@ -81,7 +83,7 @@ export default async function PublicReceiptPage({
   const branch = data.branch || {};
   const snapshot = data.snapshot || {};
   const items = Array.isArray(snapshot.items) ? snapshot.items : [];
-  const totals = snapshot.totals || {};
+  const totals = { subtotal: snapshot.subtotal, taxAmount: snapshot.taxTotal, discountAmount: snapshot.discountTotal, total: snapshot.total };
   const currency = org.currencyCode || "USD";
 
   return (
@@ -145,17 +147,18 @@ export default async function PublicReceiptPage({
                   </div>
                 </div>
                 <div className="font-mono font-bold text-gray-900">
-                  {currency} {Number(item.total || item.totalPrice || (item.quantity * item.unitPrice)).toFixed(2)}
+                  {currency} {Number(item.total ?? item.totalPrice ?? (item.quantity * item.unitPrice)).toFixed(2)}
                 </div>
               </div>
             ))}
           </div>
 
+          <p className="text-xs text-gray-600">Paid: {currency} {Number((snapshot.payments ?? []).reduce((sum: number, p: {amount: number}) => sum + Number(p.amount), 0)).toFixed(2)} · Balance due: {currency} {Number(snapshot.balanceDue ?? 0).toFixed(2)}</p>
           {/* Totals Calculation */}
           <div className="border-t-2 border-dashed border-gray-200 pt-4 space-y-2 text-xs">
             <div className="flex justify-between text-gray-500">
               <span>Subtotal:</span>
-              <span className="font-mono">{currency} {Number(totals.subtotal || totals.subTotal || 0).toFixed(2)}</span>
+              <span className="font-mono">{currency} {Number(totals.subtotal ?? 0).toFixed(2)}</span>
             </div>
             {totals.taxAmount > 0 && (
               <div className="flex justify-between text-gray-500">
@@ -170,8 +173,8 @@ export default async function PublicReceiptPage({
               </div>
             )}
             <div className="flex justify-between text-base font-black text-gray-900 pt-2 border-t border-gray-100">
-              <span>Final Paid:</span>
-              <span className="font-mono">{currency} {Number(totals.finalTotal || totals.grandTotal || totals.total || 0).toFixed(2)}</span>
+              <span>Sale total:</span>
+              <span className="font-mono">{currency} {Number(totals.total ?? 0).toFixed(2)}</span>
             </div>
           </div>
         </div>

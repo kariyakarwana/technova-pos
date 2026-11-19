@@ -1,3 +1,4 @@
+export interface PageResult<T> { data: T[]; meta: { page: number; pageSize: number; total: number; pageCount: number } }
 export type PlatformTabId =
   | "dashboard"
   | "organizations"
@@ -171,6 +172,12 @@ export interface TenantSummary {
 }
 
 export interface PlatformInvoice {
+  currency?: string;
+  vatRateSnapshot?: number | null;
+  periodStart?: string | null;
+  periodEnd?: string | null;
+  lineItems?: Array<{ description: string; quantity: number; unitPriceUsd?: string; amountUsd: string }>;
+
   id: string;
   invoiceNumber: string;
   organizationId: string;
@@ -181,7 +188,7 @@ export interface PlatformInvoice {
   subtotalUsd: number;
   vatAmountUsd: number;
   totalAmountUsd: number;
-  status: "PENDING" | "PAID" | "OVERDUE" | "VOID";
+  status: "PENDING" | "PAID" | "OVERDUE" | "CANCELLED" | "VOID";
   issuedDate: string;
   dueDate: string;
   paidAt: string | null;
