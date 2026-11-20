@@ -5,6 +5,8 @@
  * throughout the application.
  */
 export const PERMISSIONS = {
+  BILLING_VIEW: "billing:view",
+  BILLING_MANAGE: "billing:manage",
   DASHBOARD_VIEW:
     "dashboard:view",
 
@@ -94,6 +96,8 @@ export const PERMISSION_PRESENTATION: Record<string, PermissionPresentation> = {
   "reports:view": { label: "Reports", group: "Administration" },
   "audit:view": { label: "Audit Log", group: "Administration" },
   "settings:view": { label: "Settings", group: "Administration" },
+  "billing:view": { label: "View Billing", group: "Administration" },
+  "billing:manage": { label: "Manage Billing", group: "Administration" },
   "settings:manage": { label: "Organization Settings", group: "Administration" },
   "supplier-portal:access": { label: "Supplier Portal", group: "External Applications" },
   "customer-app:access": { label: "Customer Mobile App", group: "External Applications" },
@@ -141,6 +145,8 @@ const PAGE_PERMISSION_RULES: ReadonlyArray<readonly [string, Permission]> = [
   ["/branches", PERMISSIONS.BRANCHES_VIEW],
   ["/audit-log", PERMISSIONS.AUDIT_VIEW],
   ["/reports", PERMISSIONS.REPORTS_VIEW],
+  ["/dashboard/billing", PERMISSIONS.BILLING_VIEW],
+  ["/billing", PERMISSIONS.BILLING_VIEW],
   ["/settings", PERMISSIONS.SETTINGS_VIEW],
   ["/credit", PERMISSIONS.CREDIT_MANAGE],
   ["/sales", PERMISSIONS.SALES_VIEW],
@@ -167,6 +173,7 @@ export function hasPageAccess(
 }
 
 export const SYSTEM_ROLES = {
+  PLATFORM_SUPER_ADMIN: "PLATFORM_SUPER_ADMIN",
   SUPER_ADMIN: "SUPER_ADMIN",
   ADMIN: "ADMIN",
   MANAGER: "MANAGER",

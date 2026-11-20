@@ -12,8 +12,12 @@ export type CurrentUser = { id: string; email: string; name: string | null; role
 export async function getCurrentUser(): Promise<CurrentUser | null> {
   const token = (await cookies()).get("technova_access")?.value;
   if (!token) return null;
-  const response = await fetch(`${API_URL}/auth/me`, { headers: { authorization: `Bearer ${token}` }, cache: "no-store" });
-  return response.ok ? ((await response.json()) as CurrentUser) : null;
+  try {
+    const response = await fetch(`${API_URL}/auth/me`, { headers: { authorization: `Bearer ${token}` }, cache: "no-store" });
+    return response.ok ? ((await response.json()) as CurrentUser) : null;
+  } catch {
+    return null;
+  }
 }
 
 export async function requireAuthenticatedUser(callbackPath = "/dashboard"): Promise<CurrentUser> {
